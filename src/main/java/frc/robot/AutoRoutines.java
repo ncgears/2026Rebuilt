@@ -26,19 +26,6 @@ public class AutoRoutines {
     }
 
     /**
-     * Creates a routine that does nothing.
-     *
-     * @return Auto routine instance.
-     */
-    public AutoRoutine doNothingAuto() {
-        final AutoRoutine routine = m_factory.newRoutine("Do Nothing");
-        routine.active().onTrue(
-          noop()
-        );
-        return routine;
-    }
-
-    /**
      * Creates the center move-off-line routine.
      *
      * @return Auto routine instance.

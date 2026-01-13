@@ -78,7 +78,7 @@ public class RobotContainer {
     private AutoFactory autoFactory;
     private AutoRoutines autoRoutines;
         
-    private final AutoChooser autoChooser = new AutoChooser();
+    private final AutoChooser autoChooser = new AutoChooser("000: Do Nothing");
     //Sendables definitions
     private SendableChooser<Command> m_auto_chooser = new SendableChooser<>();
 
@@ -544,11 +544,9 @@ public class RobotContainer {
         if(AutonConstants.isDisabled) {
             m_auto_chooser.setDefaultOption("00: None (Auto Disabled)", Commands.none());
         } else {
-            // m_auto_chooser.setDefaultOption("Do Nothing", new cg_autonDoNothing(drive));
             if(AutonConstants.kUseChoreo) {
                 autoFactory = drivetrain.createAutoFactory();
                 autoRoutines = new AutoRoutines(autoFactory);
-                autoChooser.addRoutine("000: None (Do Nothing)", autoRoutines::doNothingAuto);
                 autoChooser.addRoutine("001: sLL-Move Off Line", autoRoutines::sLLmoveOffLine);
                 autoChooser.addRoutine("002: sRR-Move Off Line", autoRoutines::sRRmoveOffLine);
                 autoChooser.addRoutine("003: sC-Move Off Line", autoRoutines::sCmoveOffLine);
@@ -564,8 +562,6 @@ public class RobotContainer {
                 autoChooser.addRoutine("305: sRR Straight-Right 3C", autoRoutines::right3CoralStraight);
                 autoChooser.addRoutine("901: Left Algae Double", autoRoutines::leftAlgaeDouble);
                 autoChooser.addRoutine("999: Test Run", autoRoutines::testRun);
-                // SmartDashboard.putData("Autonomous Chooser", autoChooser);
-            // m_auto_chooser = autoChooser;
             }
         }
     }
