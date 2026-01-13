@@ -78,7 +78,7 @@ public class RobotContainer {
     private AutoFactory autoFactory;
     private AutoRoutines autoRoutines;
         
-    private final AutoChooser autoChooser = new AutoChooser();
+    private final AutoChooser autoChooser = new AutoChooser("000: Do Nothing");
     //Sendables definitions
     private SendableChooser<Command> m_auto_chooser = new SendableChooser<>();
 
@@ -548,7 +548,6 @@ public class RobotContainer {
             if(AutonConstants.kUseChoreo) {
                 autoFactory = drivetrain.createAutoFactory();
                 autoRoutines = new AutoRoutines(autoFactory);
-                autoChooser.addRoutine("000: None (Do Nothing)", autoRoutines::doNothingAuto);
                 autoChooser.addRoutine("001: sLL-Move Off Line", autoRoutines::sLLmoveOffLine);
                 autoChooser.addRoutine("002: sRR-Move Off Line", autoRoutines::sRRmoveOffLine);
                 autoChooser.addRoutine("003: sC-Move Off Line", autoRoutines::sCmoveOffLine);
