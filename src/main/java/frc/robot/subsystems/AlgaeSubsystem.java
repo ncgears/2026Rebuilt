@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.Map;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -128,18 +129,19 @@ public class AlgaeSubsystem extends SubsystemBase {
     // m_config.apply(m_fxsConfigs);
 
     // initialize values for private and public variables, etc.
-    m_encoder = new CANcoder(AlgaeConstants.kCANcoderID, AlgaeConstants.canBus);
+    CANBus algaeCANBus = new CANBus(AlgaeConstants.canBus);
+    m_encoder = new CANcoder(AlgaeConstants.kCANcoderID, algaeCANBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_encoder.getConfigurator().apply(RobotContainer.ctreConfigs.algaeCCConfig));
 
-    m_wristmotor1 = new TalonFX(AlgaeConstants.wrist.kMotorID, AlgaeConstants.canBus);
+    m_wristmotor1 = new TalonFX(AlgaeConstants.wrist.kMotorID, algaeCANBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_wristmotor1.getConfigurator().apply(RobotContainer.ctreConfigs.algaewristFXConfig));
 
-    m_toro_left = new TalonFXS(AlgaeConstants.left.kMotorID, AlgaeConstants.canBus);
+    m_toro_left = new TalonFXS(AlgaeConstants.left.kMotorID, algaeCANBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_toro_left.getConfigurator().apply(RobotContainer.ctreConfigs.algaeleftFXSConfig));
-    m_toro_right = new TalonFXS(AlgaeConstants.right.kMotorID, AlgaeConstants.canBus);
+    m_toro_right = new TalonFXS(AlgaeConstants.right.kMotorID, algaeCANBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_toro_right.getConfigurator().apply(RobotContainer.ctreConfigs.algaerightFXSConfig));
 
