@@ -1,7 +1,9 @@
 
 package frc.robot.classes;
 
+import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.hardware.CANdle;
+import com.ctre.phoenix6.signals.RGBWColor;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -107,13 +109,17 @@ public class Lighting {
   }
 
   public void setColor(Colors color) {
-    if(color != m_currentColor) { //change it
+    if(color != m_currentColor) {
       m_currentColor = color;
-      // m_candle1.setLEDs(color.R(), color.G(), color.B());
-      // m_candle2.setLEDs(color.R(), color.G(), color.B());
-      //TODO - Update this for Phoenix6
+      
+      // Phoenix 6 CANdle uses setControl() with SolidColor control requests
+      // 0-7 are onboard LEDs
+      RGBWColor rgbwColor = new RGBWColor(color.R(), color.G(), color.B(), 0);
+      m_candle1.setControl(new SolidColor(0, 7).withColor(rgbwColor));
+      m_candle2.setControl(new SolidColor(0, 7).withColor(rgbwColor));
     }
   }
+  
 
   public Command setColorCommand(Colors color) {
     return new InstantCommand(() -> setColor(color)).ignoringDisable(true);
