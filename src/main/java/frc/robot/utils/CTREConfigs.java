@@ -26,6 +26,11 @@ public final class CTREConfigs {
         public static final CTREConfigs INSTANCE = new CTREConfigs();
     }
 
+    /**
+     * Returns the shared configuration instance.
+     *
+     * @return Singleton CTREConfigs instance.
+     */
     public static CTREConfigs Get() {
         return Container.INSTANCE;
     }
@@ -46,6 +51,7 @@ public final class CTREConfigs {
         public final CANcoderConfiguration elevatorCCConfig = new CANcoderConfiguration();
         public final CANcoderConfiguration climberCCConfig = new CANcoderConfiguration();
 
+    /** Creates and populates CTRE configuration objects for all subsystems. */
     public CTREConfigs() {
         //Intake Configuration
         //CANcoder
@@ -324,6 +330,11 @@ public final class CTREConfigs {
 
     }
 
+    /**
+     * Retries applying a configuration until it succeeds or attempts are exhausted.
+     *
+     * @param toApply Supplier that applies a configuration and returns a status code.
+     */
     public void retryConfigApply(Supplier<StatusCode> toApply) {
         StatusCode finalCode = StatusCode.StatusCodeNotInitialized;
         int triesLeftOver = 5;

@@ -25,6 +25,12 @@ public class NCOrchestra {
 	}
 
 
+    /**
+     * Applies instruments and loads the current song if needed.
+     *
+     * @param motorsToApply Motors to add as instruments.
+     * @return Status code from the last operation.
+     */
     public StatusCode apply(TalonFX... motorsToApply) {
         StatusCode ret = StatusCode.OK;
 
@@ -42,8 +48,18 @@ public class NCOrchestra {
         return ret;
     }
 
+    /**
+     * Returns whether the orchestra is currently playing.
+     *
+     * @return True when playing.
+     */
     public boolean isPlaying() { return isPlaying; }
 
+    /**
+     * Loads the current song if it has changed.
+     *
+     * @return Status code from the load operation.
+     */
     public StatusCode update() {
         StatusCode ret = StatusCode.OK;
         if (flagChanged) {
@@ -54,24 +70,45 @@ public class NCOrchestra {
         return ret;
     }
 
+    /**
+     * Starts playback of the loaded song.
+     *
+     * @return Status code from the play operation.
+     */
     public StatusCode play() {
         NCDebug.Debug.debug("Orchestra: play");
         isPlaying = true;
         return m_orchestra.play();
     }
 
+    /**
+     * Stops playback.
+     *
+     * @return Status code from the stop operation.
+     */
     public StatusCode stop() {
         if(isPlaying) NCDebug.Debug.debug("Orchestra: stop");
         isPlaying = false;
         return m_orchestra.stop();
     }
 
+    /**
+     * Pauses playback.
+     *
+     * @return Status code from the pause operation.
+     */
     public StatusCode pause() {
         NCDebug.Debug.debug("Orchestra: pause");
         isPlaying = false;
         return m_orchestra.pause();
     }
 
+    /**
+     * Updates the currently selected song.
+     *
+     * @param music File name of the song to load.
+     * @return This orchestra instance for chaining.
+     */
     public NCOrchestra withMusic(String music) {
         if (m_music.compareTo(music) != 0) {
             m_music = music;
@@ -83,6 +120,12 @@ public class NCOrchestra {
         return this;
     }
 
+    /**
+     * Adds motors as orchestra instruments.
+     *
+     * @param motors Motors to add.
+     * @return Status code for the last add operation.
+     */
     private StatusCode addInstruments(TalonFX... motors) {
         StatusCode retErr = StatusCode.OK;
 

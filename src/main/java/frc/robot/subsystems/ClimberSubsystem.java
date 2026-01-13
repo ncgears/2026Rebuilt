@@ -59,6 +59,11 @@ public class ClimberSubsystem extends SubsystemBase {
       this.color = color;
     }
 
+    /**
+     * Returns the dashboard color for this state.
+     *
+     * @return Hex color string.
+     */
     public String getColor() {
       return this.color;
     }
@@ -93,6 +98,7 @@ public class ClimberSubsystem extends SubsystemBase {
     return instance;
   }
 
+  /** Creates the climber subsystem and configures hardware. */
   public ClimberSubsystem() {
     // initialize values for private and public variables, etc.
     // m_encoder = new CANcoder(ClimberConstants.kCANcoderID,
@@ -116,10 +122,12 @@ public class ClimberSubsystem extends SubsystemBase {
     NCDebug.Debug.debug("Climber: Initialized");
   }
 
+  /** Runs periodic updates for the climber subsystem. */
   @Override
   public void periodic() {
   }
 
+  /** Creates Shuffleboard widgets for the climber. */
   public void createDashboards() {
     ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
     driverTab.addString("Climber", this::getStateColor)
@@ -168,38 +176,83 @@ public class ClimberSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * Returns the current climber state.
+   *
+   * @return Current state.
+   */
   public State getState() {
     return m_curState;
   }
 
+  /**
+   * Returns the current state name.
+   *
+   * @return State name.
+   */
   public String getStateName() {
     return m_curState.toString();
   }
 
+  /**
+   * Returns the current state color.
+   *
+   * @return Hex color string.
+   */
   public String getStateColor() {
     return m_curState.getColor();
   }
 
+  /**
+   * Returns true if both cage switches are engaged.
+   *
+   * @return True when a cage is detected.
+   */
   public boolean getHasCage() {
     return getCageSwitch1() && getCageSwitch2();
   }
 
+  /**
+   * Returns true if the climb is complete.
+   *
+   * @return True when climb is complete.
+   */
   public boolean getClimbComplete() {
     return getClimbSwitch();
   }
 
+  /**
+   * Returns true if the climber is at its limit.
+   *
+   * @return True when at limit.
+   */
   public boolean atLimit() {
     return getClimbComplete();
   }
 
+  /**
+   * Returns the first cage switch state.
+   *
+   * @return True when the switch is triggered.
+   */
   private boolean getCageSwitch1() {
     return !m_cageSwitch1.get();
   }
 
+  /**
+   * Returns the second cage switch state.
+   *
+   * @return True when the switch is triggered.
+   */
   private boolean getCageSwitch2() {
     return !m_cageSwitch2.get();
   }
 
+  /**
+   * Returns the climb-complete switch state.
+   *
+   * @return True when the climb switch is triggered.
+   */
   private boolean getClimbSwitch() {
     if(Robot.isSimulation()) {
       return !m_climbSwitch.get();
@@ -207,10 +260,20 @@ public class ClimberSubsystem extends SubsystemBase {
     return (m_motor1.getForwardLimit().getValue() == ForwardLimitValue.Open);
   }
 
+  /**
+   * Returns the motor position in rotations.
+   *
+   * @return Motor position.
+   */
   public Angle getPosition() {
     return m_motor1.getPosition().getValue();
   }
 
+  /**
+   * Moves the climber using percent output.
+   *
+   * @param power Output power (-1 to 1).
+   */
   public void climberMove(double power) {
     if (power > 0) {
       if (m_curState != State.UP) {
@@ -233,30 +296,49 @@ public class ClimberSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * Creates a command to move the climber.
+   *
+   * @param power Power supplier.
+   * @return Command that drives the climber.
+   */
   public Command climberMoveC(DoubleSupplier power) {
     return runOnce(() -> climberMove(power.getAsDouble()));
   }
 
+  /**
+   * Creates a command to stop the climber.
+   *
+   * @return Command that stops the climber.
+   */
   public Command climberStopC() {
     return runOnce(() -> climberStop());
   }
 
+  /**
+   * Creates a command to hold the climber.
+   *
+   * @return Command that holds the climber.
+   */
   public Command climberHoldC() {
     return runOnce(() -> climberHold());
   }
 
+  /** Commands the climber to move up. */
   public void climberUp() {
     m_curState = State.UP;
     climberMove(ClimberConstants.kClimbPower);
     NCDebug.Debug.debug("Climber: Up");
   }
 
+  /** Commands the climber to move down. */
   public void climberDown() {
     m_curState = State.DOWN;
     climberMove(-ClimberConstants.kClimbPower);
     NCDebug.Debug.debug("Climber: Down");
   }
 
+  /** Commands the climber to hold position. */
   public void climberHold() {
     m_motor1.setControl(m_brake);
     if (m_curState != State.HOLD) {
@@ -265,6 +347,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
   }
 
+  /** Stops climber output and sets neutral. */
   public void climberStop() {
     m_motor1.setControl(m_neutral);
     if (m_curState != State.STOP) {
@@ -273,11 +356,13 @@ public class ClimberSubsystem extends SubsystemBase {
     }
   }
 
+  /** Sets the motor neutral mode to coast. */
   public void setCoast() {
     m_motor1.setNeutralMode(NeutralModeValue.Coast);
     NCDebug.Debug.debug("Climber: Switch to Coast");
   }
 
+  /** Sets the motor neutral mode to brake. */
   public void setBrake() {
     m_motor1.setNeutralMode(NeutralModeValue.Brake);
     NCDebug.Debug.debug("Climber: Switch to Brake");
@@ -296,14 +381,31 @@ public class ClimberSubsystem extends SubsystemBase {
       null,
       this));
 
+  /**
+   * Runs the SysId quasistatic test.
+   *
+   * @param direction Direction to run.
+   * @return Command for the test.
+   */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.quasistatic(direction);
   }
 
+  /**
+   * Runs the SysId dynamic test.
+   *
+   * @param direction Direction to run.
+   * @return Command for the test.
+   */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.dynamic(direction);
   }
 
+  /**
+   * Runs the full SysId command sequence.
+   *
+   * @return Command sequence.
+   */
   public Command runSysIdCommand() {
     return Commands.sequence(
       sysIdQuasistatic(SysIdRoutine.Direction.kForward).until(this::atLimit),

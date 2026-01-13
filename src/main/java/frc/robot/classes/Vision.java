@@ -71,6 +71,11 @@ public class Vision {
     RED_STAGE_CENTER(13);
     private final int id;
     Tags(int id) { this.id = id; }
+    /**
+     * Returns the AprilTag ID for this enum value.
+     *
+     * @return Tag ID.
+     */
     public int ID() { return this.id; }
   }
   public enum Targets {
@@ -93,6 +98,7 @@ public class Vision {
 		return instance;
 	}
 
+  /** Creates the vision system and initializes cameras and simulation. */
   public Vision() {
     front_camera = new PhotonCamera(VisionConstants.Front.kCameraName);
     photonEstimatorFront = new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.Front.kRobotToCam);
@@ -133,6 +139,7 @@ public class Vision {
     createDashboards();
   }
 
+    /** Creates vision Shuffleboard widgets. */
     public void createDashboards() {
     // ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
     // driverTab.addString("LED Color", this::getColor)
@@ -162,6 +169,12 @@ public class Vision {
     }
   }
 
+  /**
+   * Gets the last cached vision pose for the requested camera.
+   *
+   * @param cam Camera name ("front" or "back").
+   * @return Estimated pose for the camera.
+   */
   public Pose2d getVisionPose(String cam) {
     Optional<EstimatedRobotPose> estimatedPose;
     if(cam == "front") {
@@ -178,13 +191,29 @@ public class Vision {
     return m_visBackPose;
   }
 
+  /**
+   * Returns the latest pipeline result for a camera.
+   *
+   * @param camera Camera to query.
+   * @return Latest pipeline result.
+   */
   public PhotonPipelineResult getLatestResult(PhotonCamera camera) {
     return camera.getLatestResult();
   }
 
+  /**
+   * Returns the latest estimated global pose from the front camera.
+   *
+   * @return Optional estimated pose.
+   */
   public Optional<EstimatedRobotPose> getFrontEstimatedGlobalPose() {
     return getEstimatedGlobalPose(photonEstimatorFront, front_camera, curStdDevsFront); 
   }
+  /**
+   * Returns the latest estimated global pose from the back camera.
+   *
+   * @return Optional estimated pose.
+   */
   public Optional<EstimatedRobotPose> getBackEstimatedGlobalPose() {
     return getEstimatedGlobalPose(photonEstimatorBack, back_camera, curStdDevsBack); 
   }
@@ -217,6 +246,14 @@ public class Vision {
       return visionEst;
   }
 
+      /**
+       * Updates pose estimation standard deviations based on observed targets.
+       *
+       * @param estimatedPose Pose estimate to evaluate.
+       * @param targets Visible targets in the frame.
+       * @param estimator Pose estimator used for tag lookup.
+       * @param stdDev Output standard deviation matrix to update.
+       */
       private void updateEstimationStdDevs(
             Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets, PhotonPoseEstimator estimator, Matrix<N3, N1> stdDev) {
         if (estimatedPose.isEmpty()) {
@@ -258,9 +295,21 @@ public class Vision {
         }
     }
 
+  /**
+   * Gets standard deviations for a front-camera pose estimate.
+   *
+   * @param pose Pose to evaluate.
+   * @return Standard deviation matrix.
+   */
   public Matrix<N3, N1> getFrontEstimationStdDevs(Pose2d pose) {
     return getEstimationStdDevs(pose, photonEstimatorFront, front_camera);
   }
+  /**
+   * Gets standard deviations for a back-camera pose estimate.
+   *
+   * @param pose Pose to evaluate.
+   * @return Standard deviation matrix.
+   */
   public Matrix<N3, N1> getBackEstimationStdDevs(Pose2d pose) {
     return getEstimationStdDevs(pose, photonEstimatorBack, back_camera);
   }
@@ -272,6 +321,9 @@ public class Vision {
    * This should only be used when there are targets visible.
    *
    * @param estimatedPose The estimated pose to guess standard deviations for.
+   * @param estimator Pose estimator to query for tag locations.
+   * @param camera Camera providing target observations.
+   * @return Standard deviation matrix for the estimate.
    */
   public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose, PhotonPoseEstimator estimator, PhotonCamera camera) {
       var estStdDevs = VisionConstants.kSingleTagStdDevs;
@@ -299,6 +351,11 @@ public class Vision {
 
   // ----- Simulation
 
+  /**
+   * Updates vision simulation using the current simulated robot pose.
+   *
+   * @param robotSimPose Simulated robot pose.
+   */
   public void simulationPeriodic(Pose2d robotSimPose) {
       visionSim.update(robotSimPose);
   }
@@ -314,10 +371,12 @@ public class Vision {
       return visionSim.getDebugField();
   }
 
+  /** Updates dashboard widgets for vision (currently unused). */
   public void updateDashboard() {
     // Dashboard.Vision.setVisionRinglight(llresults.targetingResults.);
   }
 
+  /** Updates internal vision results (placeholder). */
   public void updateResults() {
     
   }
@@ -330,12 +389,19 @@ public class Vision {
 	public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
 		RobotContainer.drivetrain.addVisionMeasurement(visionMeasurement, timestampSeconds);
 	}
+  /**
+   * Adds a vision measurement with custom standard deviations.
+   *
+   * @param visionMeasurement Vision pose measurement.
+   * @param timestampSeconds Measurement timestamp in seconds.
+   * @param stdDevs Standard deviation matrix for the measurement.
+   */
 	public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
 		RobotContainer.drivetrain.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
 	}
 
 	/**
-	 * Corrects the bot pose based on information from the vision system
+	 * Corrects the bot pose based on information from the vision system.
 	 */
   @SuppressWarnings({"unused"})
 	public void correctPoseWithVision() {

@@ -56,6 +56,11 @@ public class CoralSubsystem extends SubsystemBase {
       this.color = color;
     }
 
+    /**
+     * Returns the dashboard color for this direction.
+     *
+     * @return Hex color string.
+     */
     public String getColor() {
       return this.color;
     }
@@ -77,10 +82,20 @@ public class CoralSubsystem extends SubsystemBase {
       this.color = color;
     }
 
+    /**
+     * Returns the target position in rotations.
+     *
+     * @return Target rotations.
+     */
     public double getRotations() {
       return this.position;
     }
 
+    /**
+     * Returns the dashboard color for this position.
+     *
+     * @return Hex color string.
+     */
     public String getColor() {
       return this.color;
     }
@@ -123,6 +138,7 @@ public class CoralSubsystem extends SubsystemBase {
     return instance;
   }
 
+  /** Creates the coral subsystem and configures hardware. */
   public CoralSubsystem() {
     // m_motor1 = new TalonFXS(CoralConstants.kMotorID,CoralConstants.kCANBus);
     // TalonFXSConfigurator m_config = m_motor1.getConfigurator();
@@ -152,12 +168,14 @@ public class CoralSubsystem extends SubsystemBase {
     NCDebug.Debug.debug("Coral: Initialized");
   }
 
+  /** Runs periodic updates for the coral subsystem. */
   @Override
   public void periodic() {
   }
   // #endregion Setup
 
   // #region Dashboard
+  /** Creates Shuffleboard widgets for the coral subsystem. */
   public void createDashboards() {
     ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
     driverTab.addString("Coral", this::getColor)
@@ -204,42 +222,92 @@ public class CoralSubsystem extends SubsystemBase {
   // #endregion Dashboard
 
   // #region Getters
+  /**
+   * Returns the current coral direction.
+   *
+   * @return Current direction.
+   */
   public Direction getDirection() {
     return m_curDirection;
   }
 
+  /**
+   * Returns the current direction name.
+   *
+   * @return Direction name.
+   */
   public String getDirectionName() {
     return m_curDirection.toString();
   }
 
+  /**
+   * Returns the current direction color.
+   *
+   * @return Hex color string.
+   */
   public String getColor() {
     return m_curDirection.getColor();
   }
 
+  /**
+   * Returns the target position in rotations.
+   *
+   * @return Target position value.
+   */
   public double getTargetPosition() {
     return NCDebug.General.roundDouble(m_motor1.getClosedLoopReference().getValue(),6);
   }
 
+  /**
+   * Returns the target position name.
+   *
+   * @return Target position name.
+   */
   public String getTargetPositionName() {
     return m_targetPosition.toString();
   }
 
+  /**
+   * Returns the position error from closed-loop control.
+   *
+   * @return Position error.
+   */
   public double getPositionError() {
     return m_motor1.getClosedLoopError().getValue();
   }
 
+  /**
+   * Returns the stator current for spike detection.
+   *
+   * @return Stator current in amps.
+   */
   private double getStatorCurrent() {
     return m_motor1.getStatorCurrent().getValueAsDouble();
   }
 
+  /**
+   * Returns the motor position in rotations.
+   *
+   * @return Motor position.
+   */
   public Angle getMotorPosition() {
     return m_motor1.getPosition().getValue();
   }
 
+  /**
+   * Returns the absolute encoder position in rotations.
+   *
+   * @return Absolute position.
+   */
   public Angle getPositionAbsolute() {
     return m_encoder.getPosition().getValue();
   }
 
+  /**
+   * Returns motors used by this subsystem for orchestra.
+   *
+   * @return Array of TalonFX motors.
+   */
   public TalonFX[] getMotors() {
     TalonFX[] motors = { m_motor1 };
     return motors;
@@ -247,6 +315,11 @@ public class CoralSubsystem extends SubsystemBase {
   // #endregion Getters
 
   // #region Setters
+  /**
+   * Sets the target position and updates closed-loop control.
+   *
+   * @param position Target position.
+   */
   public void setPosition(Position position) {
     m_targetPosition = position;
     //if forward, use slot1; if reverse use slot0
@@ -256,6 +329,11 @@ public class CoralSubsystem extends SubsystemBase {
     NCDebug.Debug.debug("Coral: Move to " + position.toString());
   }
 
+  /**
+   * Creates a command to reset the motor position.
+   *
+   * @return Command that resets the encoder position.
+   */
   public Command resetMotorPosC() {
     return runOnce(() -> {
       m_motor1.setPosition(Position.IN.getRotations());
@@ -265,20 +343,36 @@ public class CoralSubsystem extends SubsystemBase {
   // #endregion Setters
 
   // #region Limits
+  /**
+   * Returns true if the forward limit is reached.
+   *
+   * @return True when forward limit is reached.
+   */
   public boolean getForwardLimit() {
     return m_motor1.getPosition().getValueAsDouble() >= CoralConstants.Positions.kFwdLimit;
   }
 
+  /**
+   * Returns true if the reverse limit is reached.
+   *
+   * @return True when reverse limit is reached.
+   */
   public boolean getReverseLimit() {
     return m_motor1.getPosition().getValueAsDouble() <= CoralConstants.Positions.kRevLimit;
   }
 
+  /**
+   * Returns true if any limit is reached.
+   *
+   * @return True when at a limit.
+   */
   public boolean atLimit() {
     return getForwardLimit() || getReverseLimit();
   }
   // #endregion Limits
 
   // #region Controls
+  /** Stops coral motor output and sets neutral. */
   public void coralStop() {
     m_motor1.setControl(m_neutral);
     if (m_curDirection != Direction.HOLD) {
@@ -287,12 +381,22 @@ public class CoralSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * Creates a command to home the coral mechanism.
+   *
+   * @return Command that runs the home output.
+   */
   public Command CoralHomeC() {
     return runOnce(() -> {
       m_motor1.setControl(m_DutyCycle.withOutput(-CoralConstants.kZeroPower));
     });
   }
   
+  /**
+   * Creates a command to zero the motor and encoder.
+   *
+   * @return Command that zeroes sensors.
+   */
   public Command CoralZeroC() {
     return runOnce(() -> {
       m_motor1.setPosition(0);
@@ -301,12 +405,23 @@ public class CoralSubsystem extends SubsystemBase {
     });
   }
 
+  /**
+   * Creates a command to set a target position.
+   *
+   * @param position Target position.
+   * @return Command that updates the target.
+   */
   public Command CoralPositionC(Position position) {
     return runOnce(
       () -> setPosition(position)
     );
   }
 
+  /**
+   * Creates a command to stop the coral subsystem.
+   *
+   * @return Command that stops the subsystem.
+   */
   public Command CoralStopC() {
     return runOnce(
       () -> coralStop()
@@ -327,14 +442,31 @@ public class CoralSubsystem extends SubsystemBase {
       null,
       this));
 
+  /**
+   * Runs the SysId quasistatic test.
+   *
+   * @param direction Direction to run.
+   * @return Command for the test.
+   */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.quasistatic(direction);
   }
 
+  /**
+   * Runs the SysId dynamic test.
+   *
+   * @param direction Direction to run.
+   * @return Command for the test.
+   */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.dynamic(direction);
   }
 
+  /**
+   * Runs the full SysId command sequence.
+   *
+   * @return Command sequence.
+   */
   public Command runSysIdCommand() {
     return Commands.sequence(
       sysIdQuasistatic(SysIdRoutine.Direction.kForward).until(this::atLimit),

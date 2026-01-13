@@ -56,15 +56,42 @@ public class Targeting {
       BARGE_CAGE_LEFT(8.7741,7.2596,0,-1);
       private final double x,y,z,angle;
       Targets(double x, double y, double z, double angle) { this.x=x; this.y=y; this.z=z; this.angle=angle; }
+      /**
+       * Returns the target angle in field coordinates without alliance transforms.
+       *
+       * @return Raw target angle.
+       */
       public Rotation2d getRawAngle() { return Rotation2d.fromDegrees(this.angle); }
+      /**
+       * Returns the target angle adjusted for alliance perspective.
+       *
+       * @param redOrigin True when the origin is red alliance.
+       * @return Alliance-adjusted angle.
+       */
       public Rotation2d getAngle(boolean redOrigin) { return (redOrigin) ? getRawAngle() : getRawAngle().rotateBy(Rotation2d.k180deg); }
+      /**
+       * Returns the mirrored target angle across the field.
+       *
+       * @param redOrigin True when the origin is red alliance.
+       * @return Mirrored angle.
+       */
       public Rotation2d getMirrorAngle(boolean redOrigin) { return (redOrigin) ? getRawAngle().unaryMinus() : getRawAngle().unaryMinus().rotateBy(Rotation2d.k180deg); }
+      /**
+       * Returns the 3D pose of this target.
+       *
+       * @return Pose for this target.
+       */
       public Pose3d getPose() { return new Pose3d(
         new Translation3d(this.x, this.y, this.z),
   			new Rotation3d()
           // new Rotation3d(0,0,Math.toRadians(this.angle))
           ); 
       }
+      /**
+       * Returns the mirrored 3D pose across the field length.
+       *
+       * @return Mirrored pose for this target.
+       */
       public Pose3d getMirrorPose() { return new Pose3d(
         new Translation3d(m_fieldLength - this.x, this.y, this.z),
 			  new Rotation3d()
@@ -80,6 +107,11 @@ public class Targeting {
         STOP(DashboardConstants.Colors.BLACK);
         private final String color;
         State(String color) { this.color = color; }
+        /**
+         * Returns the dashboard color for this state.
+         *
+         * @return Hex color string.
+         */
         public String getColor() { return this.color; }
     }
     private State m_trackingState = State.STOP; //current Tracking state
@@ -90,11 +122,13 @@ public class Targeting {
     public final Trigger isReady = new Trigger(() -> { return (m_trackingState==State.READY); });
     public final PIDController thetaController = new PIDController(ThetaConstants.kP, ThetaConstants.kI, ThetaConstants.kP, ThetaConstants.kIZone);
   
+    /** Creates the targeting helper and initializes pose state. */
     public Targeting() {
 		init();
 		createDashboards();
     }
 
+    /** Resets tracking state and initializes the starting pose. */
 	public void init() {
 		m_trackingState = State.STOP;
 		m_trackingTarget = Targets.HP_LEFT;
@@ -125,19 +159,42 @@ public class Targeting {
 		return () -> RobotContainer.drivetrain.getState().Pose;
 	}
 
+  /**
+   * Returns the robot heading rotated for the shooter perspective.
+   *
+   * @return Robot heading as a Rotation2d.
+   */
   public Rotation2d getRobotHeading() {
     return getPose().get().getRotation().rotateBy(new Rotation2d(Math.PI));
   }
 
+  /**
+   * Returns the bearing to a target from the robot.
+   *
+   * @param target Target to evaluate.
+   * @return Bearing in degrees.
+   */
 	public double getBearingOfTarget(Targets target) {
 		return 0.0;
 		//RobotContainer.drivetrain.getTargetHeading();
 	}
 
+  /**
+   * Returns the distance to a target from the robot.
+   *
+   * @param target Target to evaluate.
+   * @return Distance in meters.
+   */
 	public double getDistanceOfTarget(Targets target) {
 		return 0.0;
 	}
 
+  /**
+   * Returns the field-relative angle to a target.
+   *
+   * @param target Target to evaluate.
+   * @return Angle to target.
+   */
 	public Rotation2d getAngleOfTarget(Targets target) {
     boolean red = RobotContainer.isAllianceRed();
     Rotation2d perspective = (red) ? Rotation2d.k180deg : Rotation2d.kZero;
@@ -247,6 +304,11 @@ public class Targeting {
 	public Command setTrackingHPL() { return new InstantCommand(() -> setTrackingTarget(Targets.HP_LEFT)); }
 	/** Sets the tracking target to Reef HP RIGHT (2025 REEFSCAPE) */
 	public Command setTrackingHPR() { return new InstantCommand(() -> setTrackingTarget(Targets.HP_RIGHT)); }
+	/**
+	 * Updates the tracking state to ready or tracking.
+	 *
+	 * @param ready True when the robot is ready to track.
+	 */
 	public void setTrackingReady(boolean ready) {
 		m_trackingState = (ready) ? State.READY : State.TRACKING;
 	}

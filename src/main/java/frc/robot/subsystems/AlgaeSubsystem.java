@@ -56,6 +56,11 @@ public class AlgaeSubsystem extends SubsystemBase {
       this.color = color;
     }
 
+    /**
+     * Returns the dashboard color for this direction.
+     *
+     * @return Hex color string.
+     */
     public String getColor() {
       return this.color;
     }
@@ -79,10 +84,20 @@ public class AlgaeSubsystem extends SubsystemBase {
       this.color = color;
     }
 
+    /**
+     * Returns the target wrist position in rotations.
+     *
+     * @return Target rotations.
+     */
     public double getRotations() {
       return this.position;
     }
 
+    /**
+     * Returns the dashboard color for this position.
+     *
+     * @return Hex color string.
+     */
     public String getColor() {
       return this.color;
     }
@@ -121,6 +136,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     return instance;
   }
 
+  /** Creates the algae subsystem and configures hardware. */
   public AlgaeSubsystem() {
     // m_motor1 = new TalonFXS(AlgaeConstants.kMotorID,AlgaeConstants.kCANBus);
     // TalonFXSConfigurator m_config = m_motor1.getConfigurator();
@@ -160,6 +176,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     NCDebug.Debug.debug("Algae: Initialized");
   }
 
+  /** Runs periodic updates for the algae subsystem. */
   @Override
   public void periodic() {
     m_wristmotor1.setControl(m_posVoltage.withPosition(m_curPosition.getRotations()));
@@ -167,6 +184,7 @@ public class AlgaeSubsystem extends SubsystemBase {
   // #endregion Setup
 
   // #region Dashboard
+  /** Creates Shuffleboard widgets for the algae subsystem. */
   public void createDashboards() {
     ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
     driverTab.addString("Algae", this::getDirectionColor)
@@ -217,62 +235,137 @@ public class AlgaeSubsystem extends SubsystemBase {
   // #endregion Dashboard
 
   // #region Getters
+  /**
+   * Returns the current intake direction.
+   *
+   * @return Current direction.
+   */
   public Direction getDirection() {
     return m_curDirection;
   }
 
+  /**
+   * Returns the current direction name.
+   *
+   * @return Direction name.
+   */
   public String getDirectionName() {
     return m_curDirection.toString();
   }
 
+  /**
+   * Returns the current direction color.
+   *
+   * @return Hex color string.
+   */
   public String getDirectionColor() {
     return m_curDirection.getColor();
   }
 
+  /**
+   * Returns the current wrist position.
+   *
+   * @return Current position.
+   */
   public Position getPosition() {
     return m_curPosition;
   }
 
+  /**
+   * Returns the current position name.
+   *
+   * @return Position name.
+   */
   public String getPositionName() {
     return m_curPosition.toString();
   }
 
+  /**
+   * Returns the current position color.
+   *
+   * @return Hex color string.
+   */
   public String getPositionColor() {
     return m_curPosition.getColor();
   }
 
+  /**
+   * Returns the target position name.
+   *
+   * @return Target position name.
+   */
   public String getTargetPositionName() {
     return m_curPosition.toString();
   }
 
+  /**
+   * Returns the target wrist position.
+   *
+   * @return Target position in rotations.
+   */
   public double getTargetPosition() {
     return NCDebug.General.roundDouble(m_wristmotor1.getClosedLoopReference().getValue(),6);
   }
 
+  /**
+   * Returns the closed-loop position error.
+   *
+   * @return Position error.
+   */
   public double getPositionError() {
     return m_wristmotor1.getClosedLoopError().getValue();
   }
 
+  /**
+   * Returns the left Toro velocity.
+   *
+   * @return Left Toro speed.
+   */
   public double getToroLeftSpeed() {
     return m_toro_left.getVelocity().getValueAsDouble();
   }
 
+  /**
+   * Returns the right Toro velocity.
+   *
+   * @return Right Toro speed.
+   */
   public double getToroRightSpeed() {
     return m_toro_right.getVelocity().getValueAsDouble();
   }
 
+  /**
+   * Returns the wrist motor stator current.
+   *
+   * @return Stator current in amps.
+   */
   private double getStatorCurrent() {
     return m_wristmotor1.getStatorCurrent().getValueAsDouble();
   }
 
+  /**
+   * Returns the wrist motor position.
+   *
+   * @return Motor position.
+   */
   public Angle getMotorPosition() {
     return m_wristmotor1.getPosition().getValue();
   }
 
+  /**
+   * Returns the absolute wrist position from the encoder.
+   *
+   * @return Absolute position.
+   */
   public Angle getPositionAbsolute() {
     return m_encoder.getPosition().getValue();
   }
 
+  /**
+   * Returns motors used by this subsystem for orchestra.
+   *
+   * @return Array of TalonFX motors.
+   */
   public TalonFX[] getMotors() {
     TalonFX[] motors = { m_wristmotor1 };
     return motors;
@@ -280,6 +373,11 @@ public class AlgaeSubsystem extends SubsystemBase {
   // #endregion Getters
 
   // #region Setters
+  /**
+   * Sets the target wrist position.
+   *
+   * @param position Target position.
+   */
   private void setPosition(Position position) {
     // m_wristmotor1.setControl(m_mmVoltage.withPosition(position.getRotations()));
     // m_wristmotor1.setControl(m_posVoltage.withPosition(position.getRotations()));
@@ -287,38 +385,75 @@ public class AlgaeSubsystem extends SubsystemBase {
     m_curPosition = position;
   }
 
+  /**
+   * Creates a command to set the wrist position.
+   *
+   * @param position Target position.
+   * @return Command that updates the position.
+   */
   public Command setAlgaePositionC(Position position) {
     return runOnce(() -> setPosition(position));
   }
 
+  /**
+   * Returns true if the wrist is at the target position.
+   *
+   * @return True when within tolerance.
+   */
   public boolean isAtTarget() {
     return m_wristmotor1.getClosedLoopError().getValueAsDouble() <= AlgaeConstants.wrist.kPositionTolerance;
   }
   // #endregion Setters
 
   // #region Limits
+  /**
+   * Returns true if the forward limit is reached.
+   *
+   * @return True when forward limit is reached.
+   */
   public boolean getForwardLimit() {
     return m_wristmotor1.getPosition().getValueAsDouble() >= AlgaeConstants.Positions.kFwdLimit;
   }
 
+  /**
+   * Returns true if the reverse limit is reached.
+   *
+   * @return True when reverse limit is reached.
+   */
   public boolean getReverseLimit() {
     return m_wristmotor1.getPosition().getValueAsDouble() <= AlgaeConstants.Positions.kRevLimit;
   }
 
+  /**
+   * Returns true if any limit is reached.
+   *
+   * @return True when at a limit.
+   */
   public boolean atLimit() {
     return getForwardLimit() || getReverseLimit();
   }
   // #endregion Limits
 
   //#region Controls
+  /**
+   * Creates a command to set wrist neutral output.
+   *
+   * @return Command that sets neutral output.
+   */
   public Command AlgaeNeutral() {
     return runOnce(() -> {m_wristmotor1.setControl(m_neutral); });
   }
 
+  /**
+   * Creates a command to brake the wrist motor.
+   *
+   * @return Command that applies brake.
+   */
   public Command AlgaeBrake() {
     return runOnce(() -> {m_wristmotor1.setControl(m_brake); });
   }
 
+  /** Stops the algae intake direction tracking. */
   public void AlgaeStop() {
     // m_wristmotor1.setControl(m_neutral);
     if(m_curDirection != Direction.HOLD) {
@@ -327,6 +462,11 @@ public class AlgaeSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * Starts the intake or outtake TORO motors.
+   *
+   * @param invert True to run outtake direction.
+   */
   public void startToro(boolean invert) {
     double speed = (invert) ? -AlgaeConstants.kOuttakeSpeed : AlgaeConstants.kIntakeSpeed;
     m_toro_left.set(speed);
@@ -342,6 +482,7 @@ public class AlgaeSubsystem extends SubsystemBase {
     }
   }
 
+  /** Stops the TORO motors and clears lighting. */
   public void stopToro() {
     m_toro_left.set(0);
     m_toro_right.set(0);
@@ -350,10 +491,21 @@ public class AlgaeSubsystem extends SubsystemBase {
     NCDebug.Debug.debug("Algae: Stop Toro");
   }
 
+  /**
+   * Creates a command to start the TORO motors.
+   *
+   * @param invert True to run outtake direction.
+   * @return Command that starts TOROs.
+   */
   public Command startToroC(boolean invert) {
     return runOnce(() -> startToro(invert));
   }
 
+  /**
+   * Creates a command to stop the TORO motors.
+   *
+   * @return Command that stops TOROs.
+   */
   public Command stopToroC() {
     return runOnce(() -> stopToro());
   }
@@ -387,14 +539,31 @@ public class AlgaeSubsystem extends SubsystemBase {
       null,
       this));
 
+  /**
+   * Runs the SysId quasistatic test.
+   *
+   * @param direction Direction to run.
+   * @return Command for the test.
+   */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.quasistatic(direction); // .until(this::atLimit);
   }
 
+  /**
+   * Runs the SysId dynamic test.
+   *
+   * @param direction Direction to run.
+   * @return Command for the test.
+   */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.dynamic(direction); // .until(this::atLimit);
   }
 
+  /**
+   * Runs the full SysId command sequence.
+   *
+   * @return Command sequence.
+   */
   public Command runSysIdCommand() {
     return Commands.sequence(
       sysIdQuasistatic(SysIdRoutine.Direction.kForward).until(this::atLimit),

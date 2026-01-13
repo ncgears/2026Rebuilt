@@ -17,6 +17,12 @@ public class NCDebug {
                 System.out.println(message);
             }
         }
+        /**
+         * Creates a command that logs a debug message once when run.
+         *
+         * @param message Message to log.
+         * @return Command that logs the message.
+         */
         public static final Command debugC(String message) {
           return new InstantCommand(() -> debug(message));
         }
@@ -32,6 +38,13 @@ public class NCDebug {
     }
     //General Helpers
     public static final class General {
+        /**
+         * Rounds a value to a fixed number of decimal places.
+         *
+         * @param val Value to round.
+         * @param decimals Number of decimal places to keep.
+         * @return Rounded value.
+         */
         public final static double roundDouble(double val, int decimals) {
             return Math.round(val * Math.pow(10,decimals)) / Math.pow(10,decimals);
             // final DecimalFormat df = new DecimalFormat(format);
