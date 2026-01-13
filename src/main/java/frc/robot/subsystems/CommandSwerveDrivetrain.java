@@ -232,10 +232,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         createDashboards();
     }
 
+    /** Initializes drivetrain state after construction. */
     public void init() {
         NCDebug.Debug.debug("Drivetrain: Initialized");
     }
 
+    /** Creates Shuffleboard widgets for the drivetrain. */
    	public void createDashboards() {
 		ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
 		// driverTab.add("Swerve Drive", this)
@@ -320,37 +322,83 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
 	}
 
+  /**
+   * Returns the current robot pose.
+   *
+   * @return Robot pose.
+   */
   public Pose2d getBotPose() {
     return getState().Pose;
   }
+  /**
+   * Returns the robot heading from the drivetrain state.
+   *
+   * @return Robot heading.
+   */
   public Rotation2d getBotHeading() {
     return getBotPose().getRotation();
   }
+  /**
+   * Returns the heading error between target and current heading.
+   *
+   * @return Heading error.
+   */
   public Rotation2d getHeadingError() {
     if(!getHeadingLocked()) return Rotation2d.kZero;
     return getBotHeading().minus(RobotContainer.m_targetDirection);
   }
 
+    /**
+     * Sets whether front-camera vision corrections are suppressed.
+     *
+     * @param suppress True to suppress front vision.
+     */
 	public void setSuppressFrontVision(boolean suppress) { 
 		m_suppressFrontVision = suppress; 
 		NCDebug.Debug.debug((m_suppressFrontVision) ? "Drive: Front Vision Suppressed" : "Drive: Front Vision Unsuppressed");
 	}
+    /**
+     * Creates a command to suppress front vision.
+     *
+     * @return Command that suppresses front vision.
+     */
 	public Command suppressFrontVisionC() {
 		return runOnce(() -> setSuppressFrontVision(true));
 	}
+    /**
+     * Creates a command to unsuppress front vision.
+     *
+     * @return Command that unsuppresses front vision.
+     */
 	public Command unsuppressFrontVisionC() {
 		return runOnce(() -> setSuppressFrontVision(false));
 	}
+    /**
+     * Sets whether back-camera vision corrections are suppressed.
+     *
+     * @param suppress True to suppress back vision.
+     */
 	public void setSuppressBackVision(boolean suppress) { 
 		m_suppressBackVision = suppress; 
 		NCDebug.Debug.debug((m_suppressBackVision) ? "Drive: Back Vision Suppressed" : "Drive: Back Vision Unsuppressed");
 	}
+    /**
+     * Creates a command to suppress back vision.
+     *
+     * @return Command that suppresses back vision.
+     */
 	public Command suppressBackVisionC() {
 		return runOnce(() -> setSuppressBackVision(true));
 	}
+    /**
+     * Creates a command to unsuppress back vision.
+     *
+     * @return Command that unsuppresses back vision.
+     */
 	public Command unsuppressBackVisionC() {
 		return runOnce(() -> setSuppressBackVision(false));
 	}
+    /** Automatically suppresses vision based on robot speed if enabled. */
 	public void autoSuppressVision() {
 		if(VisionConstants.kUseAutoSuppress) {
 			// ChassisSpeeds speeds = getState().ChassisSpeeds;
@@ -362,19 +410,59 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 			// 	) >= VisionConstants.kAutosuppressSpeedMetersPerSecond);
 		}
 	}
+    /**
+     * Returns whether front vision is suppressed.
+     *
+     * @return True when suppressed.
+     */
 	public boolean isFrontVisionSuppressed() { return m_suppressFrontVision; }
+    /**
+     * Returns whether back vision is suppressed.
+     *
+     * @return True when suppressed.
+     */
 	public boolean isBackVisionSuppressed() { return m_suppressBackVision; }
 
+  /**
+   * Returns whether heading lock is active.
+   *
+   * @return True when heading lock is active.
+   */
   public boolean getHeadingLocked() { return RobotContainer.m_targetLock; }
+    /**
+     * Returns the dashboard color for heading lock status.
+     *
+     * @return Hex color string.
+     */
 	public String getHeadingLockedColor() {
 		return (getHeadingLocked()) ?	DashboardConstants.Colors.GREEN	: DashboardConstants.Colors.RED;
 	}
+    /**
+     * Returns the target heading in degrees.
+     *
+     * @return Target heading in degrees.
+     */
 	public double getTargetHeading() { return RobotContainer.m_targetDirection.getDegrees(); }
+    /**
+     * Returns whether target tracking is active.
+     *
+     * @return True when tracking a target.
+     */
 	public boolean isTrackingTarget() { return RobotContainer.targeting.getTracking(); }
+    /**
+     * Returns the tracking target heading in degrees.
+     *
+     * @return Target heading in degrees.
+     */
 	public double getTrackingTargetHeading() { 
 		return Rotation2d.fromDegrees(RobotContainer.targeting.getTrackingTargetBearing()).getDegrees(); 
 	}
 
+    /**
+     * Returns the Field2d instance for visualization.
+     *
+     * @return Field2d instance.
+     */
 	public Field2d getField() {
 		return field;
 	}
@@ -457,6 +545,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         );
     }
 
+	/**
+     * Returns the current swerve module positions.
+     *
+     * @return Array of module positions.
+     */
 	public SwerveModulePosition[] getSwerveModulePositions() {
 		// SwerveModulePosition[] positions = new SwerveModulePosition[4];
 		// for (SwerveModule module: modules) {
@@ -488,6 +581,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
+    /** Runs periodic updates and applies operator perspective and vision corrections. */
     @Override
     public void periodic() {
         /*
@@ -516,6 +610,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         field.setRobotPose(this.getState().Pose);
     }
 
+    /**
+     * Creates a command to reset the gyro and seed field-centric heading.
+     *
+     * @return Command that resets the gyro.
+     */
     public Command resetGyroC() {
       return runOnce(() -> {
         seedFieldCentric();
@@ -523,6 +622,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       });
     }
 
+    /** Starts the faster simulation update loop. */
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
 

@@ -54,6 +54,11 @@ public class ElevatorSubsystem extends SubsystemBase {
       this.color = color;
     }
 
+    /**
+     * Returns the dashboard color for the current state.
+     *
+     * @return Hex color string.
+     */
     public String getColor() {
       return this.color;
     }
@@ -82,6 +87,11 @@ public class ElevatorSubsystem extends SubsystemBase {
       this.position = position;
     }
 
+    /**
+     * Returns the elevator position in rotations.
+     *
+     * @return Target rotations.
+     */
     public double getRotations() {
       return this.position;
     }
@@ -121,6 +131,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     return instance;
   }
 
+  /** Creates the elevator subsystem and configures hardware. */
   public ElevatorSubsystem() {
     // initialize values for private and public variables, etc.
     m_encoder = new CANcoder(ElevatorConstants.kCANcoderID, ElevatorConstants.canBus);
@@ -145,12 +156,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     NCDebug.Debug.debug("Elevator: Initialized");
   }
 
+  /** Runs periodic updates for the elevator subsystem. */
   @Override
   public void periodic() {
   }
   // #endregion Setup
 
   // #region Dashboard
+  /** Creates Shuffleboard widgets for the elevator. */
   public void createDashboards() {
     ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
     driverTab.addString("Elevator", this::getStateColor)
@@ -201,46 +214,96 @@ public class ElevatorSubsystem extends SubsystemBase {
   // #endregion Dashboard
 
   // #region Getters
+  /**
+   * Returns the current elevator state.
+   *
+   * @return Current state.
+   */
   public State getState() {
     return m_curState;
   }
 
+  /**
+   * Returns the current state name.
+   *
+   * @return State name.
+   */
   public String getStateName() {
     return m_curState.toString();
   }
 
+  /**
+   * Returns the current state color.
+   *
+   * @return Hex color string.
+   */
   public String getStateColor() {
     return m_curState.getColor();
   }
 
+  /**
+   * Returns the target position name.
+   *
+   * @return Target position name.
+   */
   public String getTargetPositionName() {
     return m_targetPosition.toString();
   }
 
+  /**
+   * Returns the target position in rotations.
+   *
+   * @return Target position value.
+   */
   public double getTargetPosition() {
     return m_motor1.getClosedLoopReference().getValue();
   }
 
+  /**
+   * Returns the position error in rotations.
+   *
+   * @return Position error.
+   */
   public double getPositionError() {
     // m_motor1.getClosedLoopError(true)
     // return m_motor1.getClosedLoopError(true).getValue();
     return (getTargetPosition() - getPosition().in(Units.Rotations));
   }
 
+  /**
+   * Returns the motor position in rotations.
+   *
+   * @return Motor position.
+   */
   public Angle getPosition() {
     return m_motor1.getPosition().getValue();
   }
 
+  /**
+   * Returns the absolute encoder position in rotations.
+   *
+   * @return Absolute position.
+   */
   public Angle getPositionAbsolute() {
     return m_encoder.getPosition().getValue();
   }
 
+  /**
+   * Returns whether the elevator is at its target.
+   *
+   * @return True if within tolerance.
+   */
   public boolean isAtTarget() {
     return (Math.abs(getPositionError()) <= ElevatorConstants.kPositionTolerance);
   }
   // #endregion Getters
 
   // #region Setters
+  /**
+   * Saves the previous position when moving between scoring presets.
+   *
+   * @param position Position to track.
+   */
   public void setPrevPosition(Position position) {
     switch (position) {
       case L4:
@@ -255,6 +318,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * Sets the target position and commands a move.
+   *
+   * @param position Target position.
+   */
   public void setPosition(Position position) {
     setPrevPosition(position);
     m_targetPosition = position;
@@ -268,6 +336,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   // #endregion Setters
 
   // #region Limits
+  /**
+   * Returns true if the forward limit is reached.
+   *
+   * @return True when forward limit is reached.
+   */
   public boolean getForwardLimit() {
     // if using NormallyOpen, this should be ForwardLimitValue.ClosedToGround
     // return m_motor1.getForwardLimit().getValue() ==
@@ -275,6 +348,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     return m_motor1.getPosition().getValueAsDouble() >= ElevatorConstants.Positions.kFwdLimit;
   }
 
+  /**
+   * Returns true if the reverse limit is reached.
+   *
+   * @return True when reverse limit is reached.
+   */
   public boolean getReverseLimit() {
     // if using NormallyOpen, this should be ReverseLimitValue.ClosedToGround
     // return m_motor1.getReverseLimit().getValue() ==
@@ -282,6 +360,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     return m_motor1.getPosition().getValueAsDouble() <= ElevatorConstants.Positions.kRevLimit;
   }
 
+  /**
+   * Returns true if any limit is reached.
+   *
+   * @return True when at a limit.
+   */
   public boolean atLimit() {
     // if Either limit is met
     return getForwardLimit() || getReverseLimit();
@@ -289,6 +372,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   // #endregion Limits
 
   // #region Controls
+  /**
+   * Moves the elevator using percent output.
+   *
+   * @param power Output power (-1 to 1).
+   */
   public void ElevatorMove(double power) {
     if (power > 0) {
       if (m_curState != State.UP) {
@@ -312,10 +400,22 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * Creates a command to move the elevator with a dynamic power supplier.
+   *
+   * @param power Power supplier.
+   * @return Command that drives the elevator.
+   */
   public Command ElevatorMoveC(DoubleSupplier power) {
     return run(() -> ElevatorMove(power.getAsDouble()));
   }
 
+  /**
+   * Creates a command to move the elevator to a target position.
+   *
+   * @param position Target position.
+   * @return Command that sets the position.
+   */
   public Command ElevatorPositionC(Position position) {
     return runOnce(
         () -> setPosition(position));
@@ -326,6 +426,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   //       () -> setPosition(position));
   // }
 
+  /**
+   * Creates a command to move to the appropriate score position.
+   *
+   * @return Command that updates the target position.
+   */
   public Command ScoreC() {
     return runOnce(() -> {
       switch (m_targetPosition) {
@@ -344,18 +449,33 @@ public class ElevatorSubsystem extends SubsystemBase {
     });
   }
 
+  /**
+   * Creates a command to return to the previous position.
+   *
+   * @return Command that sets the previous position.
+   */
   public Command LastPositionC() {
     return runOnce(
       () -> setPosition(m_prevPosition)
     );
   }
 
+  /**
+   * Creates a command to stop the elevator.
+   *
+   * @return Command that stops the elevator.
+   */
   public Command ElevatorStopC() {
     return runOnce(
       () -> ElevatorStop()
     );
   }
 
+  /**
+   * Creates a command to zero the motor and encoder.
+   *
+   * @return Command that zeroes sensors.
+   */
   public Command ElevatorZeroC() {
     return runOnce(() -> {
       m_motor1.setPosition(0);
@@ -364,22 +484,26 @@ public class ElevatorSubsystem extends SubsystemBase {
     });
   }
 
+  /** Applies the current target position to the motor controller. */
   public void gotoTargetPosition() {
     // m_motor1.setControl(m_mmVoltage.withPosition(m_targetPosition.getRotations()));
     m_motor1.setControl(m_posVoltage.withPosition(m_targetPosition.getRotations()));
   }
 
+  /** Commands the elevator to move up at default power. */
   public void ElevatorUp() {
     m_curState = State.UP;
     m_motor1.setControl(m_DutyCycle);
     NCDebug.Debug.debug("Elevator: Up");
   }
 
+  /** Commands the elevator to move down at default power. */
   public void ElevatorDown() {
     m_curState = State.DOWN;
     NCDebug.Debug.debug("Elevator: Down");
   }
 
+  /** Commands the elevator to hold position. */
   public void ElevatorHold() {
     m_motor1.setControl(m_brake);
     if (m_curState != State.HOLD) {
@@ -388,6 +512,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
+  /** Stops elevator output and sets neutral. */
   public void ElevatorStop() {
     m_motor1.setControl(m_neutral);
     if (m_curState != State.STOP) {
@@ -396,11 +521,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
   }
 
+  /** Sets the motor neutral mode to coast. */
   public void setCoast() {
     m_motor1.setNeutralMode(NeutralModeValue.Coast);
     NCDebug.Debug.debug("Elevator: Switch to Coast");
   }
 
+  /** Sets the motor neutral mode to brake. */
   public void setBrake() {
     m_motor1.setNeutralMode(NeutralModeValue.Brake);
     NCDebug.Debug.debug("Elevator: Switch to Brake");
@@ -420,14 +547,31 @@ public class ElevatorSubsystem extends SubsystemBase {
       null,
       this));
 
+  /**
+   * Runs the SysId quasistatic test.
+   *
+   * @param direction Direction to run.
+   * @return Command for the test.
+   */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.quasistatic(direction);
   }
 
+  /**
+   * Runs the SysId dynamic test.
+   *
+   * @param direction Direction to run.
+   * @return Command for the test.
+   */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.dynamic(direction);
   }
 
+  /**
+   * Runs the full SysId command sequence.
+   *
+   * @return Command sequence.
+   */
   public Command runSysIdCommand() {
     return Commands.sequence(
       sysIdQuasistatic(SysIdRoutine.Direction.kForward).until(this::atLimit),
@@ -446,34 +590,73 @@ public class ElevatorSubsystem extends SubsystemBase {
     TRANSIT, CORAL, ALGAE
   };
 
+  /**
+   * Moves the wheel mechanism to the target position.
+   *
+   * @param targetPos Wheel target position.
+   */
   private void moveWheel(wheelPositions targetPos) {
     // move the wheel to targetPos
   }
 
+  /**
+   * Creates a command to move the wheel mechanism.
+   *
+   * @param targetPos Wheel target position.
+   * @return Command that moves the wheel.
+   */
   public Command moveWheelCommand(wheelPositions targetPos) {
     // move the wheel
     return run(() -> moveWheel(targetPos));
   }
 
+  /**
+   * Returns true if the wheel is at the target position.
+   *
+   * @return True when wheel is at target.
+   */
   public boolean wheelAtPosition() {
     // this should ask the wheel subsystem if the wheel is at the target
     return true;
   }
 
+  /**
+   * Moves the elevator to the target position.
+   *
+   * @param targetPos Elevator target position.
+   */
   private void moveElevator(elevatorPositions targetPos) {
     // move the elevator
   }
 
+  /**
+   * Creates a command to move the elevator.
+   *
+   * @param targetPos Elevator target position.
+   * @return Command that moves the elevator.
+   */
   public Command moveElevatorCommand(elevatorPositions targetPos) {
     // move the wheel
     return run(() -> moveElevator(targetPos));
   }
 
+  /**
+   * Returns true if the elevator is at the target position.
+   *
+   * @return True when elevator is at target.
+   */
   public boolean elevAtPosition() {
     // this should ask the elev subsystem if the elev is at the target
     return true;
   }
 
+  /**
+   * Creates a command sequence to raise the elevator with wheel transit.
+   *
+   * @param elevTarget Elevator target position.
+   * @param wheelTarget Wheel target position.
+   * @return Command sequence.
+   */
   public Command raiseElevatorCommand(elevatorPositions elevTarget, wheelPositions wheelTarget) {
     return Commands.sequence(
       moveWheelCommand(wheelPositions.TRANSIT).until(() -> wheelAtPosition()),
@@ -481,6 +664,13 @@ public class ElevatorSubsystem extends SubsystemBase {
       moveWheelCommand(wheelTarget));
   }
 
+  /**
+   * Creates a command sequence to lower the elevator with wheel transit.
+   *
+   * @param elevTarget Elevator target position.
+   * @param wheelTarget Wheel target position.
+   * @return Command sequence.
+   */
   public Command lowerElevatorCommand(elevatorPositions elevTarget, wheelPositions wheelTarget) {
     return Commands.sequence(
       moveWheelCommand(wheelPositions.TRANSIT).until(() -> wheelAtPosition()),

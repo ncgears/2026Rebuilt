@@ -53,8 +53,23 @@ public class Lighting {
     YELLOW(255,150,0);
     private final int r, g, b;
     Colors(int r, int g, int b) { this.r = r; this.g = g; this.b = b; }
+    /**
+     * Gets the red component for this color.
+     *
+     * @return Red value (0-255).
+     */
     public int R() { return this.r; }
+    /**
+     * Gets the green component for this color.
+     *
+     * @return Green value (0-255).
+     */
     public int G() { return this.g; }
+    /**
+     * Gets the blue component for this color.
+     *
+     * @return Blue value (0-255).
+     */
     public int B() { return this.b; }
   }
   /**
@@ -68,6 +83,7 @@ public class Lighting {
 		return instance;
 	}
   
+  /** Creates the lighting subsystem and initializes dashboards. */
   public Lighting() {
     //initialize values for private and public variables, etc.
     init();
@@ -84,6 +100,7 @@ public class Lighting {
   }
   
 
+  /** Creates Shuffleboard widgets for lighting state. */
   public void createDashboards() {
     ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
     driverTab.addString("LED Color", this::getColor)
@@ -103,11 +120,21 @@ public class Lighting {
     }
   }
 
+  /**
+   * Gets the current LED color as a hex string.
+   *
+   * @return Hex string representing the current color.
+   */
   public String getColor() {
     if(m_currentColor == null) m_currentColor = Colors.OFF;
     return new Color(m_currentColor.R(), m_currentColor.G(), m_currentColor.B()).toHexString();
   }
 
+  /**
+   * Sets the CANdle LEDs to the requested color.
+   *
+   * @param color Color to set.
+   */
   public void setColor(Colors color) {
     if(color != m_currentColor) {
       m_currentColor = color;
@@ -121,10 +148,21 @@ public class Lighting {
   }
   
 
+  /**
+   * Creates a command that sets the LED color.
+   *
+   * @param color Color to set.
+   * @return Command that updates LED color.
+   */
   public Command setColorCommand(Colors color) {
     return new InstantCommand(() -> setColor(color)).ignoringDisable(true);
   }
 
+  /**
+   * Returns a command that cycles team colors for a dance party effect.
+   *
+   * @return Repeat command with a color sequence.
+   */
   public Command danceParty() {
     return new RepeatCommand(  //Lighting Dance Party!
       setColorCommand(Colors.NCBLUE)
@@ -142,10 +180,20 @@ public class Lighting {
     );
   }
 
+  /**
+   * Creates a command to set climb start color.
+   *
+   * @return Command that sets LED color to gold.
+   */
   public Command climbStartColor() {
     return setColorCommand(Colors.GOLD);
   }
 
+  /**
+   * Creates a command that blinks the climb-done color.
+   *
+   * @return Repeat command that blinks gold.
+   */
   public Command climbDoneColor() {
     return new RepeatCommand(  //blinking
       setColorCommand(Colors.OFF)
@@ -155,6 +203,12 @@ public class Lighting {
     );
   }
 
+  /**
+   * Convenience wrapper for {@link WaitCommand}.
+   *
+   * @param seconds Time to wait.
+   * @return Wait command.
+   */
   private Command wait(double seconds) {
     return new WaitCommand(seconds);
   }

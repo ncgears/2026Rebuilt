@@ -40,6 +40,7 @@ public class TemplateSubsystem extends SubsystemBase {
     return instance;
   }
 
+  /** Creates the template subsystem and initializes state. */
   public TemplateSubsystem() {
     // initialize values for private and public variables, etc.
 
@@ -54,6 +55,7 @@ public class TemplateSubsystem extends SubsystemBase {
     NCDebug.Debug.debug("Template: Initialized");
   }
 
+  /** Runs periodically for the template subsystem. */
   @Override
   public void periodic() {
   }

@@ -109,6 +109,7 @@ public class RobotContainer {
     private final CommandStadiaController pj = new CommandStadiaController(OIConstants.JoyProgID);
     //#endregion Declarations
 
+    /** Creates the robot container and configures subsystems and bindings. */
     public RobotContainer() {
         WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
 
@@ -178,6 +179,7 @@ public class RobotContainer {
       
     }
     
+    /** Initializes the CTRE orchestra with motors used for music playback. */
     private void initOrchestra() {
         /**
          * This adds instruments to the orchestra. 
@@ -213,15 +215,21 @@ public class RobotContainer {
         algae.init();
     }
 
+    /** Sets subsystems to a safe neutral state while disabled. */
     public void neutralRobot() {
         algae.AlgaeNeutral().ignoringDisable(true);
     }
 
-    // Returns true if the alliance is red, otherwise false (blue)
+    /**
+     * Returns true if the alliance is red, otherwise false for blue.
+     *
+     * @return True when on red alliance.
+     */
     public static boolean isAllianceRed() {
         return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
     }
     
+    /** Binds controller inputs to commands and triggers. */
     private void configureBindings() {
         //#region RobotMode Triggers
         // bind to the disabled() trigger which happens any time the robot is disabled
@@ -518,6 +526,7 @@ public class RobotContainer {
 
     //#region Dashboard
     //From here down is all used for building the shuffleboard
+    /** Builds all driver/system dashboards. */
     public void buildDashboards(){
         //List of Widgets: https://github.com/Gold872/elastic-dashboard/wiki/Widgets-List-&-Properties-Reference
         buildAutonChooser();
@@ -529,6 +538,7 @@ public class RobotContainer {
         gyro.buildDashboards();
     }    
     
+    /** Builds and populates the autonomous chooser. */
     public void buildAutonChooser() {
         //This builds the auton chooser, giving driver friendly names to the commands from above
         if(AutonConstants.isDisabled) {
@@ -560,6 +570,7 @@ public class RobotContainer {
         }
     }
 
+    /** Builds the driver Shuffleboard tab. */
     private void buildDriverTab(){
         ShuffleboardTab driverTab = buildTab("Driver");
         // Match Time - Cannot be programmatically placed, but we put it here for informative reasons
@@ -602,6 +613,7 @@ public class RobotContainer {
     }
 
     @SuppressWarnings({"unused"})
+    /** Builds the system Shuffleboard tab. */
     private void buildSystemTab(){
         ShuffleboardTab systemTab = buildTab("System");
         var chooser = (AutonConstants.isDisabled) ? m_auto_chooser : autoChooser;
@@ -613,11 +625,13 @@ public class RobotContainer {
     }
 
     @SuppressWarnings({"unused"})
+    /** Builds the debug Shuffleboard tab. */
     private void buildDebugTab(){
         ShuffleboardTab debugTab = buildTab("Debug");
     }
 
     @SuppressWarnings({"unused"})
+    /** Builds the power Shuffleboard tab. */
     private void buildPowerTab(){
         ShuffleboardTab powerTab = buildTab("Power");
         powerTab.add("Power", power)
@@ -625,12 +639,23 @@ public class RobotContainer {
             // .withSize(1, 1);
     }
 
+    /**
+     * Returns a Shuffleboard tab by name.
+     *
+     * @param tabname Tab name.
+     * @return Shuffleboard tab.
+     */
     private ShuffleboardTab buildTab(String tabname) {
         return Shuffleboard.getTab(tabname);
     }
     //#endregion Dashboard
 
     //#region Convenience
+    /**
+     * Updates the target heading and enables target lock.
+     *
+     * @param target Target to face.
+     */
     private void updateTarget(Targets target) {
       Rotation2d angle = targeting.getAngleOfTarget(target);
       NCDebug.Debug.debug("Update target to "+target.toString()+" ("+NCDebug.General.roundDouble(angle.getDegrees(),2)+" deg)");
@@ -638,14 +663,31 @@ public class RobotContainer {
       m_targetLock = true;
     }
 
+    /**
+     * Creates a command to update the target heading.
+     *
+     * @param target Target to face.
+     * @return Command that updates the target.
+     */
     private Command updateTargetC(Targets target) {
       return new InstantCommand(() -> updateTarget(target)); 
     }    
     //This command is a shortcut for WaitCommand
+    /**
+     * Convenience wrapper for {@link WaitCommand}.
+     *
+     * @param seconds Time to wait.
+     * @return Wait command.
+     */
     private Command wait(double seconds) {
       return new WaitCommand(seconds);
     }
     //This command does nothing
+    /**
+     * Returns a no-op command.
+     *
+     * @return No-op command.
+     */
     private Command noop() {
       return Commands.none();
     }

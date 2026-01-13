@@ -36,6 +36,7 @@ public class Gyro implements Sendable {
     public Gyro() {
     }
 
+	/** Builds gyro dashboards on Shuffleboard. */
 	public void buildDashboards() {
     if(true) { //false to disable gyro on system dashboard
 			ShuffleboardTab systemTab = Shuffleboard.getTab("System");
@@ -57,6 +58,11 @@ public class Gyro implements Sendable {
 		}
 	}
 
+	/**
+	 * Configures this gyro as a Sendable for dashboards.
+	 *
+	 * @param builder Sendable builder instance.
+	 */
 	@Override
 	public void initSendable(SendableBuilder builder) {
 		builder.setSmartDashboardType("Gyro");
@@ -64,6 +70,7 @@ public class Gyro implements Sendable {
 		builder.addDoubleProperty("Value", () -> getYaw().getDegrees(), null);
 	}
 
+	/** Zeros the gyro yaw and clears the yaw offset. */
     public void zeroYaw() {
 		// m_gyro.reset();
 		m_gyro.setYaw(0,0.1);
@@ -71,11 +78,22 @@ public class Gyro implements Sendable {
 		m_yawOffset = 0.0;
 		NCDebug.Debug.debug("Gyro: Reset Gyro");
 	}
+
+	/**
+	 * Zeros the gyro yaw and applies a new offset.
+	 *
+	 * @param offset Offset in degrees to apply after zeroing.
+	 */
     public void zeroYaw(double offset) {
 		zeroYaw();
 		setYawOffset(offset);
 	}
 
+	/**
+	 * Sets the current yaw offset.
+	 *
+	 * @param offset Offset in degrees.
+	 */
 	public void setYawOffset(double offset) {
 		m_yawOffset = offset;
 		NCDebug.Debug.debug("Gyro: Yaw offset set to "+offset+" degrees");
