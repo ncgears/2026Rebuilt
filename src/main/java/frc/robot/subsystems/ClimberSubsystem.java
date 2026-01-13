@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.StaticBrake;
@@ -98,7 +99,8 @@ public class ClimberSubsystem extends SubsystemBase {
     // ClimberConstants.canBus);
     // RobotContainer.ctreConfigs.retryConfigApply(()->m_encoder.getConfigurator().apply(RobotContainer.ctreConfigs.climberCCConfig));
 
-    m_motor1 = new TalonFX(ClimberConstants.kMotorID, ClimberConstants.canBus);
+    CANBus climberCANBus = new CANBus(ClimberConstants.canBus);
+    m_motor1 = new TalonFX(ClimberConstants.kMotorID, climberCANBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_motor1.getConfigurator().apply(RobotContainer.ctreConfigs.climberFXConfig));
 
