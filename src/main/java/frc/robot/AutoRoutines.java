@@ -7,9 +7,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.classes.Lighting;
-import frc.robot.subsystems.AlgaeSubsystem;
-import frc.robot.subsystems.CoralSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.utils.NCDebug;
 
 public class AutoRoutines {
@@ -216,7 +217,7 @@ public class AutoRoutines {
       );
       path2.recentlyDone().onTrue(
         wait(0.7)
-        .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
+        // .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
         .andThen(runPath(path3))
       );
       path3.recentlyDone().onTrue(
@@ -228,7 +229,7 @@ public class AutoRoutines {
       path4.recentlyDone().onTrue(
         wait(0.7)
         .andThen(SeekingNone())
-        .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
+        // .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
         // .andThen(runPath(path5))
       );
       path5.recentlyDone().onTrue(
@@ -623,9 +624,10 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command ReadyL2() {
-      return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L2)
-        // .until(RobotContainer.elevator.atTarget)
-      .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
+      return noop();
+      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L2)
+      //   // .until(RobotContainer.elevator.atTarget)
+      // .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
   }
     /**
      * Creates a command to move to L3 and prep coral.
@@ -633,9 +635,10 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command ReadyL3() {
-      return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L3)
-        // .until(RobotContainer.elevator.atTarget)
-      .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
+      return noop();
+      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L3)
+      //   // .until(RobotContainer.elevator.atTarget)
+      // .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
   }
     /**
      * Creates a command to move to L4 and prep coral.
@@ -643,9 +646,10 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command ReadyL4() {
-      return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L4)
-        // .until(RobotContainer.elevator.atTarget)
-      .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
+      return noop();
+      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L4)
+      //   // .until(RobotContainer.elevator.atTarget)
+      // .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
     }
     /**
      * Creates a command sequence to score coral.
@@ -653,14 +657,15 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command ScoreCoral() {
-      return 
-        // Commands.waitUntil(RobotContainer.elevator.atTarget)
-        wait(0.1)
-        .andThen(RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L4SCORE))
-          // .until(RobotContainer.elevator.atTarget)
-        .andThen(wait(0.4))
-        .andThen(SeekingNone())
-        .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.SCORE));
+      return noop();
+      // return 
+      //   // Commands.waitUntil(RobotContainer.elevator.atTarget)
+      //   wait(0.1)
+      //   .andThen(RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L4SCORE))
+      //     // .until(RobotContainer.elevator.atTarget)
+      //   .andThen(wait(0.4))
+      //   .andThen(SeekingNone())
+      //   .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.SCORE));
     }
     /**
      * Creates a command sequence to intake coral.
@@ -668,9 +673,10 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command IntakeCoral() {
-      return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.HP)
-        .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT))
-        .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
+      return noop();
+      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.HP)
+      //   .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT))
+      //   .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
     }
     /**
      * Creates a command to move to the barge scoring position.
@@ -678,8 +684,9 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command ReadyBarge() {
-      return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.BARGE)
-        .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
+      return noop();
+      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.BARGE)
+      //   .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
     }
     /**
      * Creates a command sequence to intake low algae.
@@ -687,12 +694,13 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command IntakeAlgaeLow() {
-      return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAELOW)
-          // .until(RobotContainer.elevator.atTarget)
-        .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
-        .andThen(RobotContainer.algae.startToroC(false));
-        // .andThen(wait(0.5))
-        // .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
+      return noop();
+      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAELOW)
+      //     // .until(RobotContainer.elevator.atTarget)
+      //   .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
+      //   .andThen(RobotContainer.algae.startToroC(false));
+      //   // .andThen(wait(0.5))
+      //   // .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
     }
     /**
      * Creates a command sequence to intake high algae.
@@ -700,10 +708,11 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command IntakeAlgaeHigh() {
-      return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAEHIGH)
-          // .until(RobotContainer.elevator.atTarget)
-        .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
-        .andThen(RobotContainer.algae.startToroC(false));
+      return noop();
+      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAEHIGH)
+      //     // .until(RobotContainer.elevator.atTarget)
+      //   .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
+      //   .andThen(RobotContainer.algae.startToroC(false));
     }
     /**
      * Creates a command sequence to intake algae and return up.
@@ -711,9 +720,10 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command IntakeAlgae() {
-      return RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF)
-      .andThen(wait(1.0))
-      .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
+      return noop();
+      // return RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF)
+      // .andThen(wait(1.0))
+      // .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
     }
     /**
      * Creates a command sequence to intake algae from the spike.
@@ -721,9 +731,10 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command IntakeAlgaeSpike() {
-      return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.FLOOR)
-        .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.FLOOR))
-        .andThen(RobotContainer.algae.startToroC(false));
+      return noop();
+      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.FLOOR)
+      //   .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.FLOOR))
+      //   .andThen(RobotContainer.algae.startToroC(false));
     }
     /**
      * Creates a command sequence to score algae.
@@ -731,10 +742,11 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command ScoreAlgae() {
-      return RobotContainer.algae.startToroC(true)
-      .andThen(wait(0.2))
-      .andThen(SeekingNone())
-      .andThen(RobotContainer.algae.stopToroC());
+      return noop();
+      // return RobotContainer.algae.startToroC(true)
+      // .andThen(wait(0.2))
+      // .andThen(SeekingNone())
+      // .andThen(RobotContainer.algae.stopToroC());
     }
     /**
      * Creates a command sequence for transit pose.
@@ -742,9 +754,10 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command Transit() {
-      return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.HP)
-        .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.SCORE))
-        .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
+      return noop();
+      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.HP)
+      //   .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.SCORE))
+      //   .andThen(RobotContainer.algae.setAlgaePositionC(AlgaeSubsystem.Position.UP));
     }
     /**
      * Sets lighting to indicate coral-seeking.

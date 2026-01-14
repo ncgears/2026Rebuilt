@@ -50,12 +50,9 @@ import frc.robot.utils.CTREConfigs;
 import frc.robot.utils.InputAxis;
 import frc.robot.utils.NCDebug;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.subsystems.AlgaeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.CoralSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
-
+import frc.robot.subsystems.*;
 
 public class RobotContainer {
     //#region Declarations
@@ -68,10 +65,10 @@ public class RobotContainer {
     public static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(); //must be after gyro
     public static final Targeting targeting = Targeting.getInstance(); //must be after drive
     public static final PowerDistribution power = new PowerDistribution(1,ModuleType.kRev);
-    public static final ElevatorSubsystem elevator = new ElevatorSubsystem();
     public static final ClimberSubsystem climber = ClimberSubsystem.getInstance();
-    public static final CoralSubsystem coral = CoralSubsystem.getInstance();
-    public static final AlgaeSubsystem algae = AlgaeSubsystem.getInstance();
+    public static final IntakeSubsystem intake = IntakeSubsystem.getInstance();
+    public static final IndexerSubsystem indexer = IndexerSubsystem.getInstance();
+    public static final ShooterSubsystem shooter = ShooterSubsystem.getInstance();
     
     public static Optional<Alliance> m_alliance;
 
@@ -168,13 +165,6 @@ public class RobotContainer {
               }
             })
         );
-
-        /**
-         * Handle manual control of the elevator
-         */
-        if(!ElevatorConstants.isDisabled) {
-            elevator.setDefaultCommand(elevator.ElevatorMoveC(m_elevatorAxis));
-        }
         //#endregion Default Commands
       
     }
@@ -209,15 +199,18 @@ public class RobotContainer {
         lighting.init();
         targeting.init();
         drivetrain.init();
-        elevator.init();
         climber.init();
-        coral.init();
-        algae.init();
+        intake.init();
+        indexer.init();
+        shooter.init();
     }
 
     /** Sets subsystems to a safe neutral state while disabled. */
     public void neutralRobot() {
-        algae.AlgaeNeutral().ignoringDisable(true);
+        // climiber.Neutral().ignoringDisable(true);
+        // intake.Neutral().ignoringDisable(true);
+        // indexer.Neutral().ignoringDisable(true);
+        // shooter.Neutral().ignoringDisable(true);
     }
 
     /**
@@ -236,15 +229,15 @@ public class RobotContainer {
         RobotModeTriggers.disabled().onTrue(
             new InstantCommand(this::resetRobot).ignoringDisable(true)
             .alongWith(lighting.danceParty()).until(RobotModeTriggers.disabled().negate()).ignoringDisable(true)
-            .alongWith(elevator.ElevatorStopC().ignoringDisable(true)).ignoringDisable(true)
+            // .alongWith(elevator.ElevatorStopC().ignoringDisable(true)).ignoringDisable(true)
             .alongWith(new InstantCommand(() -> {m_targetLock = false;})).ignoringDisable(true)
         );
         // bind to the autonomous() and teleop() trigger which happens any time the robot is enabled in either of those modes
         RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(
             new InstantCommand(orchestra::stop).ignoringDisable(true)
             .andThen(lighting.setColorCommand(Colors.OFF)).ignoringDisable(true)
-            .andThen(coral.CoralPositionC(CoralSubsystem.Position.SCORE))
-            .andThen(new InstantCommand(() -> elevator.gotoTargetPosition()))
+            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.SCORE))
+            // .andThen(new InstantCommand(() -> elevator.gotoTargetPosition()))
         );
         //#endregion
 
@@ -353,78 +346,90 @@ public class RobotContainer {
         // CORAL STUFF
         /** OJ X - L1 Position (currently stow?) */
         oj.x().onTrue(
-            coral.CoralPositionC(CoralSubsystem.Position.SCORE)
-            .andThen(wait(0.4))
-            .andThen(
-                elevator.ElevatorPositionC(ElevatorSubsystem.Position.L1)
-            )
+            noop()
+            // coral.CoralPositionC(CoralSubsystem.Position.SCORE)
+            // .andThen(wait(0.4))
+            // .andThen(
+            //     elevator.ElevatorPositionC(ElevatorSubsystem.Position.L1)
+            // )
             // .until(elevator::isAtTarget)
             // .andThen(coral.CoralStopC())
         );
         /** OJ A - L2 Scoring Position */
         oj.a().onTrue(
-            elevator.ElevatorPositionC(ElevatorSubsystem.Position.L2)
-            .andThen(wait(CoralConstants.kWaitDelay))
-            .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.L2)
+            // .andThen(wait(CoralConstants.kWaitDelay))
+            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
         );
         /** OJ B - L3 Scoring Position */
         oj.b().onTrue(
-            elevator.ElevatorPositionC(ElevatorSubsystem.Position.L3)
-            .andThen(wait(CoralConstants.kWaitDelay))
-            .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.L3)
+            // .andThen(wait(CoralConstants.kWaitDelay))
+            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
         );
         /** OJ Y - L4 Scoring Position */
         oj.y().onTrue(
-            elevator.ElevatorPositionC(ElevatorSubsystem.Position.L4)
-            .andThen(wait(CoralConstants.kWaitDelay + 0.2))
-            .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.L4)
+            // .andThen(wait(CoralConstants.kWaitDelay + 0.2))
+            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
         );
         /** OJ X - L4 Scoring Position */
         oj.x().onTrue(
-          elevator.ElevatorPositionC(ElevatorSubsystem.Position.LINEUP)
-          .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.STOW))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.LINEUP)
+            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.STOW))
         );
         /** OJ Right Trigger - Score Coral sequence (from L2, L3, and L4) (hold trigger) */
         oj.rightTrigger().onTrue(
-            elevator.ScoreC()
-            .until(elevator::isAtTarget)
-            .andThen(wait(0.5))
-            .andThen(coral.CoralPositionC(CoralSubsystem.Position.SCORE))
+            noop()
+            // elevator.ScoreC()
+            // .until(elevator::isAtTarget)
+            // .andThen(wait(0.5))
+            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.SCORE))
         );
         /** OJ Right Bumper - Return to previous position */
         oj.ellipses().negate().and(oj.rightBumper()).onTrue(
-            elevator.LastPositionC()
-            // .andThen(wait(CoralConstants.kWaitDelay))
-            .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
+            noop()
+            // elevator.LastPositionC()
+            // // .andThen(wait(CoralConstants.kWaitDelay))
+            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
         );
         /** OJ Left Bumper without X - Human Player Intake */
         oj.ellipses().negate().and(oj.leftBumper()).onTrue(
-            elevator.ElevatorPositionC(ElevatorSubsystem.Position.HP)
-            .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
-            .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.HP)
+            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
+            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
         ).onFalse(
-            coral.CoralPositionC(CoralSubsystem.Position.SCORE)
-            // .andThen(wait(0.5))
-            // .andThen(coral.CoralStopC())
+            noop()
+            // coral.CoralPositionC(CoralSubsystem.Position.SCORE)
+            // // .andThen(wait(0.5))
+            // // .andThen(coral.CoralStopC())
         );
         /** OJ Ellipses and Left Bumper - Home and Zero Coral */
         oj.ellipses().and(oj.leftBumper()).onTrue(
-          coral.CoralHomeC()
+            noop()
+            // coral.CoralHomeC()
         ).onFalse(
-          coral.CoralZeroC()
-          .andThen(coral.CoralStopC())
+            noop()
+            // coral.CoralZeroC()
+            // .andThen(coral.CoralStopC())
         );
         /** OJ Ellipses and Right Bumper - Zero Elevator */
         oj.ellipses().and(oj.rightBumper()).onTrue(
-          noop()
+            noop()
         ).onFalse(
-          elevator.ElevatorZeroC().ignoringDisable(true)
+            noop()
+            // elevator.ElevatorZeroC().ignoringDisable(true)
         );
 
         // CLIMBER STUFF
         // OJ Frame - Manual climb override, hold for at least 1 second
         oj.frame().onTrue(
-          noop()
+            noop()
         //   elevator.ElevatorPositionC(ElevatorSubsystem.Position.HP)
         //   .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
         //   .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.UP)))
@@ -443,46 +448,55 @@ public class RobotContainer {
 
         /** OJ POV Up - Barge scoring position */
         oj.povUp().onTrue(
-          elevator.ElevatorPositionC(ElevatorSubsystem.Position.BARGE)
-          .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.BARGE)
+            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
         );
         /** OJ POV Down - Processor scoring position */
         oj.povDown().onTrue(
-          elevator.ElevatorPositionC(ElevatorSubsystem.Position.PROC)
-          .andThen(wait(0.25))
-          .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.PROC))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.PROC)
+            // .andThen(wait(0.25))
+            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.PROC))
         );
         /** OJ POV Left - Reef High Algae Pickup (do not stop toros, use limits) */
         oj.povLeft().onTrue(
-          elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAEHIGH)
-          .andThen(wait(0.5))
-          .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
-          .andThen(algae.startToroC(false))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAEHIGH)
+            // .andThen(wait(0.5))
+            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
+            // .andThen(algae.startToroC(false))
         );
         /** OJ POV Right - Reef High Algae Pickup (do not stop toros, use limits) */
         oj.povRight().onTrue(
-          elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAELOW)
-          .andThen(wait(0.5))
-          .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
-          .andThen(algae.startToroC(false))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAELOW)
+            // .andThen(wait(0.5))
+            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
+            // .andThen(algae.startToroC(false))
         );
         /** OJ L3 - Floor Algae Pickup (do not stop toros, use limits) */
         oj.leftStick().onTrue(
-            elevator.ElevatorPositionC(ElevatorSubsystem.Position.FLOOR)
-            .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.FLOOR))
-            .andThen(algae.startToroC(false))
+            noop()
+            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.FLOOR)
+            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.FLOOR))
+            // .andThen(algae.startToroC(false))
         ).onFalse(
-            algae.setAlgaePositionC(AlgaeSubsystem.Position.UP)
+            noop()
+            // algae.setAlgaePositionC(AlgaeSubsystem.Position.UP)
         );
         /** OJ Left Trigger - Outtake Algae then stop toros */
         oj.leftTrigger().onTrue(
-          algae.startToroC(true))
-        .onFalse(
-          algae.stopToroC()
+            noop()
+            // algae.startToroC(true)
+        ).onFalse(
+            noop()
+            // algae.stopToroC()
         );
         /** OJ Google - Stop toros */
         oj.google().onTrue(
-            algae.stopToroC()
+            noop()
+            // algae.stopToroC()
         );
 
         // Other OJ bindings
