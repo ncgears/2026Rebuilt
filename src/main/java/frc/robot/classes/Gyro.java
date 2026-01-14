@@ -2,6 +2,7 @@ package frc.robot.classes;
 
 import java.util.Map;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,7 +18,7 @@ public class Gyro implements Sendable {
 	private static Gyro instance;
 	private static double m_yawOffset = 0.0;
 
-	private static Pigeon2 m_gyro = new Pigeon2(GyroConstants.kPigeonID,GyroConstants.kCANbus);
+	private static Pigeon2 m_gyro = new Pigeon2(GyroConstants.kPigeonID, new CANBus(GyroConstants.kCANbus));
 
 	/**
 	 * Returns the instance of the Gyro subsystem.

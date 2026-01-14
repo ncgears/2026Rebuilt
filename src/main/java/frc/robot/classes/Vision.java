@@ -198,7 +198,8 @@ public class Vision {
    * @return Latest pipeline result.
    */
   public PhotonPipelineResult getLatestResult(PhotonCamera camera) {
-    return camera.getLatestResult();
+    var results = camera.getAllUnreadResults();
+    return results.isEmpty() ? new PhotonPipelineResult() : results.get(results.size() - 1);
   }
 
   /**
