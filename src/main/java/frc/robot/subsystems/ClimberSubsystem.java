@@ -127,6 +127,18 @@ public class ClimberSubsystem extends SubsystemBase {
   public void periodic() {
   }
 
+
+  // #region Commands
+  /**
+   * neutralCommand is used to reset this system into a safe state when disabled. 
+   * It is called when the robot is disabled to reset counters, states, etc.
+   *
+   * @return command that does nothing when scheduled
+   */
+  public Command neutralCommand() {
+    return Commands.none();
+  }
+
   /** Creates Shuffleboard widgets for the climber. */
   public void createDashboards() {
     ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");

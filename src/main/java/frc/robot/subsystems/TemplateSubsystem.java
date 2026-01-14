@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import frc.robot.utils.NCDebug;
 
 /**
@@ -40,10 +42,9 @@ public class TemplateSubsystem extends SubsystemBase {
     return instance;
   }
 
-  /** Creates the template subsystem and initializes state. */
+  /** Creates the Template subsystem and initializes state. */
   public TemplateSubsystem() {
     // initialize values for private and public variables, etc.
-
     init();
   }
 
@@ -55,11 +56,24 @@ public class TemplateSubsystem extends SubsystemBase {
     NCDebug.Debug.debug("Template: Initialized");
   }
 
-  /** Runs periodically for the template subsystem. */
+  /** Runs periodically for the Template subsystem. */
   @Override
   public void periodic() {
   }
   // #endregion Setup
+
+  // #region Commands
+  /**
+   * neutralCommand is used to reset this system into a safe state when disabled. 
+   * It is called when the robot is disabled to reset counters, states, etc.
+   *
+   * @return command that does nothing when scheduled
+   */
+  public Command neutralCommand() {
+    return Commands.none();
+  }
+
+  // //#endregion Commands
 
   // #region Dashboard
   // Methods for creating and updating dashboards

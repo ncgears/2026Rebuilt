@@ -207,10 +207,10 @@ public class RobotContainer {
 
     /** Sets subsystems to a safe neutral state while disabled. */
     public void neutralRobot() {
-        // climiber.Neutral().ignoringDisable(true);
-        // intake.Neutral().ignoringDisable(true);
-        // indexer.Neutral().ignoringDisable(true);
-        // shooter.Neutral().ignoringDisable(true);
+        climber.neutralCommand().ignoringDisable(true);
+        intake.neutralCommand().ignoringDisable(true);
+        indexer.neutralCommand().ignoringDisable(true);
+        shooter.neutralCommand().ignoringDisable(true);
     }
 
     /**

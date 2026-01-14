@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.utils.NCDebug;
 
 /**
- * This subsystem handles managing the Template subsystem.
+ * This subsystem handles managing the Intake subsystem.
  * It is responsible for doing some stuff.
  */
 public class IntakeSubsystem extends SubsystemBase {
@@ -40,7 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
     return instance;
   }
 
-  /** Creates the template subsystem and initializes state. */
+  /** Creates the Intake subsystem and initializes state. */
   public IntakeSubsystem() {
     // initialize values for private and public variables, etc.
 
@@ -52,14 +52,25 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void init() {
     // set initial stuff, etc.
-    NCDebug.Debug.debug("Template: Initialized");
+    NCDebug.Debug.debug("Intake: Initialized");
   }
 
-  /** Runs periodically for the template subsystem. */
+  /** Runs periodically for the Intake subsystem. */
   @Override
   public void periodic() {
   }
   // #endregion Setup
+
+  // #region Commands
+  /**
+   * neutralCommand is used to reset this system into a safe state when disabled. 
+   * It is called when the robot is disabled to reset counters, states, etc.
+   *
+   * @return command that does nothing when scheduled
+   */
+  public Command neutralCommand() {
+    return Commands.none();
+  }
 
   // #region Dashboard
   // Methods for creating and updating dashboards
