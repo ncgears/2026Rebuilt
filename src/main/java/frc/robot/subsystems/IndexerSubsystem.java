@@ -1,7 +1,7 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Volts;
+import java.util.Map;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -10,14 +10,21 @@ import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.units.Units;
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
-import frc.robot.constants.ClimberConstants;
+import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.DashboardConstants;
 import frc.robot.constants.IndexerConstants;
 import frc.robot.utils.NCDebug;
@@ -92,6 +99,7 @@ public class IndexerSubsystem extends SubsystemBase {
       .retryConfigApply(() -> m_beltmotor1.getConfigurator().apply(RobotContainer.ctreConfigs.indexerBeltFXConfig));
 
     init();
+    createDashboards();
   }
 
   /**
@@ -110,6 +118,33 @@ public class IndexerSubsystem extends SubsystemBase {
   // #endregion Setup
 
   // #region Commands
+  /** Creates Shuffleboard widgets for the climber. */
+  public void createDashboards() {
+    ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
+    driverTab.addString("Climber", this::getStateColor)
+      .withSize(2, 2)
+      .withWidget("Single Color View")
+      .withPosition(6, 7);
+
+    ShuffleboardTab systemTab = Shuffleboard.getTab("System");
+    ShuffleboardLayout indexerList = systemTab.getLayout("Indexer", BuiltInLayouts.kList)
+      .withSize(4, 6)
+      .withPosition(16, 0)
+      .withProperties(Map.of("Label position", "LEFT"));
+    indexerList.addString("Status", this::getStateColor)
+      .withWidget("Single Color View");
+    indexerList.addBoolean("Is Full", this::getIsFull);
+    indexerList.addString("State", this::getStateName);
+
+    if (IndexerConstants.debugDashboard) {
+      ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
+      ShuffleboardLayout dbgindexerList = debugTab.getLayout("Indexer", BuiltInLayouts.kList)
+        .withSize(4, 11)
+        .withPosition(4, 0)
+        .withProperties(Map.of("Label position", "LEFT"));
+    }
+  }
+
   /**
    * neutralCommand is used to reset this system into a safe state when disabled. 
    * It is called when the robot is disabled to reset counters, states, etc.
@@ -127,6 +162,33 @@ public class IndexerSubsystem extends SubsystemBase {
 
   // #region Getters
   // Methods for getting data for subsystem
+
+  /**
+   * Returns the current indexer state.
+   *
+   * @return Current state.
+   */
+  public State getState() {
+    return m_curState;
+  }
+
+  /**
+   * Returns the current indexer state name.
+   *
+   * @return State name.
+   */
+  public String getStateName() {
+    return m_curState.toString();
+  }
+
+  /**
+   * Returns the current state color.
+   *
+   * @return Hex color string.
+   */
+  public String getStateColor() {
+    return m_curState.getColor();
+  }
 
   /**
    * Returns true if the indexer feed path has a detected fuel.
