@@ -38,16 +38,16 @@ public final class CTREConfigs {
     //TalonFX
         public final TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
         public final TalonFXConfiguration coralFXConfig = new TalonFXConfiguration();
-        public final TalonFXConfiguration algaewristFXConfig = new TalonFXConfiguration();
+        public final TalonFXConfiguration shooterTiltFXConfig = new TalonFXConfiguration();
         public final TalonFXConfiguration elevatorFXConfig = new TalonFXConfiguration();
         public final TalonFXConfiguration climberFXConfig = new TalonFXConfiguration();
     //TalonFXS
         public final TalonFXSConfiguration intakeFXSConfig = new TalonFXSConfiguration();
-        public final TalonFXSConfiguration algaeleftFXSConfig = new TalonFXSConfiguration();
-        public final TalonFXSConfiguration algaerightFXSConfig = new TalonFXSConfiguration();
+        public final TalonFXSConfiguration shooterFrontFXSConfig = new TalonFXSConfiguration();
+        public final TalonFXSConfiguration shooterBackFXSConfig = new TalonFXSConfiguration();
     //CANcoder
         public final CANcoderConfiguration coralCCConfig = new CANcoderConfiguration();
-        public final CANcoderConfiguration algaeCCConfig = new CANcoderConfiguration();
+        public final CANcoderConfiguration shooterCCConfig = new CANcoderConfiguration();
         public final CANcoderConfiguration elevatorCCConfig = new CANcoderConfiguration();
         public final CANcoderConfiguration climberCCConfig = new CANcoderConfiguration();
 
@@ -118,40 +118,40 @@ public final class CTREConfigs {
         //Audio
         coralFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
 
-        //Algae Configuration
+        //Shooter Configuration
         //CANcoder
-        algaeCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        algaeCCConfig.MagnetSensor.SensorDirection = (AlgaeConstants.kSensorInverted) ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
-        algaeCCConfig.MagnetSensor.MagnetOffset = AlgaeConstants.kMagnetOffset;
+        shooterCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        shooterCCConfig.MagnetSensor.SensorDirection = (ShooterConstants.kSensorInverted) ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
+        shooterCCConfig.MagnetSensor.MagnetOffset = ShooterConstants.kMagnetOffset;
 
-        Slot0Configs algaeSlot0Configs = new Slot0Configs()
-            .withKP(AlgaeConstants.kP)
-            .withKI(AlgaeConstants.kI)
-            .withKD(AlgaeConstants.kD)
-            .withKS(AlgaeConstants.kS)
-            .withKV(AlgaeConstants.kV)
-            .withKA(AlgaeConstants.kA);
-        algaewristFXConfig.Slot0 = algaeSlot0Configs;
+        Slot0Configs shooterSlot0Configs = new Slot0Configs()
+            .withKP(ShooterConstants.kP)
+            .withKI(ShooterConstants.kI)
+            .withKD(ShooterConstants.kD)
+            .withKS(ShooterConstants.kS)
+            .withKV(ShooterConstants.kV)
+            .withKA(ShooterConstants.kA);
+        shooterTiltFXConfig.Slot0 = shooterSlot0Configs;
         //Current Limits
-        CurrentLimitsConfigs algaeCurrentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(AlgaeConstants.kCurrentLimitAmps)
-            // .withSupplyCurrentLowerLimit(AlgaeConstants.kCurrentLimitThresholdAmps)
-            // .withSupplyCurrentLowerTime(AlgaeConstants.kCurrentLimitThresholdSecs)
-            .withSupplyCurrentLimitEnable(AlgaeConstants.kCurrentLimitEnable);
-        algaewristFXConfig.CurrentLimits = algaeCurrentLimitsConfigs;
+        CurrentLimitsConfigs shooterCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(ShooterConstants.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(ShooterConstants.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(ShooterConstants.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(ShooterConstants.kCurrentLimitEnable);
+        shooterTiltFXConfig.CurrentLimits = shooterCurrentLimitsConfigs;
         //Motion Magic
-        MotionMagicConfigs algaeMotionMagicConfigs = new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(AlgaeConstants.kMotionMagicCruise)
-            .withMotionMagicAcceleration(AlgaeConstants.kMotionMagicAccel)
-            .withMotionMagicJerk(AlgaeConstants.kMotionMagicJerk);
-        algaewristFXConfig.MotionMagic = algaeMotionMagicConfigs;
+        MotionMagicConfigs shooterMotionMagicConfigs = new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(ShooterConstants.kMotionMagicCruise)
+            .withMotionMagicAcceleration(ShooterConstants.kMotionMagicAccel)
+            .withMotionMagicJerk(ShooterConstants.kMotionMagicJerk);
+        shooterTiltFXConfig.MotionMagic = shooterMotionMagicConfigs;
         //Mechanical Limits
-        SoftwareLimitSwitchConfigs algaeSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs()
-            .withReverseSoftLimitEnable(AlgaeConstants.kSoftReverseLimitEnable)
-            .withReverseSoftLimitThreshold(AlgaeConstants.kSoftReverseLimit)
-            .withForwardSoftLimitEnable(AlgaeConstants.kSoftForwardLimitEnable)
-            .withForwardSoftLimitThreshold(AlgaeConstants.kSoftForwardLimit);
-        algaewristFXConfig.SoftwareLimitSwitch = algaeSoftwareLimitSwitchConfigs;
+        SoftwareLimitSwitchConfigs shooterSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs()
+            .withReverseSoftLimitEnable(ShooterConstants.kSoftReverseLimitEnable)
+            .withReverseSoftLimitThreshold(ShooterConstants.kSoftReverseLimit)
+            .withForwardSoftLimitEnable(ShooterConstants.kSoftForwardLimitEnable)
+            .withForwardSoftLimitThreshold(ShooterConstants.kSoftForwardLimit);
+        shooterTiltFXConfig.SoftwareLimitSwitch = shooterSoftwareLimitSwitchConfigs;
         // HardwareLimitSwitchConfigs coralHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
         //     .withReverseLimitEnable(false)
         //     .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
@@ -159,58 +159,58 @@ public final class CTREConfigs {
         //     .withReverseLimitAutosetPositionValue(0.0)
         //     .withForwardLimitEnable(false)
         //     .withForwardLimitType(ForwardLimitTypeValue.NormallyOpen); //Add autoset position on forward limit to appropriate number also.
-        // algaewristFXConfig.HardwareLimitSwitch = algaeHardwareLimitsConfigs;
+        // shooterTiltFXConfig.HardwareLimitSwitch = shooterHardwareLimitsConfigs;
         //Encoder
-        if(AlgaeConstants.kUseCANcoder) {
-            algaewristFXConfig.Feedback.FeedbackRemoteSensorID = AlgaeConstants.kCANcoderID;
-            algaewristFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-            algaewristFXConfig.Feedback.RotorToSensorRatio = AlgaeConstants.kGearRatio;
-            algaewristFXConfig.Feedback.SensorToMechanismRatio = AlgaeConstants.kSensorGearRatio; //CANcoder is the same as mechanism
+        if(ShooterConstants.kUseCANcoder) {
+            shooterTiltFXConfig.Feedback.FeedbackRemoteSensorID = ShooterConstants.kCANcoderID;
+            shooterTiltFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+            shooterTiltFXConfig.Feedback.RotorToSensorRatio = ShooterConstants.kGearRatio;
+            shooterTiltFXConfig.Feedback.SensorToMechanismRatio = ShooterConstants.kSensorGearRatio; //CANcoder is the same as mechanism
         } else {
-            algaewristFXConfig.Feedback.SensorToMechanismRatio = AlgaeConstants.kGearRatio;
+            shooterTiltFXConfig.Feedback.SensorToMechanismRatio = ShooterConstants.kGearRatio;
         }
         //Neutral and Direction
-        algaewristFXConfig.MotorOutput.NeutralMode = AlgaeConstants.wrist.kNeutralMode;
-        algaewristFXConfig.MotorOutput.Inverted = (AlgaeConstants.wrist.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        shooterTiltFXConfig.MotorOutput.NeutralMode = ShooterConstants.wrist.kNeutralMode;
+        shooterTiltFXConfig.MotorOutput.Inverted = (ShooterConstants.wrist.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         //Audio
-        algaewristFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        shooterTiltFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
 
         //Toros
-        Slot0Configs algaeleftSlot0Configs = new Slot0Configs()
-            .withKP(AlgaeConstants.kP)
-            .withKI(AlgaeConstants.kI)
-            .withKD(AlgaeConstants.kD)
-            .withKS(AlgaeConstants.kS)
-            .withKV(AlgaeConstants.kV)
-            .withKA(AlgaeConstants.kA);
-        algaeleftFXSConfig.Slot0 = algaeleftSlot0Configs;
-        algaeleftFXSConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+        Slot0Configs shooterFrontSlot0Configs = new Slot0Configs()
+            .withKP(ShooterConstants.kP)
+            .withKI(ShooterConstants.kI)
+            .withKD(ShooterConstants.kD)
+            .withKS(ShooterConstants.kS)
+            .withKV(ShooterConstants.kV)
+            .withKA(ShooterConstants.kA);
+        shooterFrontFXSConfig.Slot0 = shooterFrontSlot0Configs;
+        shooterFrontFXSConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
 
-        HardwareLimitSwitchConfigs algaeleftHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
+        HardwareLimitSwitchConfigs shooterFrontHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
             // .withReverseLimitEnable(false)
             // .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
             // .withReverseLimitAutosetPositionEnable(true)
             // .withReverseLimitAutosetPositionValue(0.0)
             .withForwardLimitEnable(true)
             .withForwardLimitType(ForwardLimitTypeValue.NormallyOpen);
-        algaeleftFXSConfig.HardwareLimitSwitch = algaeleftHardwareLimitsConfigs;
+        shooterFrontFXSConfig.HardwareLimitSwitch = shooterFrontHardwareLimitsConfigs;
         //Current Limits
-        CurrentLimitsConfigs algaeleftCurrentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(AlgaeConstants.kCurrentLimitAmps)
-            // .withSupplyCurrentLowerLimit(AlgaeConstants.kCurrentLimitThresholdAmps)
-            // .withSupplyCurrentLowerTime(AlgaeConstants.kCurrentLimitThresholdSecs)
-            .withSupplyCurrentLimitEnable(AlgaeConstants.kCurrentLimitEnable);
-        algaeleftFXSConfig.CurrentLimits = algaeleftCurrentLimitsConfigs;
+        CurrentLimitsConfigs shooterFrontCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(ShooterConstants.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(ShooterConstants.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(ShooterConstants.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(ShooterConstants.kCurrentLimitEnable);
+        shooterFrontFXSConfig.CurrentLimits = shooterFrontCurrentLimitsConfigs;
         //Neutral and Direction
-        algaeleftFXSConfig.MotorOutput.NeutralMode = AlgaeConstants.left.kNeutralMode;
-        algaeleftFXSConfig.MotorOutput.Inverted = (AlgaeConstants.left.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        shooterFrontFXSConfig.MotorOutput.NeutralMode = ShooterConstants.left.kNeutralMode;
+        shooterFrontFXSConfig.MotorOutput.Inverted = (ShooterConstants.left.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         //Right Side
-        algaerightFXSConfig.Slot0 = algaeleftSlot0Configs;
-        algaerightFXSConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
-        algaerightFXSConfig.HardwareLimitSwitch = algaeleftHardwareLimitsConfigs;
-        algaerightFXSConfig.CurrentLimits = algaeleftCurrentLimitsConfigs;
-        algaerightFXSConfig.MotorOutput.NeutralMode = AlgaeConstants.right.kNeutralMode;
-        algaerightFXSConfig.MotorOutput.Inverted = (AlgaeConstants.right.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        shooterBackFXSConfig.Slot0 = shooterFrontSlot0Configs;
+        shooterBackFXSConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+        shooterBackFXSConfig.HardwareLimitSwitch = shooterFrontHardwareLimitsConfigs;
+        shooterBackFXSConfig.CurrentLimits = shooterFrontCurrentLimitsConfigs;
+        shooterBackFXSConfig.MotorOutput.NeutralMode = ShooterConstants.right.kNeutralMode;
+        shooterBackFXSConfig.MotorOutput.Inverted = (ShooterConstants.right.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
 
 
         //Elevator
