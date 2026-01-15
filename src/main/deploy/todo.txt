@@ -1,15 +1,1 @@
 TODO:
-
-
-
-Links:
-  - PV-Front: http://10.19.18.11:5800
-  - PV-Back: http://10.19.18.12:5800
-
-Reference:
-  - PhotonVision Releases
-    - https://github.com/PhotonVision/photonvision/releases/tag/v2025.2.1
-  - Vision subsystem overhaul from Mechanical Advantage AdvantageKit
-    - https://github.com/Mechanical-Advantage/AdvantageKit/tree/main/template_projects/sources/vision/src/main/java/frc/robot/subsystems/vision
-  - April Tag Visualizer
-    - https://team-6615-bellevillains.github.io/AprilTagVisualizer/
