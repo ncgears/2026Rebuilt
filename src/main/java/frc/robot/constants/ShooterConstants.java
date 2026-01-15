@@ -1,6 +1,7 @@
 
 package frc.robot.constants;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
@@ -10,7 +11,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
  */
 public class ShooterConstants {
     //Controller Setup
-    public static final String canBus = "rio";
+    public static final CANBus canBus = new CANBus("rio");
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable shooter system
     public static final int kCANcoderID = ID.CANcoder.algae;

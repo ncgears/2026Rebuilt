@@ -12,6 +12,7 @@ public class ID {
      */
     public static final class DIO {
         //public static int some_named_dio = 0;
+        public static int indexer_beambreak = 0;
         public static int climber_cageSwitch1 = 0;
         public static int climber_cageSwitch2 = 1;
         public static int climber_climbSwitch = 2;
@@ -55,10 +56,11 @@ public class ID {
         public static int swerve_fr_turn = 3;
         public static int swerve_bl_turn = 4;
         public static int swerve_br_turn = 2;
-        public static int climber = 9;
-        public static int coral = 10;
+        public static int indexer_feed = 9;
+        public static int indexer_belt = 10;
         public static int algae_wrist = 11;
-        public static int elevator = 12;
+        public static int intake = 12;
+        public static int climber = 13;
     }
     /**
      * IDs of TalonFXS

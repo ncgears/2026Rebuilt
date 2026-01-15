@@ -25,8 +25,8 @@ import frc.robot.utils.NCDebug;
 @SuppressWarnings("unused")
 public class Lighting {
 	private static Lighting instance;
-  private final CANdle m_candle1 = new CANdle(LightingConstants.kCandle1ID, new CANBus(LightingConstants.canBus));
-  private final CANdle m_candle2 = new CANdle(LightingConstants.kCandle2ID, new CANBus(LightingConstants.canBus));
+  private final CANdle m_candle1 = new CANdle(LightingConstants.kCandle1ID, LightingConstants.canBus);
+  private final CANdle m_candle2 = new CANdle(LightingConstants.kCandle2ID, LightingConstants.canBus);
   private Colors m_currentColor, m_oldColor = Colors.OFF;
   private boolean m_blinking, m_oldBlinking = false;
   private int m_intensity, m_oldIntensity = 100;

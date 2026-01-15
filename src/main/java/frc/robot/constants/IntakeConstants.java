@@ -2,6 +2,8 @@
 package frc.robot.constants;
 
 import frc.robot.utils.PIDGains;
+
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
@@ -12,13 +14,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 public class IntakeConstants {
 
     //Controller Setup
-    public static final String canBus = "rio";
+    public static final CANBus canBus = new CANBus("rio");
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable climber default command
     public static final int kCANcoderID = ID.CANcoder.climber;
     public static final boolean kUseCANcoder = true;
     public static final double kMagnetOffset = -0.6903906; //Adjust magnet to sensor offset for CANcoder
-    public static final int kMotorID = ID.TalonFX.climber;
+    public static final int kMotorID = ID.TalonFX.intake;
     public static final boolean kIsInverted = true;
     public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
     public static final double kStowPosition = 0;

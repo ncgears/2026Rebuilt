@@ -4,12 +4,22 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotContainer;
+import frc.robot.constants.ClimberConstants;
+import frc.robot.constants.DashboardConstants;
+import frc.robot.constants.IndexerConstants;
 import frc.robot.utils.NCDebug;
 
 /**
@@ -20,10 +30,41 @@ public class IndexerSubsystem extends SubsystemBase {
   private static IndexerSubsystem instance;
   // #region Declarations
   // Declare public and private variables
+  private DigitalInput m_beambreak = new DigitalInput(IndexerConstants.kBeambreakID);
+
+  public enum State {
+    REV(DashboardConstants.Colors.RED),
+    FWD(DashboardConstants.Colors.GREEN),
+    STOP(DashboardConstants.Colors.BLACK);
+    private final String color;
+    State(String color) {
+      this.color = color;
+    }
+    /**
+     * Returns the dashboard color for this state.
+     *
+     * @return Hex color string.
+     */
+    public String getColor() {
+      return this.color;
+    }
+  }
+
+  private final DutyCycleOut m_DutyCycle = new DutyCycleOut(0);
+  private final NeutralOut m_neutral = new NeutralOut();
+  private final StaticBrake m_brake = new StaticBrake();
+  // private CANcoder m_encoder;
+  private TalonFX m_feedmotor1, m_beltmotor1;
+  private State m_curState = State.STOP;
   // #endregion Declarations
 
   // #region Triggers
   // Trigger definitions
+
+  /**
+   * Returns true when the indexer feed is full
+   */
+  public final Trigger isFull = new Trigger(this::getIsFull);
   // #endregion Triggers
 
   // #region Setup
@@ -43,6 +84,12 @@ public class IndexerSubsystem extends SubsystemBase {
   /** Creates the Indexer subsystem and initializes state. */
   public IndexerSubsystem() {
     // initialize values for private and public variables, etc.
+    m_beltmotor1 = new TalonFX(IndexerConstants.Belt.kMotorID, IndexerConstants.canBus);
+    m_feedmotor1 = new TalonFX(IndexerConstants.Feed.kMotorID, IndexerConstants.canBus);
+    RobotContainer.ctreConfigs
+      .retryConfigApply(() -> m_feedmotor1.getConfigurator().apply(RobotContainer.ctreConfigs.indexerFeedFXConfig));
+    RobotContainer.ctreConfigs
+      .retryConfigApply(() -> m_beltmotor1.getConfigurator().apply(RobotContainer.ctreConfigs.indexerBeltFXConfig));
 
     init();
   }
@@ -52,6 +99,7 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public void init() {
     // set initial stuff, etc.
+    m_curState = State.STOP;
     NCDebug.Debug.debug("Indexer: Initialized");
   }
 
@@ -69,6 +117,7 @@ public class IndexerSubsystem extends SubsystemBase {
    * @return command that does nothing when scheduled
    */
   public Command neutralCommand() {
+    m_curState = State.STOP;
     return Commands.none();
   }
 
@@ -78,6 +127,24 @@ public class IndexerSubsystem extends SubsystemBase {
 
   // #region Getters
   // Methods for getting data for subsystem
+
+  /**
+   * Returns true if the indexer feed path has a detected fuel.
+   *
+   * @return True when a the indexer feed path has a detected fuel.
+   */
+  public boolean getIsFull() {
+    return getIndexerBeambreak();
+  }
+
+  /**
+   * Returns the state of the beam break.
+   *
+   * @return True when the switch is triggered.
+   */
+  private boolean getIndexerBeambreak() {
+    return !m_beambreak.get();
+  }
   // #endregion Getters
 
   // #region Setters

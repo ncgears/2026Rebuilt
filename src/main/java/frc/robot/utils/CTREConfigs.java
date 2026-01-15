@@ -37,7 +37,8 @@ public final class CTREConfigs {
 
     //TalonFX
         public final TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
-        public final TalonFXConfiguration coralFXConfig = new TalonFXConfiguration();
+        public final TalonFXConfiguration indexerFeedFXConfig = new TalonFXConfiguration();
+        public final TalonFXConfiguration indexerBeltFXConfig = new TalonFXConfiguration();
         public final TalonFXConfiguration shooterTiltFXConfig = new TalonFXConfiguration();
         public final TalonFXConfiguration elevatorFXConfig = new TalonFXConfiguration();
         public final TalonFXConfiguration climberFXConfig = new TalonFXConfiguration();
@@ -46,77 +47,75 @@ public final class CTREConfigs {
         public final TalonFXSConfiguration shooterFrontFXSConfig = new TalonFXSConfiguration();
         public final TalonFXSConfiguration shooterBackFXSConfig = new TalonFXSConfiguration();
     //CANcoder
-        public final CANcoderConfiguration coralCCConfig = new CANcoderConfiguration();
+        public final CANcoderConfiguration indexerFeedCCConfig = new CANcoderConfiguration();
         public final CANcoderConfiguration shooterCCConfig = new CANcoderConfiguration();
         public final CANcoderConfiguration elevatorCCConfig = new CANcoderConfiguration();
         public final CANcoderConfiguration climberCCConfig = new CANcoderConfiguration();
 
     /** Creates and populates CTRE configuration objects for all subsystems. */
     public CTREConfigs() {
-        //Intake Configuration
-        //CANcoder
-        coralCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        coralCCConfig.MagnetSensor.SensorDirection = (CoralConstants.kSensorInverted) ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
-        coralCCConfig.MagnetSensor.MagnetOffset = CoralConstants.kMagnetOffset;
+        //Indexer Configuration
+        Slot0Configs indexerFeedSlot0Configs = new Slot0Configs()
+            .withKP(IndexerConstants.Feed.kP)
+            .withKI(IndexerConstants.Feed.kI)
+            .withKD(IndexerConstants.Feed.kD)
+            .withKS(IndexerConstants.Feed.kS)
+            .withKV(IndexerConstants.Feed.kV)
+            .withKA(IndexerConstants.Feed.kA);
+        indexerFeedFXConfig.Slot0 = indexerFeedSlot0Configs;
 
-        Slot0Configs coralSlot0Configs = new Slot0Configs()
-            .withKP(CoralConstants.in.kP)
-            .withKI(CoralConstants.in.kI)
-            .withKD(CoralConstants.in.kD)
-            .withKS(CoralConstants.in.kS)
-            .withKV(CoralConstants.in.kV)
-            .withKA(CoralConstants.in.kA);
-        coralFXConfig.Slot0 = coralSlot0Configs;
-        Slot1Configs coralSlot1Configs = new Slot1Configs()
-            .withKP(CoralConstants.out.kP)
-            .withKI(CoralConstants.out.kI)
-            .withKD(CoralConstants.out.kD)
-            .withKS(CoralConstants.out.kS)
-            .withKV(CoralConstants.out.kV)
-            .withKA(CoralConstants.out.kA);
-        coralFXConfig.Slot1 = coralSlot1Configs;
         //Current Limits
-        CurrentLimitsConfigs coralCurrentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(CoralConstants.kCurrentLimitAmps)
-            // .withSupplyCurrentLowerLimit(CoralConstants.kCurrentLimitThresholdAmps)
-            // .withSupplyCurrentLowerTime(CoralConstants.kCurrentLimitThresholdSecs)
-            .withSupplyCurrentLimitEnable(CoralConstants.kCurrentLimitEnable);
-        coralFXConfig.CurrentLimits = coralCurrentLimitsConfigs;
+        CurrentLimitsConfigs indexerFeedCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(IndexerConstants.Feed.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(IndexerConstants.Feed.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(IndexerConstants.Feed.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(IndexerConstants.Feed.kCurrentLimitEnable);
+        indexerFeedFXConfig.CurrentLimits = indexerFeedCurrentLimitsConfigs;
         //Motion Magic
-        // MotionMagicConfigs coralMotionMagicConfigs = new MotionMagicConfigs()
-        //     .withMotionMagicCruiseVelocity(CoralConstants.kMotionMagicCruise)
-        //     .withMotionMagicAcceleration(CoralConstants.kMotionMagicAccel)
-        //     .withMotionMagicJerk(CoralConstants.kMotionMagicJerk);
-        // coralFXConfig.MotionMagic = coralMotionMagicConfigs;
+        // MotionMagicConfigs indexerFeedMotionMagicConfigs = new MotionMagicConfigs()
+        //     .withMotionMagicCruiseVelocity(IndexerConstants.kMotionMagicCruise)
+        //     .withMotionMagicAcceleration(IndexerConstants.kMotionMagicAccel)
+        //     .withMotionMagicJerk(IndexerConstants.kMotionMagicJerk);
+        // indexerFeedFXConfig.MotionMagic = indexerFeedMotionMagicConfigs;
         //Mechanical Limits
-        SoftwareLimitSwitchConfigs coralSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs()
-            .withReverseSoftLimitEnable(CoralConstants.kSoftReverseLimitEnable)
-            .withReverseSoftLimitThreshold(CoralConstants.kSoftReverseLimit)
-            .withForwardSoftLimitEnable(CoralConstants.kSoftForwardLimitEnable)
-            .withForwardSoftLimitThreshold(CoralConstants.kSoftForwardLimit);
-        coralFXConfig.SoftwareLimitSwitch = coralSoftwareLimitSwitchConfigs;
-        // HardwareLimitSwitchConfigs coralHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
-        //     .withReverseLimitEnable(false)
-        //     .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
-        //     .withReverseLimitAutosetPositionEnable(true)
-        //     .withReverseLimitAutosetPositionValue(0.0)
-        //     .withForwardLimitEnable(false)
-        //     .withForwardLimitType(ForwardLimitTypeValue.NormallyOpen); //Add autoset position on forward limit to appropriate number also.
-        // coralFXConfig.HardwareLimitSwitch = coralHardwareLimitsConfigs;
-        //Encoder
-        if(CoralConstants.kUseCANcoder) {
-            coralFXConfig.Feedback.FeedbackRemoteSensorID = CoralConstants.kCANcoderID;
-            coralFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-            coralFXConfig.Feedback.RotorToSensorRatio = CoralConstants.kGearRatio;
-            coralFXConfig.Feedback.SensorToMechanismRatio = CoralConstants.kSensorGearRatio; //CANcoder is the same as mechanism
-        } else {
-            coralFXConfig.Feedback.SensorToMechanismRatio = CoralConstants.kGearRatio;
-        }
+        SoftwareLimitSwitchConfigs indexerFeedSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
+        indexerFeedFXConfig.SoftwareLimitSwitch = indexerFeedSoftwareLimitSwitchConfigs;
         //Neutral and Direction
-        coralFXConfig.MotorOutput.NeutralMode = CoralConstants.kNeutralMode;
-        coralFXConfig.MotorOutput.Inverted = (CoralConstants.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        indexerFeedFXConfig.MotorOutput.NeutralMode = IndexerConstants.Feed.kNeutralMode;
+        indexerFeedFXConfig.MotorOutput.Inverted = (IndexerConstants.Feed.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         //Audio
-        coralFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        indexerFeedFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+
+        Slot0Configs indexerBeltSlot0Configs = new Slot0Configs()
+            .withKP(IndexerConstants.Belt.kP)
+            .withKI(IndexerConstants.Belt.kI)
+            .withKD(IndexerConstants.Belt.kD)
+            .withKS(IndexerConstants.Belt.kS)
+            .withKV(IndexerConstants.Belt.kV)
+            .withKA(IndexerConstants.Belt.kA);
+        indexerBeltFXConfig.Slot0 = indexerBeltSlot0Configs;
+
+        //Current Limits
+        CurrentLimitsConfigs indexerBeltCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(IndexerConstants.Belt.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(IndexerConstants.Belt.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(IndexerConstants.Belt.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(IndexerConstants.Belt.kCurrentLimitEnable);
+        indexerBeltFXConfig.CurrentLimits = indexerBeltCurrentLimitsConfigs;
+        //Motion Magic
+        // MotionMagicConfigs indexerBeltMotionMagicConfigs = new MotionMagicConfigs()
+        //     .withMotionMagicCruiseVelocity(IndexerConstants.kMotionMagicCruise)
+        //     .withMotionMagicAcceleration(IndexerConstants.kMotionMagicAccel)
+        //     .withMotionMagicJerk(IndexerConstants.kMotionMagicJerk);
+        // indexerBeltFXConfig.MotionMagic = indexerBeltMotionMagicConfigs;
+        //Mechanical Limits
+        SoftwareLimitSwitchConfigs indexerBeltSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
+        indexerBeltFXConfig.SoftwareLimitSwitch = indexerBeltSoftwareLimitSwitchConfigs;
+        //Neutral and Direction
+        indexerBeltFXConfig.MotorOutput.NeutralMode = IndexerConstants.Belt.kNeutralMode;
+        indexerBeltFXConfig.MotorOutput.Inverted = (IndexerConstants.Belt.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        //Audio
+        indexerBeltFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
 
         //Shooter Configuration
         //CANcoder
@@ -152,7 +151,7 @@ public final class CTREConfigs {
             .withForwardSoftLimitEnable(ShooterConstants.kSoftForwardLimitEnable)
             .withForwardSoftLimitThreshold(ShooterConstants.kSoftForwardLimit);
         shooterTiltFXConfig.SoftwareLimitSwitch = shooterSoftwareLimitSwitchConfigs;
-        // HardwareLimitSwitchConfigs coralHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
+        // HardwareLimitSwitchConfigs indexerFeedHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
         //     .withReverseLimitEnable(false)
         //     .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
         //     .withReverseLimitAutosetPositionEnable(true)
@@ -211,65 +210,6 @@ public final class CTREConfigs {
         shooterBackFXSConfig.CurrentLimits = shooterFrontCurrentLimitsConfigs;
         shooterBackFXSConfig.MotorOutput.NeutralMode = ShooterConstants.right.kNeutralMode;
         shooterBackFXSConfig.MotorOutput.Inverted = (ShooterConstants.right.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-
-
-        //Elevator
-        //CANcoder
-        elevatorCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        elevatorCCConfig.MagnetSensor.SensorDirection = (ElevatorConstants.kSensorInverted) ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
-        elevatorCCConfig.MagnetSensor.MagnetOffset = ElevatorConstants.kMagnetOffset;
-
-        Slot0Configs elevatorSlot0Configs = new Slot0Configs()
-            .withKP(ElevatorConstants.kP)
-            .withKI(ElevatorConstants.kI)
-            .withKD(ElevatorConstants.kD)
-            .withKS(ElevatorConstants.kS)
-            .withKV(ElevatorConstants.kV)
-            .withKA(ElevatorConstants.kA)
-            .withKG(ElevatorConstants.kG);
-        elevatorFXConfig.Slot0 = elevatorSlot0Configs;
-        //Current Limits
-        CurrentLimitsConfigs elevatorCurrentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(ElevatorConstants.kCurrentLimitAmps)
-            // .withSupplyCurrentLowerLimit(ElevatorConstants.kCurrentLimitThresholdAmps)
-            // .withSupplyCurrentLowerTime(ElevatorConstants.kCurrentLimitThresholdSecs)
-            .withSupplyCurrentLimitEnable(ElevatorConstants.kCurrentLimitEnable);
-        elevatorFXConfig.CurrentLimits = elevatorCurrentLimitsConfigs;
-        //Motion Magic
-        MotionMagicConfigs elevatorMotionMagicConfigs = new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(ElevatorConstants.kMotionMagicCruise)
-            .withMotionMagicAcceleration(ElevatorConstants.kMotionMagicAccel)
-            .withMotionMagicJerk(ElevatorConstants.kMotionMagicJerk);
-        elevatorFXConfig.MotionMagic = elevatorMotionMagicConfigs;
-        //Mechanical Limits
-        SoftwareLimitSwitchConfigs elevatorSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs()
-            .withReverseSoftLimitEnable(ElevatorConstants.kSoftReverseLimitEnable)
-            .withReverseSoftLimitThreshold(ElevatorConstants.kSoftReverseLimit)
-            .withForwardSoftLimitEnable(ElevatorConstants.kSoftForwardLimitEnable)
-            .withForwardSoftLimitThreshold(ElevatorConstants.kSoftForwardLimit);
-        elevatorFXConfig.SoftwareLimitSwitch = elevatorSoftwareLimitSwitchConfigs;
-        // HardwareLimitSwitchConfigs elevatorHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
-        //     .withReverseLimitEnable(false)
-        //     .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
-        //     .withReverseLimitAutosetPositionEnable(true)
-        //     .withReverseLimitAutosetPositionValue(0.0)
-        //     .withForwardLimitEnable(false)
-        //     .withForwardLimitType(ForwardLimitTypeValue.NormallyOpen); //Add autoset position on forward limit to appropriate number also.
-        // elevatorFXConfig.HardwareLimitSwitch = elevatorHardwareLimitsConfigs;
-        //Encoder
-        if(ElevatorConstants.kUseCANcoder) {
-            elevatorFXConfig.Feedback.FeedbackRemoteSensorID = ElevatorConstants.kCANcoderID;
-            elevatorFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-            elevatorFXConfig.Feedback.RotorToSensorRatio = ElevatorConstants.kGearRatio;
-            elevatorFXConfig.Feedback.SensorToMechanismRatio = ElevatorConstants.kSensorGearRatio; //CANcoder is the same as mechanism
-        } else {
-            elevatorFXConfig.Feedback.SensorToMechanismRatio = ElevatorConstants.kGearRatio;
-        }
-        //Neutral and Direction
-        elevatorFXConfig.MotorOutput.NeutralMode = ElevatorConstants.kNeutralMode;
-        elevatorFXConfig.MotorOutput.Inverted = (ElevatorConstants.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-        //Audio
-        elevatorFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
 
         //Climber
         //CANcoder
