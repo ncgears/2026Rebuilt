@@ -2,6 +2,8 @@
 package frc.robot.constants;
 
 import frc.robot.utils.PIDGains;
+
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
@@ -12,7 +14,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 public class ClimberConstants {
 
     //Controller Setup
-    public static final String canBus = "rio";
+    public static final String canBusName = "rio";
+    public static final CANBus canBus = new CANBus(canBusName);
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable climber default command
     public static final int kCANcoderID = ID.CANcoder.climber;

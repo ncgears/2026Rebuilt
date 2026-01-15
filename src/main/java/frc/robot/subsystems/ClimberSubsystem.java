@@ -105,8 +105,7 @@ public class ClimberSubsystem extends SubsystemBase {
     // ClimberConstants.canBus);
     // RobotContainer.ctreConfigs.retryConfigApply(()->m_encoder.getConfigurator().apply(RobotContainer.ctreConfigs.climberCCConfig));
 
-    CANBus climberCANBus = new CANBus(ClimberConstants.canBus);
-    m_motor1 = new TalonFX(ClimberConstants.kMotorID, climberCANBus);
+    m_motor1 = new TalonFX(ClimberConstants.kMotorID, ClimberConstants.canBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_motor1.getConfigurator().apply(RobotContainer.ctreConfigs.climberFXConfig));
 
