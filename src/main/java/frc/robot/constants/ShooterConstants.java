@@ -6,13 +6,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
 @SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 /**
- * Constants for the Intake Subsystem
+ * Constants for the Shooter Subsystem
  */
-public class AlgaeConstants {
+public class ShooterConstants {
     //Controller Setup
     public static final String canBus = "rio";
     public static final boolean debugDashboard = false; //enable debugging dashboard
-    public static final boolean isDisabled = false; //disable algae system
+    public static final boolean isDisabled = false; //disable shooter system
     public static final int kCANcoderID = ID.CANcoder.algae;
     public static final boolean kUseCANcoder = true;
     public static final double kMagnetOffset = 0.811768; //Adjust magnet to sensor offset for CANcoder
