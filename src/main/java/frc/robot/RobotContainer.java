@@ -65,10 +65,10 @@ public class RobotContainer {
     public static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(); //must be after gyro
     public static final Targeting targeting = Targeting.getInstance(); //must be after drive
     public static final PowerDistribution power = new PowerDistribution(1,ModuleType.kRev);
-    public static final ClimberSubsystem climber = ClimberSubsystem.getInstance();
-    public static final IntakeSubsystem intake = IntakeSubsystem.getInstance();
-    public static final IndexerSubsystem indexer = IndexerSubsystem.getInstance();
-    public static final ShooterSubsystem shooter = ShooterSubsystem.getInstance();
+    // public static final ClimberSubsystem climber = ClimberSubsystem.getInstance();
+    // public static final IntakeSubsystem intake = IntakeSubsystem.getInstance();
+    // public static final IndexerSubsystem indexer = IndexerSubsystem.getInstance();
+    // public static final ShooterSubsystem shooter = ShooterSubsystem.getInstance();
     
     public static Optional<Alliance> m_alliance;
 
@@ -199,18 +199,18 @@ public class RobotContainer {
         lighting.init();
         targeting.init();
         drivetrain.init();
-        climber.init();
-        intake.init();
-        indexer.init();
-        shooter.init();
+        // climber.init();
+        // intake.init();
+        // indexer.init();
+        // shooter.init();
     }
 
     /** Sets subsystems to a safe neutral state while disabled. */
     public void neutralRobot() {
-        climber.neutralCommand().ignoringDisable(true);
-        intake.neutralCommand().ignoringDisable(true);
-        indexer.neutralCommand().ignoringDisable(true);
-        shooter.neutralCommand().ignoringDisable(true);
+        // climber.neutralCommand().ignoringDisable(true);
+        // intake.neutralCommand().ignoringDisable(true);
+        // indexer.neutralCommand().ignoringDisable(true);
+        // shooter.neutralCommand().ignoringDisable(true);
     }
 
     /**
@@ -247,14 +247,14 @@ public class RobotContainer {
              * This monitors the hasCage trigger and immediately starts climbing until the climbComplete trigger, then goes to holding mode
              * Once the climbComplete trigger fires, the climber stops after 2 seconds
              */
-            climber.hasCage.and(climber.climbComplete.negate()).onTrue(
-              climber.climberMoveC(() -> ClimberConstants.kClimbPower)
-              .alongWith(lighting.climbStartColor())
-            );
-            climber.climbComplete.onTrue(
-              climber.climberStopC()
-              .alongWith(lighting.climbDoneColor())
-            );
+            // climber.hasCage.and(climber.climbComplete.negate()).onTrue(
+            //   climber.climberMoveC(() -> ClimberConstants.kClimbPower)
+            //   .alongWith(lighting.climbStartColor())
+            // );
+            // climber.climbComplete.onTrue(
+            //   climber.climberStopC()
+            //   .alongWith(lighting.climbDoneColor())
+            // );
         }
         //#endregion Trigger Actions
 

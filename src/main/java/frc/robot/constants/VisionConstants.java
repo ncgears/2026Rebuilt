@@ -58,9 +58,9 @@ public class VisionConstants {
     */
     private static AprilTagFieldLayout getTagLayout() {
       try {
-        return new AprilTagFieldLayout(Filesystem.getDeployDirectory().getAbsolutePath() + "/apriltags/2025reefscape_tags_welded_reefonly.json");
+        return new AprilTagFieldLayout(Filesystem.getDeployDirectory().getAbsolutePath() + "/apriltags/2026-rebuilt-welded.json");
       } catch (Exception e) {
-        return AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+        return AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
       }
     }
 }
