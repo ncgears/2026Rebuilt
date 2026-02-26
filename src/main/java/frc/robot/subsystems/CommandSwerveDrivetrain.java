@@ -604,9 +604,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if(!m_suppressFrontVision) {
           RobotContainer.vision.correctPoseWithVision();
         }
-        // if(!m_suppressBackVision) {
-        //   RobotContainer.vision.correctPoseWithVision();
-        // }
+        if(!m_suppressBackVision) {
+          RobotContainer.vision.correctPoseWithVision();
+        }
         field.setRobotPose(this.getState().Pose);
     }
 
