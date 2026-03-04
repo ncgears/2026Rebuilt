@@ -37,236 +37,265 @@ public final class CTREConfigs {
 
     //TalonFX
         public final TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
-        public final TalonFXConfiguration indexerFeedFXConfig = new TalonFXConfiguration();
-        public final TalonFXConfiguration indexerBeltFXConfig = new TalonFXConfiguration();
-        public final TalonFXConfiguration shooterTiltFXConfig = new TalonFXConfiguration();
-        public final TalonFXConfiguration elevatorFXConfig = new TalonFXConfiguration();
+        public final TalonFXConfiguration shooterFrontFXConfig = new TalonFXConfiguration();
+        public final TalonFXConfiguration shooterBackFXConfig = new TalonFXConfiguration();
+        public final TalonFXConfiguration indexerFXConfig = new TalonFXConfiguration();
+        public final TalonFXConfiguration knuckleFXConfig = new TalonFXConfiguration();
         public final TalonFXConfiguration climberFXConfig = new TalonFXConfiguration();
-    //TalonFXS
-        public final TalonFXSConfiguration intakeFXSConfig = new TalonFXSConfiguration();
-        public final TalonFXSConfiguration shooterFrontFXSConfig = new TalonFXSConfiguration();
-        public final TalonFXSConfiguration shooterBackFXSConfig = new TalonFXSConfiguration();
+        public final TalonFXConfiguration deployFXConfig = new TalonFXConfiguration();
+        public final TalonFXConfiguration liveBottomFXConfig = new TalonFXConfiguration();
+        public final TalonFXConfiguration intakeFXConfig = new TalonFXConfiguration();
     //CANcoder
-        public final CANcoderConfiguration indexerFeedCCConfig = new CANcoderConfiguration();
-        public final CANcoderConfiguration shooterCCConfig = new CANcoderConfiguration();
-        public final CANcoderConfiguration elevatorCCConfig = new CANcoderConfiguration();
-        public final CANcoderConfiguration climberCCConfig = new CANcoderConfiguration();
+        public final CANcoderConfiguration deployCCConfig = new CANcoderConfiguration();
 
     /** Creates and populates CTRE configuration objects for all subsystems. */
     public CTREConfigs() {
-        //Indexer Configuration
-        Slot0Configs indexerFeedSlot0Configs = new Slot0Configs()
-            .withKP(IndexerConstants.Feed.kP)
-            .withKI(IndexerConstants.Feed.kI)
-            .withKD(IndexerConstants.Feed.kD)
-            .withKS(IndexerConstants.Feed.kS)
-            .withKV(IndexerConstants.Feed.kV)
-            .withKA(IndexerConstants.Feed.kA);
-        indexerFeedFXConfig.Slot0 = indexerFeedSlot0Configs;
-
-        //Current Limits
-        CurrentLimitsConfigs indexerFeedCurrentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(IndexerConstants.Feed.kCurrentLimitAmps)
-            // .withSupplyCurrentLowerLimit(IndexerConstants.Feed.kCurrentLimitThresholdAmps)
-            // .withSupplyCurrentLowerTime(IndexerConstants.Feed.kCurrentLimitThresholdSecs)
-            .withSupplyCurrentLimitEnable(IndexerConstants.Feed.kCurrentLimitEnable);
-        indexerFeedFXConfig.CurrentLimits = indexerFeedCurrentLimitsConfigs;
-        //Motion Magic
-        // MotionMagicConfigs indexerFeedMotionMagicConfigs = new MotionMagicConfigs()
-        //     .withMotionMagicCruiseVelocity(IndexerConstants.kMotionMagicCruise)
-        //     .withMotionMagicAcceleration(IndexerConstants.kMotionMagicAccel)
-        //     .withMotionMagicJerk(IndexerConstants.kMotionMagicJerk);
-        // indexerFeedFXConfig.MotionMagic = indexerFeedMotionMagicConfigs;
-        //Mechanical Limits
-        SoftwareLimitSwitchConfigs indexerFeedSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
-        indexerFeedFXConfig.SoftwareLimitSwitch = indexerFeedSoftwareLimitSwitchConfigs;
-        //Neutral and Direction
-        indexerFeedFXConfig.MotorOutput.NeutralMode = IndexerConstants.Feed.kNeutralMode;
-        indexerFeedFXConfig.MotorOutput.Inverted = (IndexerConstants.Feed.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-        //Audio
-        indexerFeedFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
-
-        Slot0Configs indexerBeltSlot0Configs = new Slot0Configs()
-            .withKP(IndexerConstants.Belt.kP)
-            .withKI(IndexerConstants.Belt.kI)
-            .withKD(IndexerConstants.Belt.kD)
-            .withKS(IndexerConstants.Belt.kS)
-            .withKV(IndexerConstants.Belt.kV)
-            .withKA(IndexerConstants.Belt.kA);
-        indexerBeltFXConfig.Slot0 = indexerBeltSlot0Configs;
-
-        //Current Limits
-        CurrentLimitsConfigs indexerBeltCurrentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(IndexerConstants.Belt.kCurrentLimitAmps)
-            // .withSupplyCurrentLowerLimit(IndexerConstants.Belt.kCurrentLimitThresholdAmps)
-            // .withSupplyCurrentLowerTime(IndexerConstants.Belt.kCurrentLimitThresholdSecs)
-            .withSupplyCurrentLimitEnable(IndexerConstants.Belt.kCurrentLimitEnable);
-        indexerBeltFXConfig.CurrentLimits = indexerBeltCurrentLimitsConfigs;
-        //Motion Magic
-        // MotionMagicConfigs indexerBeltMotionMagicConfigs = new MotionMagicConfigs()
-        //     .withMotionMagicCruiseVelocity(IndexerConstants.kMotionMagicCruise)
-        //     .withMotionMagicAcceleration(IndexerConstants.kMotionMagicAccel)
-        //     .withMotionMagicJerk(IndexerConstants.kMotionMagicJerk);
-        // indexerBeltFXConfig.MotionMagic = indexerBeltMotionMagicConfigs;
-        //Mechanical Limits
-        SoftwareLimitSwitchConfigs indexerBeltSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs();
-        indexerBeltFXConfig.SoftwareLimitSwitch = indexerBeltSoftwareLimitSwitchConfigs;
-        //Neutral and Direction
-        indexerBeltFXConfig.MotorOutput.NeutralMode = IndexerConstants.Belt.kNeutralMode;
-        indexerBeltFXConfig.MotorOutput.Inverted = (IndexerConstants.Belt.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-        //Audio
-        indexerBeltFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
-
-        //Shooter Configuration
-        //CANcoder
-        shooterCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        shooterCCConfig.MagnetSensor.SensorDirection = (ShooterConstants.kSensorInverted) ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
-        shooterCCConfig.MagnetSensor.MagnetOffset = ShooterConstants.kMagnetOffset;
-
-        Slot0Configs shooterSlot0Configs = new Slot0Configs()
-            .withKP(ShooterConstants.kP)
-            .withKI(ShooterConstants.kI)
-            .withKD(ShooterConstants.kD)
-            .withKS(ShooterConstants.kS)
-            .withKV(ShooterConstants.kV)
-            .withKA(ShooterConstants.kA);
-        shooterTiltFXConfig.Slot0 = shooterSlot0Configs;
-        //Current Limits
-        CurrentLimitsConfigs shooterCurrentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(ShooterConstants.kCurrentLimitAmps)
-            // .withSupplyCurrentLowerLimit(ShooterConstants.kCurrentLimitThresholdAmps)
-            // .withSupplyCurrentLowerTime(ShooterConstants.kCurrentLimitThresholdSecs)
-            .withSupplyCurrentLimitEnable(ShooterConstants.kCurrentLimitEnable);
-        shooterTiltFXConfig.CurrentLimits = shooterCurrentLimitsConfigs;
-        //Motion Magic
-        MotionMagicConfigs shooterMotionMagicConfigs = new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(ShooterConstants.kMotionMagicCruise)
-            .withMotionMagicAcceleration(ShooterConstants.kMotionMagicAccel)
-            .withMotionMagicJerk(ShooterConstants.kMotionMagicJerk);
-        shooterTiltFXConfig.MotionMagic = shooterMotionMagicConfigs;
-        //Mechanical Limits
-        SoftwareLimitSwitchConfigs shooterSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs()
-            .withReverseSoftLimitEnable(ShooterConstants.kSoftReverseLimitEnable)
-            .withReverseSoftLimitThreshold(ShooterConstants.kSoftReverseLimit)
-            .withForwardSoftLimitEnable(ShooterConstants.kSoftForwardLimitEnable)
-            .withForwardSoftLimitThreshold(ShooterConstants.kSoftForwardLimit);
-        shooterTiltFXConfig.SoftwareLimitSwitch = shooterSoftwareLimitSwitchConfigs;
-        // HardwareLimitSwitchConfigs indexerFeedHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
-        //     .withReverseLimitEnable(false)
-        //     .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
-        //     .withReverseLimitAutosetPositionEnable(true)
-        //     .withReverseLimitAutosetPositionValue(0.0)
-        //     .withForwardLimitEnable(false)
-        //     .withForwardLimitType(ForwardLimitTypeValue.NormallyOpen); //Add autoset position on forward limit to appropriate number also.
-        // shooterTiltFXConfig.HardwareLimitSwitch = shooterHardwareLimitsConfigs;
-        //Encoder
-        if(ShooterConstants.kUseCANcoder) {
-            shooterTiltFXConfig.Feedback.FeedbackRemoteSensorID = ShooterConstants.kCANcoderID;
-            shooterTiltFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-            shooterTiltFXConfig.Feedback.RotorToSensorRatio = ShooterConstants.kGearRatio;
-            shooterTiltFXConfig.Feedback.SensorToMechanismRatio = ShooterConstants.kSensorGearRatio; //CANcoder is the same as mechanism
-        } else {
-            shooterTiltFXConfig.Feedback.SensorToMechanismRatio = ShooterConstants.kGearRatio;
-        }
-        //Neutral and Direction
-        shooterTiltFXConfig.MotorOutput.NeutralMode = ShooterConstants.wrist.kNeutralMode;
-        shooterTiltFXConfig.MotorOutput.Inverted = (ShooterConstants.wrist.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-        //Audio
-        shooterTiltFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
-
-        //Toros
+        //#region Shooter Front
+        //Shooter Front Configuration
         Slot0Configs shooterFrontSlot0Configs = new Slot0Configs()
-            .withKP(ShooterConstants.kP)
-            .withKI(ShooterConstants.kI)
-            .withKD(ShooterConstants.kD)
-            .withKS(ShooterConstants.kS)
-            .withKV(ShooterConstants.kV)
-            .withKA(ShooterConstants.kA);
-        shooterFrontFXSConfig.Slot0 = shooterFrontSlot0Configs;
-        shooterFrontFXSConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+            .withKP(ShooterConstants.Front.kP)
+            .withKI(ShooterConstants.Front.kI)
+            .withKD(ShooterConstants.Front.kD)
+            .withKS(ShooterConstants.Front.kS)
+            .withKV(ShooterConstants.Front.kV)
+            .withKA(ShooterConstants.Front.kA);
+        shooterFrontFXConfig.Slot0 = shooterFrontSlot0Configs;
 
-        HardwareLimitSwitchConfigs shooterFrontHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
-            // .withReverseLimitEnable(false)
-            // .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
-            // .withReverseLimitAutosetPositionEnable(true)
-            // .withReverseLimitAutosetPositionValue(0.0)
-            .withForwardLimitEnable(true)
-            .withForwardLimitType(ForwardLimitTypeValue.NormallyOpen);
-        shooterFrontFXSConfig.HardwareLimitSwitch = shooterFrontHardwareLimitsConfigs;
         //Current Limits
         CurrentLimitsConfigs shooterFrontCurrentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(ShooterConstants.kCurrentLimitAmps)
-            // .withSupplyCurrentLowerLimit(ShooterConstants.kCurrentLimitThresholdAmps)
-            // .withSupplyCurrentLowerTime(ShooterConstants.kCurrentLimitThresholdSecs)
-            .withSupplyCurrentLimitEnable(ShooterConstants.kCurrentLimitEnable);
-        shooterFrontFXSConfig.CurrentLimits = shooterFrontCurrentLimitsConfigs;
+            .withSupplyCurrentLimit(ShooterConstants.Front.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(ShooterConstants.Front.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(ShooterConstants.Front.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(ShooterConstants.Front.kCurrentLimitEnable);
+        shooterFrontFXConfig.CurrentLimits = shooterFrontCurrentLimitsConfigs;
         //Neutral and Direction
-        shooterFrontFXSConfig.MotorOutput.NeutralMode = ShooterConstants.left.kNeutralMode;
-        shooterFrontFXSConfig.MotorOutput.Inverted = (ShooterConstants.left.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-        //Right Side
-        shooterBackFXSConfig.Slot0 = shooterFrontSlot0Configs;
-        shooterBackFXSConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
-        shooterBackFXSConfig.HardwareLimitSwitch = shooterFrontHardwareLimitsConfigs;
-        shooterBackFXSConfig.CurrentLimits = shooterFrontCurrentLimitsConfigs;
-        shooterBackFXSConfig.MotorOutput.NeutralMode = ShooterConstants.right.kNeutralMode;
-        shooterBackFXSConfig.MotorOutput.Inverted = (ShooterConstants.right.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        shooterFrontFXConfig.MotorOutput.NeutralMode = ShooterConstants.Front.kNeutralMode;
+        shooterFrontFXConfig.MotorOutput.Inverted = ShooterConstants.Front.kInverted;
+        //Audio
+        shooterFrontFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        //#endregion
 
-        //Climber
-        //CANcoder
-        climberCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        climberCCConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        climberCCConfig.MagnetSensor.MagnetOffset = ClimberConstants.kMagnetOffset;
+        //#region Shooter Back
+        //Shooter Back Configuration
+        Slot0Configs shooterBackSlot0Configs = new Slot0Configs()
+            .withKP(ShooterConstants.Back.kP)
+            .withKI(ShooterConstants.Back.kI)
+            .withKD(ShooterConstants.Back.kD)
+            .withKS(ShooterConstants.Back.kS)
+            .withKV(ShooterConstants.Back.kV)
+            .withKA(ShooterConstants.Back.kA);
+        shooterBackFXConfig.Slot0 = shooterBackSlot0Configs;
 
+        //Current Limits
+        CurrentLimitsConfigs shooterBackCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(ShooterConstants.Back.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(ShooterConstants.Back.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(ShooterConstants.Back.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(ShooterConstants.Back.kCurrentLimitEnable);
+        shooterBackFXConfig.CurrentLimits = shooterBackCurrentLimitsConfigs;
+        //Neutral and Direction
+        shooterBackFXConfig.MotorOutput.NeutralMode = ShooterConstants.Back.kNeutralMode;
+        shooterBackFXConfig.MotorOutput.Inverted = ShooterConstants.Back.kInverted;
+        //Audio
+        shooterBackFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        //#endregion
+
+        //#region Indexer
+        //Indexer Configuration
+        Slot0Configs indexerSlot0Configs = new Slot0Configs()
+            .withKP(IndexerConstants.Indexer.kP)
+            .withKI(IndexerConstants.Indexer.kI)
+            .withKD(IndexerConstants.Indexer.kD)
+            .withKS(IndexerConstants.Indexer.kS)
+            .withKV(IndexerConstants.Indexer.kV)
+            .withKA(IndexerConstants.Indexer.kA);
+       indexerFXConfig.Slot0 = indexerSlot0Configs;
+
+        //Current Limits
+        CurrentLimitsConfigs indexerCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(IndexerConstants.Indexer.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(IndexerConstants.Indexer.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(IndexerConstants.Indexer.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(IndexerConstants.Indexer.kCurrentLimitEnable);
+        indexerFXConfig.CurrentLimits = indexerCurrentLimitsConfigs;
+        //Neutral and Direction
+        indexerFXConfig.MotorOutput.NeutralMode = IndexerConstants.Indexer.kNeutralMode;
+        indexerFXConfig.MotorOutput.Inverted = IndexerConstants.Indexer.kInverted;
+        //Audio
+        indexerFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        //#endregion
+
+        //#region Knuckle
+        Slot0Configs knuckleSlot0Configs = new Slot0Configs()
+            .withKP(IndexerConstants.Knuckle.kP)
+            .withKI(IndexerConstants.Knuckle.kI)
+            .withKD(IndexerConstants.Knuckle.kD)
+            .withKS(IndexerConstants.Knuckle.kS)
+            .withKV(IndexerConstants.Knuckle.kV)
+            .withKA(IndexerConstants.Knuckle.kA);
+       knuckleFXConfig.Slot0 = knuckleSlot0Configs;
+
+        //Current Limits
+        CurrentLimitsConfigs knuckleCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(IndexerConstants.Knuckle.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(IndexerConstants.Knuckle.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(IndexerConstants.Knuckle.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(IndexerConstants.Knuckle.kCurrentLimitEnable);
+        knuckleFXConfig.CurrentLimits = knuckleCurrentLimitsConfigs;
+        //Neutral and Direction
+        knuckleFXConfig.MotorOutput.NeutralMode = IndexerConstants.Knuckle.kNeutralMode;
+        knuckleFXConfig.MotorOutput.Inverted = IndexerConstants.Knuckle.kInverted;
+        //Audio
+        knuckleFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        //#endregion
+
+        //#region LiveBottom
+        Slot0Configs liveBottomSlot0Configs = new Slot0Configs()
+            .withKP(IndexerConstants.LiveBottom.kP)
+            .withKI(IndexerConstants.LiveBottom.kI)
+            .withKD(IndexerConstants.LiveBottom.kD)
+            .withKS(IndexerConstants.LiveBottom.kS)
+            .withKV(IndexerConstants.LiveBottom.kV)
+            .withKA(IndexerConstants.LiveBottom.kA);
+       liveBottomFXConfig.Slot0 = liveBottomSlot0Configs;
+
+        //Current Limits
+        CurrentLimitsConfigs liveBottomCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(IndexerConstants.LiveBottom.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(IndexerConstants.LiveBottom.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(IndexerConstants.LiveBottom.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(IndexerConstants.LiveBottom.kCurrentLimitEnable);
+        liveBottomFXConfig.CurrentLimits = liveBottomCurrentLimitsConfigs;
+        //Neutral and Direction
+        liveBottomFXConfig.MotorOutput.NeutralMode = IndexerConstants.LiveBottom.kNeutralMode;
+        liveBottomFXConfig.MotorOutput.Inverted = IndexerConstants.LiveBottom.kInverted;
+        //Audio
+        liveBottomFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        //#endregion
+
+        //#region Intake
+        Slot0Configs intakeSlot0Configs = new Slot0Configs()
+            .withKP(IntakeConstants.Intake.kP)
+            .withKI(IntakeConstants.Intake.kI)
+            .withKD(IntakeConstants.Intake.kD)
+            .withKS(IntakeConstants.Intake.kS)
+            .withKV(IntakeConstants.Intake.kV)
+            .withKA(IntakeConstants.Intake.kA);
+        intakeFXConfig.Slot0 = intakeSlot0Configs;
+
+        //Current Limits
+        CurrentLimitsConfigs intakeCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(IntakeConstants.Intake.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(IntakeConstants.Intake.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(IntakeConstants.Intake.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(IntakeConstants.Intake.kCurrentLimitEnable);
+        intakeFXConfig.CurrentLimits = intakeCurrentLimitsConfigs;
+        //Neutral and Direction
+        intakeFXConfig.MotorOutput.NeutralMode = IntakeConstants.Intake.kNeutralMode;
+        intakeFXConfig.MotorOutput.Inverted = IntakeConstants.Intake.kInverted;
+        //Audio
+        intakeFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        //#endregion
+
+        //#region Deploy
+        Slot0Configs deploySlot0Configs = new Slot0Configs()
+            .withKP(IntakeConstants.Deploy.kP)
+            .withKI(IntakeConstants.Deploy.kI)
+            .withKD(IntakeConstants.Deploy.kD)
+            .withKS(IntakeConstants.Deploy.kS)
+            .withKV(IntakeConstants.Deploy.kV)
+            .withKA(IntakeConstants.Deploy.kA);
+       deployFXConfig.Slot0 = deploySlot0Configs;
+
+        //Current Limits
+        CurrentLimitsConfigs deployCurrentLimitsConfigs = new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(IntakeConstants.Deploy.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(IntakeConstants.Deploy.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(IntakeConstants.Deploy.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(IntakeConstants.Deploy.kCurrentLimitEnable);
+        deployFXConfig.CurrentLimits = deployCurrentLimitsConfigs;
+        //Neutral and Direction
+        deployFXConfig.MotorOutput.NeutralMode = IntakeConstants.Deploy.kNeutralMode;
+        deployFXConfig.MotorOutput.Inverted = IntakeConstants.Deploy.kInverted;
+        //Audio
+        deployFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        //#endregion
+
+        //#region Climber
         Slot0Configs climberSlot0Configs = new Slot0Configs()
-            .withKP(ClimberConstants.kP)
-            .withKI(ClimberConstants.kI)
-            .withKD(ClimberConstants.kD)
-            .withKS(ClimberConstants.kS)
-            .withKV(ClimberConstants.kV)
-            .withKA(ClimberConstants.kA);
-        climberFXConfig.Slot0 = climberSlot0Configs;
+            .withKP(ClimberConstants.Climber.kP)
+            .withKI(ClimberConstants.Climber.kI)
+            .withKD(ClimberConstants.Climber.kD)
+            .withKS(ClimberConstants.Climber.kS)
+            .withKV(ClimberConstants.Climber.kV)
+            .withKA(ClimberConstants.Climber.kA);
+       climberFXConfig.Slot0 = climberSlot0Configs;
+
         //Current Limits
         CurrentLimitsConfigs climberCurrentLimitsConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(ClimberConstants.kCurrentLimitAmps)
-            // .withSupplyCurrentLowerLimit(ClimberConstants.kCurrentLimitThresholdAmps)
-            // .withSupplyCurrentLowerTime(ClimberConstants.kCurrentLimitThresholdSecs)
-            .withSupplyCurrentLimitEnable(ClimberConstants.kCurrentLimitEnable);
+            .withSupplyCurrentLimit(ClimberConstants.Climber.kCurrentLimitAmps)
+            // .withSupplyCurrentLowerLimit(ClimberConstants.Climber.kCurrentLimitThresholdAmps)
+            // .withSupplyCurrentLowerTime(ClimberConstants.Climber.kCurrentLimitThresholdSecs)
+            .withSupplyCurrentLimitEnable(ClimberConstants.Climber.kCurrentLimitEnable);
         climberFXConfig.CurrentLimits = climberCurrentLimitsConfigs;
-        //Motion Magic
-        MotionMagicConfigs climberMotionMagicConfigs = new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(ClimberConstants.kMotionMagicCruise)
-            .withMotionMagicAcceleration(ClimberConstants.kMotionMagicAccel)
-            .withMotionMagicJerk(ClimberConstants.kMotionMagicJerk);
-        climberFXConfig.MotionMagic = climberMotionMagicConfigs;
-        //Mechanical Limits
-        SoftwareLimitSwitchConfigs climberSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs()
-            .withReverseSoftLimitEnable(ClimberConstants.kSoftReverseLimitEnable)
-            .withReverseSoftLimitThreshold(ClimberConstants.kSoftReverseLimit)
-            .withForwardSoftLimitEnable(ClimberConstants.kSoftForwardLimitEnable)
-            .withForwardSoftLimitThreshold(ClimberConstants.kSoftForwardLimit);
-        climberFXConfig.SoftwareLimitSwitch = climberSoftwareLimitSwitchConfigs;
-        HardwareLimitSwitchConfigs climberHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
-        //     .withReverseLimitEnable(false)
-        //     .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
-        //     .withReverseLimitAutosetPositionEnable(true)
-        //     .withReverseLimitAutosetPositionValue(0.0)
-            .withForwardLimitEnable(true)
-            .withForwardLimitType(ForwardLimitTypeValue.NormallyClosed);
-        climberFXConfig.HardwareLimitSwitch = climberHardwareLimitsConfigs;
-        //Encoder
-        if(ClimberConstants.kUseCANcoder) {
-            climberFXConfig.Feedback.FeedbackRemoteSensorID = ClimberConstants.kCANcoderID;
-            climberFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-            climberFXConfig.Feedback.RotorToSensorRatio = ClimberConstants.kGearRatio;
-            climberFXConfig.Feedback.SensorToMechanismRatio = ClimberConstants.kSensorGearRatio; //CANcoder is the same as mechanism
-        } else {
-            climberFXConfig.Feedback.SensorToMechanismRatio = ClimberConstants.kGearRatio;
-        }
         //Neutral and Direction
-        climberFXConfig.MotorOutput.NeutralMode = ClimberConstants.kNeutralMode;
-        climberFXConfig.MotorOutput.Inverted = (ClimberConstants.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        climberFXConfig.MotorOutput.NeutralMode = ClimberConstants.Climber.kNeutralMode;
+        climberFXConfig.MotorOutput.Inverted = ClimberConstants.Climber.kInverted;
         //Audio
         climberFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        //#endregion
+
+        // //Climber
+        // Slot0Configs climberSlot0Configs = new Slot0Configs()
+        //     .withKP(ClimberConstants.kP)
+        //     .withKI(ClimberConstants.kI)
+        //     .withKD(ClimberConstants.kD)
+        //     .withKS(ClimberConstants.kS)
+        //     .withKV(ClimberConstants.kV)
+        //     .withKA(ClimberConstants.kA);
+        // climberFXConfig.Slot0 = climberSlot0Configs;
+        // //Current Limits
+        // CurrentLimitsConfigs climberCurrentLimitsConfigs = new CurrentLimitsConfigs()
+        //     .withSupplyCurrentLimit(ClimberConstants.kCurrentLimitAmps)
+        //     // .withSupplyCurrentLowerLimit(ClimberConstants.kCurrentLimitThresholdAmps)
+        //     // .withSupplyCurrentLowerTime(ClimberConstants.kCurrentLimitThresholdSecs)
+        //     .withSupplyCurrentLimitEnable(ClimberConstants.kCurrentLimitEnable);
+        // climberFXConfig.CurrentLimits = climberCurrentLimitsConfigs;
+        // //Motion Magic
+        // MotionMagicConfigs climberMotionMagicConfigs = new MotionMagicConfigs()
+        //     .withMotionMagicCruiseVelocity(ClimberConstants.kMotionMagicCruise)
+        //     .withMotionMagicAcceleration(ClimberConstants.kMotionMagicAccel)
+        //     .withMotionMagicJerk(ClimberConstants.kMotionMagicJerk);
+        // climberFXConfig.MotionMagic = climberMotionMagicConfigs;
+        // //Mechanical Limits
+        // SoftwareLimitSwitchConfigs climberSoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs()
+        //     .withReverseSoftLimitEnable(ClimberConstants.kSoftReverseLimitEnable)
+        //     .withReverseSoftLimitThreshold(ClimberConstants.kSoftReverseLimit)
+        //     .withForwardSoftLimitEnable(ClimberConstants.kSoftForwardLimitEnable)
+        //     .withForwardSoftLimitThreshold(ClimberConstants.kSoftForwardLimit);
+        // climberFXConfig.SoftwareLimitSwitch = climberSoftwareLimitSwitchConfigs;
+        // HardwareLimitSwitchConfigs climberHardwareLimitsConfigs = new HardwareLimitSwitchConfigs()
+        // //     .withReverseLimitEnable(false)
+        // //     .withReverseLimitType(ReverseLimitTypeValue.NormallyOpen)
+        // //     .withReverseLimitAutosetPositionEnable(true)
+        // //     .withReverseLimitAutosetPositionValue(0.0)
+        //     .withForwardLimitEnable(true)
+        //     .withForwardLimitType(ForwardLimitTypeValue.NormallyClosed);
+        // climberFXConfig.HardwareLimitSwitch = climberHardwareLimitsConfigs;
+        // //Encoder
+        // if(ClimberConstants.kUseCANcoder) {
+        //     climberFXConfig.Feedback.FeedbackRemoteSensorID = ClimberConstants.kCANcoderID;
+        //     climberFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        //     climberFXConfig.Feedback.RotorToSensorRatio = ClimberConstants.kGearRatio;
+        //     climberFXConfig.Feedback.SensorToMechanismRatio = ClimberConstants.kSensorGearRatio; //CANcoder is the same as mechanism
+        // } else {
+        //     climberFXConfig.Feedback.SensorToMechanismRatio = ClimberConstants.kGearRatio;
+        // }
+        // //Neutral and Direction
+        // climberFXConfig.MotorOutput.NeutralMode = ClimberConstants.kNeutralMode;
+        // climberFXConfig.MotorOutput.Inverted = (ClimberConstants.kIsInverted) ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        // //Audio
+        // climberFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
 
     }
 

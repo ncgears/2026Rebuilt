@@ -12,10 +12,9 @@ public class ID {
      */
     public static final class DIO {
         //public static int some_named_dio = 0;
-        public static int indexer_beambreak = 0;
-        public static int climber_cageSwitch1 = 0;
-        public static int climber_cageSwitch2 = 1;
-        public static int climber_climbSwitch = 2;
+        public static int deploy_limit_low = 0;
+        public static int deploy_limit_high = 1;
+        public static int climber_limit_low = 2;
     }
     /**
      * IDs of RoboRio Analog IO
@@ -27,6 +26,9 @@ public class ID {
      * IDs of RoboRio PWM
      */
     public static final class PWM {
+        public static int matrixbreaker = 0;
+        public static int otherthing1 = 1;
+        public static int otherthing2 = 2;
     }
     /**
      * IDs of RoboRio Relays
@@ -48,6 +50,7 @@ public class ID {
      * IDs of Krakens/Falcons
      */
     public static final class TalonFX {
+        //swerve
         public static int swerve_fl_drive = 8;
         public static int swerve_fr_drive = 5;
         public static int swerve_bl_drive = 7;
@@ -56,19 +59,27 @@ public class ID {
         public static int swerve_fr_turn = 3;
         public static int swerve_bl_turn = 4;
         public static int swerve_br_turn = 2;
-        public static int indexer_feed = 9;
-        public static int indexer_belt = 10;
-        public static int algae_wrist = 11;
-        public static int intake = 12;
-        public static int climber = 13;
+        //intake
+        public static int intake = 10;
+        public static int deploy = 18;
+        //indexer
+        public static int indexer = 11;
+        public static int livebottom = 12;
+        public static int knuckle = 13;
+        //shooter
+        public static int shooter_front = 15;
+        public static int shooter_back = 17;
+        //climber
+        public static int climber = 19;
     }
+
     /**
      * IDs of TalonFXS
      */
     public static final class TalonFXS {
-        public static int algae_left = 34;
-        public static int algae_right = 33;
+        // public static int algae_right = 33;
     }
+
     /**
      * IDs of CANdles
      */
@@ -76,6 +87,7 @@ public class ID {
         public static int candle1 = 17;
         public static int candle2 = 18;
     }
+
     /**
      * IDs of CANcoders
      */
@@ -84,9 +96,15 @@ public class ID {
         public static int swerve_fr_cc = 4;
         public static int swerve_bl_cc = 2;
         public static int swerve_br_cc = 1;
-        public static int coral = 23; //not in use
-        public static int algae = 25;
-        public static int climber = 0; //not in use
-        public static int elevator = 22;
+        public static int climber_cc = 19;
+        public static int deploy_cc = 18;
     }
+
+    /**
+     * IDs of CANdis
+     */
+    public static final class CANdi {
+        public static int climber = 0;
+    }
+
 }

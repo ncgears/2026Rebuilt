@@ -37,7 +37,6 @@ public class IndexerSubsystem extends SubsystemBase {
   private static IndexerSubsystem instance;
   // #region Declarations
   // Declare public and private variables
-  private DigitalInput m_beambreak = new DigitalInput(IndexerConstants.kBeambreakID);
 
   public enum State {
     REV(DashboardConstants.Colors.RED),
@@ -61,17 +60,13 @@ public class IndexerSubsystem extends SubsystemBase {
   private final NeutralOut m_neutral = new NeutralOut();
   private final StaticBrake m_brake = new StaticBrake();
   // private CANcoder m_encoder;
-  private TalonFX m_feedmotor1, m_beltmotor1;
+  private TalonFX m_liveBottomMotor, m_indexerMotor;
   private State m_curState = State.STOP;
   // #endregion Declarations
 
   // #region Triggers
   // Trigger definitions
 
-  /**
-   * Returns true when the indexer feed is full
-   */
-  public final Trigger isFull = new Trigger(this::getIsFull);
   // #endregion Triggers
 
   // #region Setup
@@ -91,12 +86,12 @@ public class IndexerSubsystem extends SubsystemBase {
   /** Creates the Indexer subsystem and initializes state. */
   public IndexerSubsystem() {
     // initialize values for private and public variables, etc.
-    m_beltmotor1 = new TalonFX(IndexerConstants.Belt.kMotorID, IndexerConstants.canBus);
-    m_feedmotor1 = new TalonFX(IndexerConstants.Feed.kMotorID, IndexerConstants.canBus);
+    m_liveBottomMotor = new TalonFX(IndexerConstants.LiveBottom.kMotorID, IndexerConstants.canBus);
+    m_indexerMotor = new TalonFX(IndexerConstants.Indexer.kMotorID, IndexerConstants.canBus);
     RobotContainer.ctreConfigs
-      .retryConfigApply(() -> m_feedmotor1.getConfigurator().apply(RobotContainer.ctreConfigs.indexerFeedFXConfig));
+      .retryConfigApply(() -> m_indexerMotor.getConfigurator().apply(RobotContainer.ctreConfigs.indexerFXConfig));
     RobotContainer.ctreConfigs
-      .retryConfigApply(() -> m_beltmotor1.getConfigurator().apply(RobotContainer.ctreConfigs.indexerBeltFXConfig));
+      .retryConfigApply(() -> m_liveBottomMotor.getConfigurator().apply(RobotContainer.ctreConfigs.liveBottomFXConfig));
 
     init();
     createDashboards();
@@ -133,7 +128,6 @@ public class IndexerSubsystem extends SubsystemBase {
       .withProperties(Map.of("Label position", "LEFT"));
     indexerList.addString("Status", this::getStateColor)
       .withWidget("Single Color View");
-    indexerList.addBoolean("Is Full", this::getIsFull);
     indexerList.addString("State", this::getStateName);
 
     if (IndexerConstants.debugDashboard) {
@@ -190,23 +184,6 @@ public class IndexerSubsystem extends SubsystemBase {
     return m_curState.getColor();
   }
 
-  /**
-   * Returns true if the indexer feed path has a detected fuel.
-   *
-   * @return True when a the indexer feed path has a detected fuel.
-   */
-  public boolean getIsFull() {
-    return getIndexerBeambreak();
-  }
-
-  /**
-   * Returns the state of the beam break.
-   *
-   * @return True when the switch is triggered.
-   */
-  private boolean getIndexerBeambreak() {
-    return !m_beambreak.get();
-  }
   // #endregion Getters
 
   // #region Setters

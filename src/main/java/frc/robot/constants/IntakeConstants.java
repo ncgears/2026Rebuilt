@@ -4,6 +4,7 @@ package frc.robot.constants;
 import frc.robot.utils.PIDGains;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
@@ -13,24 +14,63 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
  */
 public class IntakeConstants {
 
+    public class Intake {
+        public static final int kMotorID = ID.TalonFX.intake;
+        public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
+        public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
+        //FF gains
+        public static final double kV = 0.11862;
+        public static final double kA = 0.0066756;
+        public static final double kS = 0.17534;
+        //PID gains
+        public static final double kP = 0.000058859;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        //Current Limiting
+        public static final boolean kCurrentLimitEnable = false; // TODO: Test current limits
+        public static final double kCurrentLimitAmps = 30.0;
+        public static final double kCurrentLimitThresholdAmps = 30.0;
+        public static final double kCurrentLimitThresholdSecs = 0.3;        
+    }
+    public class Deploy {
+        public static final int kMotorID = ID.TalonFX.deploy;
+        public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
+        public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
+        //FF gains
+        public static final double kV = 0.11862;
+        public static final double kA = 0.0066756;
+        public static final double kS = 0.17534;
+        //PID gains
+        public static final double kP = 0.000058859;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        //Current Limiting
+        public static final boolean kCurrentLimitEnable = false; // TODO: Test current limits
+        public static final double kCurrentLimitAmps = 30.0;
+        public static final double kCurrentLimitThresholdAmps = 30.0;
+        public static final double kCurrentLimitThresholdSecs = 0.3;        
+    }
+
+
     //Controller Setup
     public static final CANBus canBus = new CANBus("rio");
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable climber default command
-    public static final int kCANcoderID = ID.CANcoder.climber;
+
     public static final boolean kUseCANcoder = true;
+    public static final int kCANcoderID = ID.CANcoder.deploy_cc;
     public static final double kMagnetOffset = -0.6903906; //Adjust magnet to sensor offset for CANcoder
+    
     public static final int kMotorID = ID.TalonFX.intake;
     public static final boolean kIsInverted = true;
     public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
     public static final double kStowPosition = 0;
-    public static final double kClimbPower = 0.8;
+    public static final double kDeployPower = 0.8;
 
-    public static final int kCageSwitch1ID = ID.DIO.climber_cageSwitch1;
-    public static final int kCageSwitch2ID = ID.DIO.climber_cageSwitch2;
-    public static final int kClimbSwitchID = ID.DIO.climber_climbSwitch;
+    public static final int kLimitLow = ID.DIO.deploy_limit_low;
+    public static final int kLimitHigh = ID.DIO.deploy_limit_high;
 
-    public static final double kGearRatio = 46.667; // 20:1 gearbox (0.05), 18t:42t -- this is between rotor and sensor
+    public static final double kGearRatio = 20.0; // 20:1 gearbox (0.05) -- this is between rotor and sensor
     public static final double kSensorGearRatio = 1.0; // no gearing between sensor and spool -- this is between sensor and spool
     //PID Control
     public static final double kS = 0.22; // add kS to overcome static friction: adjust first to start moving

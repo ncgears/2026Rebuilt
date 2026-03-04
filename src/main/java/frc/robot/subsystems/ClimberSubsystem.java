@@ -12,6 +12,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANdi;
 // import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ForwardLimitValue;
@@ -43,10 +44,8 @@ public class ClimberSubsystem extends SubsystemBase {
   private static ClimberSubsystem instance;
   // private and public variables defined here
 
-  private DigitalInput m_cageSwitch1 = new DigitalInput(ClimberConstants.kCageSwitch1ID);
-  private DigitalInput m_cageSwitch2 = new DigitalInput(ClimberConstants.kCageSwitch2ID);
-  private DigitalInput m_climbSwitch = new DigitalInput(ClimberConstants.kClimbSwitchID);
-
+  private CANdi candi = new CANdi(ClimberConstants.kCANdiID);
+  
   public enum State {
     UP(DashboardConstants.Colors.ORANGE),
     DOWN(DashboardConstants.Colors.RED),
@@ -79,7 +78,7 @@ public class ClimberSubsystem extends SubsystemBase {
   /**
    * Returns true when the cage switch is engaged
    */
-  public final Trigger hasCage = new Trigger(this::getHasCage);
+  public final Trigger hasCage = new Trigger(this::getStartSwitch);
   /**
    * Returns true when the climber has reached its limit
    */
@@ -153,12 +152,11 @@ public class ClimberSubsystem extends SubsystemBase {
       .withProperties(Map.of("Label position", "LEFT"));
     climberList.addString("Status", this::getStateColor)
       .withWidget("Single Color View");
-    climberList.addBoolean("Has Cage", this::getHasCage);
     climberList.addBoolean("Complete", this::getClimbComplete);
     climberList.addString("State", this::getStateName);
     climberList.addNumber("Position", () -> NCDebug.General.roundDouble(getPosition().in(Units.Rotations), 7));
-    climberList.addBoolean("CageSw1", this::getCageSwitch1);
-    climberList.addBoolean("CageSw2", this::getCageSwitch2);
+    climberList.addBoolean("StartSw", this::getStartSwitch);
+    climberList.addBoolean("EndSw", this::getEndSwitch);
 
     if (ClimberConstants.debugDashboard) {
       ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
@@ -168,14 +166,13 @@ public class ClimberSubsystem extends SubsystemBase {
         .withProperties(Map.of("Label position", "LEFT"));
       dbgClimberList.addString("Status", this::getStateColor)
         .withWidget("Single Color View");
-      dbgClimberList.addBoolean("Has Cage", this::getHasCage);
       dbgClimberList.addBoolean("Complete", this::getClimbComplete);
       dbgClimberList.addString("State", this::getStateName);
       dbgClimberList.addNumber("Position", () -> {
         return NCDebug.General.roundDouble(getPosition().in(Units.Rotations), 6);
       });
-      dbgClimberList.addBoolean("CageSw1", this::getCageSwitch1);
-      dbgClimberList.addBoolean("CageSw2", this::getCageSwitch2);
+      dbgClimberList.addBoolean("StartSw", this::getStartSwitch);
+      dbgClimberList.addBoolean("EndSw", this::getEndSwitch);
       dbgClimberList.add("Climber Up", new InstantCommand(this::climberUp))
         .withProperties(Map.of("show_type", false));
       dbgClimberList.add("Climber Down", new InstantCommand(this::climberDown))
@@ -215,15 +212,6 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   /**
-   * Returns true if both cage switches are engaged.
-   *
-   * @return True when a cage is detected.
-   */
-  public boolean getHasCage() {
-    return getCageSwitch1() && getCageSwitch2();
-  }
-
-  /**
    * Returns true if the climb is complete.
    *
    * @return True when climb is complete.
@@ -246,8 +234,8 @@ public class ClimberSubsystem extends SubsystemBase {
    *
    * @return True when the switch is triggered.
    */
-  private boolean getCageSwitch1() {
-    return !m_cageSwitch1.get();
+  private boolean getStartSwitch() {
+    return candi.getS1Closed().isAllGood();
   }
 
   /**
@@ -255,8 +243,8 @@ public class ClimberSubsystem extends SubsystemBase {
    *
    * @return True when the switch is triggered.
    */
-  private boolean getCageSwitch2() {
-    return !m_cageSwitch2.get();
+  private boolean getEndSwitch() {
+    return candi.getS2Closed().isAllGood();
   }
 
   /**
@@ -266,7 +254,7 @@ public class ClimberSubsystem extends SubsystemBase {
    */
   private boolean getClimbSwitch() {
     if(Robot.isSimulation()) {
-      return !m_climbSwitch.get();
+      return true;
     }
     return (m_motor1.getForwardLimit().getValue() == ForwardLimitValue.Open);
   }
