@@ -198,10 +198,10 @@ public final class CTREConfigs {
         //#endregion
 
         //#region Deploy
-        //     deplopyFXConfig.Feedback.FeedbackRemoteSensorID = IntakeConstants.kCANcoderID;
-        //     deplopyFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        //     deplopyFXConfig.Feedback.RotorToSensorRatio = IntakeConstants.kGearRatio;
-        //     deplopyFXConfig.Feedback.SensorToMechanismRatio = IntakeConstants.kSensorGearRatio; //CANcoder is the same as mechanism
+        //CANcoder
+        deployCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        deployCCConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        deployCCConfig.MagnetSensor.MagnetOffset = ClimberConstants.kMagnetOffset;
 
         Slot0Configs deploySlot0Configs = new Slot0Configs()
             .withKP(IntakeConstants.Deploy.kP)
@@ -222,6 +222,11 @@ public final class CTREConfigs {
         //Neutral and Direction
         deployFXConfig.MotorOutput.NeutralMode = IntakeConstants.Deploy.kNeutralMode;
         deployFXConfig.MotorOutput.Inverted = IntakeConstants.Deploy.kInverted;
+        //Encoder
+        deployFXConfig.Feedback.FeedbackRemoteSensorID = IntakeConstants.Deploy.kCANcoderID;
+        deployFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        deployFXConfig.Feedback.RotorToSensorRatio = IntakeConstants.kGearRatio;
+        deployFXConfig.Feedback.SensorToMechanismRatio = IntakeConstants.kSensorGearRatio; //CANcoder is the same as mechanism
         //Audio
         deployFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
         //#endregion

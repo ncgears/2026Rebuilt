@@ -5,11 +5,15 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotContainer;
+import frc.robot.constants.IntakeConstants;
 import frc.robot.utils.NCDebug;
 
 /**
@@ -19,7 +23,8 @@ import frc.robot.utils.NCDebug;
 public class IntakeSubsystem extends SubsystemBase {
   private static IntakeSubsystem instance;
   // #region Declarations
-  // Declare public and private variables
+  private CANcoder m_deployencoder;
+  private TalonFX m_deploymotor, m_intakemotor;
   // #endregion Declarations
 
   // #region Triggers
@@ -43,6 +48,18 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates the Intake subsystem and initializes state. */
   public IntakeSubsystem() {
     // initialize values for private and public variables, etc.
+    // initialize values for private and public variables, etc.
+    m_deployencoder = new CANcoder(IntakeConstants.Deploy.kCANcoderID, IntakeConstants.canBus);
+    RobotContainer.ctreConfigs
+      .retryConfigApply(() -> m_deployencoder.getConfigurator().apply(RobotContainer.ctreConfigs.deployCCConfig));
+
+    m_deploymotor = new TalonFX(IntakeConstants.Deploy.kMotorID, IntakeConstants.canBus);
+    RobotContainer.ctreConfigs
+      .retryConfigApply(() -> m_deploymotor.getConfigurator().apply(RobotContainer.ctreConfigs.deployFXConfig));
+
+    m_intakemotor = new TalonFX(IntakeConstants.Intake.kMotorID, IntakeConstants.canBus);
+    RobotContainer.ctreConfigs
+      .retryConfigApply(() -> m_intakemotor.getConfigurator().apply(RobotContainer.ctreConfigs.intakeFXConfig));
 
     init();
   }

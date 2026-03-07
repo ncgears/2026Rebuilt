@@ -33,6 +33,11 @@ public class IntakeConstants {
         public static final double kCurrentLimitThresholdSecs = 0.3;        
     }
     public class Deploy {
+        //Cancoder
+        public static final boolean kUseCANcoder = true;
+        public static final int kCANcoderID = ID.CANcoder.deploy_cc;
+        public static final double kMagnetOffset = -0.6903906; //Adjust magnet to sensor offset for CANcoder
+        //Motor
         public static final int kMotorID = ID.TalonFX.deploy;
         public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
         public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
@@ -50,17 +55,15 @@ public class IntakeConstants {
         public static final double kCurrentLimitThresholdAmps = 30.0;
         public static final double kCurrentLimitThresholdSecs = 0.3;        
     }
-
+    public class Shoe {
+        public static final int kServoID = ID.PWM.shoe;
+    }
 
     //Controller Setup
     public static final CANBus canBus = new CANBus("rio");
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable climber default command
 
-    public static final boolean kUseCANcoder = true;
-    public static final int kCANcoderID = ID.CANcoder.deploy_cc;
-    public static final double kMagnetOffset = -0.6903906; //Adjust magnet to sensor offset for CANcoder
-    
     public static final int kMotorID = ID.TalonFX.intake;
     public static final boolean kIsInverted = true;
     public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;

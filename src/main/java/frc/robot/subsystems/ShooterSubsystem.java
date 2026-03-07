@@ -4,12 +4,17 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotContainer;
+import frc.robot.constants.ShooterConstants;
+import frc.robot.utils.Helpers;
 import frc.robot.utils.NCDebug;
 
 /**
@@ -19,7 +24,9 @@ import frc.robot.utils.NCDebug;
 public class ShooterSubsystem extends SubsystemBase {
   private static ShooterSubsystem instance;
   // #region Declarations
-  // Declare public and private variables
+  private TalonFX m_shooterFrontMotor, m_shooterBackMotor;
+  private final VelocityVoltage m_frontVelocityRequest = new VelocityVoltage(0.0);
+  private final VelocityVoltage m_backVelocityRequest = new VelocityVoltage(0.0);
   // #endregion Declarations
 
   // #region Triggers
@@ -43,6 +50,13 @@ public class ShooterSubsystem extends SubsystemBase {
   /** Creates the Shooter subsystem and initializes state. */
   public ShooterSubsystem() {
     // initialize values for private and public variables, etc.
+    m_shooterFrontMotor = new TalonFX(ShooterConstants.Front.kMotorID, ShooterConstants.canBus);
+    RobotContainer.ctreConfigs
+      .retryConfigApply(() -> m_shooterFrontMotor.getConfigurator().apply(RobotContainer.ctreConfigs.shooterFrontFXConfig));
+
+    m_shooterBackMotor = new TalonFX(ShooterConstants.Back.kMotorID, ShooterConstants.canBus);
+    RobotContainer.ctreConfigs
+      .retryConfigApply(() -> m_shooterBackMotor.getConfigurator().apply(RobotContainer.ctreConfigs.shooterBackFXConfig));
 
     init();
   }
@@ -66,10 +80,31 @@ public class ShooterSubsystem extends SubsystemBase {
    * neutralCommand is used to reset this system into a safe state when disabled. 
    * It is called when the robot is disabled to reset counters, states, etc.
    *
-   * @return command that does nothing when scheduled
+   * @return Command that sets both shooter motors to coast neutral mode.
    */
   public Command neutralCommand() {
-    return Commands.none();
+    return shooterNeutralC();
+  }
+
+  /**
+   * Creates a command to set both shooter wheels to the same speed setpoint in RPM.
+   *
+   * @param rpm Target speed in RPM for both shooter motors.
+   * @return Command that updates both shooter speed setpoints.
+   */
+  public Command setShooterSpeedC(double rpm) {
+    return runOnce(() -> setShooterSpeedRPM(rpm));
+  }
+
+  /**
+   * Creates a command to set independent shooter wheel speed setpoints in RPM.
+   *
+   * @param frontRpm Target speed in RPM for the front shooter motor.
+   * @param backRpm Target speed in RPM for the back shooter motor.
+   * @return Command that updates front and back shooter speed setpoints.
+   */
+  public Command setShooterSpeedC(double frontRpm, double backRpm) {
+    return runOnce(() -> setShooterSpeedRPM(frontRpm, backRpm));
   }
 
   // #region Dashboard
@@ -90,6 +125,47 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // #region Controls
   // Methods for controlling the subsystem
+
+  /**
+   * Sets both shooter motors to coast neutral mode.
+   */
+  public void shooterNeutral() {
+    m_shooterFrontMotor.setNeutralMode(NeutralModeValue.Coast);
+    m_shooterBackMotor.setNeutralMode(NeutralModeValue.Coast);
+    NCDebug.Debug.debug("Shooter: Switch to Coast");
+  }
+
+  /**
+   * Sets both shooter wheels to the same speed setpoint in RPM.
+   *
+   * @param rpm Target speed in RPM for both shooter motors.
+   */
+  public void setShooterSpeedRPM(double rpm) {
+    setShooterSpeedRPM(rpm, rpm);
+  }
+
+  /**
+   * Sets independent shooter wheel speed setpoints in RPM.
+   *
+   * @param frontRpm Target speed in RPM for the front shooter motor.
+   * @param backRpm Target speed in RPM for the back shooter motor.
+   */
+  public void setShooterSpeedRPM(double frontRpm, double backRpm) {
+    double frontRps = Helpers.RPMtoRPS(frontRpm);
+    double backRps = Helpers.RPMtoRPS(backRpm);
+    m_shooterFrontMotor.setControl(m_frontVelocityRequest.withVelocity(frontRps));
+    m_shooterBackMotor.setControl(m_backVelocityRequest.withVelocity(backRps));
+    NCDebug.Debug.debug("Shooter: Set speed " + frontRpm + "RPM front, " + backRpm + "RPM back");
+  }
+
+  /**
+   * Creates a command to set both shooter motors to coast neutral mode.
+   *
+   * @return Command that updates both shooter motor neutral modes.
+   */
+  public Command shooterNeutralC() {
+    return runOnce(this::shooterNeutral);
+  }
   // #endregion Controls
 
   // #region SysID Functions
