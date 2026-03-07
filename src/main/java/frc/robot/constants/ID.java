@@ -12,9 +12,6 @@ public class ID {
      */
     public static final class DIO {
         //public static int some_named_dio = 0;
-        public static int deploy_limit_low = 0;
-        public static int deploy_limit_high = 1;
-        public static int climber_limit_low = 2;
     }
     /**
      * IDs of RoboRio Analog IO
@@ -27,8 +24,7 @@ public class ID {
      */
     public static final class PWM {
         public static int matrixbreaker = 0;
-        public static int otherthing1 = 1;
-        public static int otherthing2 = 2;
+        public static int shoe = 1;
     }
     /**
      * IDs of RoboRio Relays
@@ -96,7 +92,6 @@ public class ID {
         public static int swerve_fr_cc = 4;
         public static int swerve_bl_cc = 2;
         public static int swerve_br_cc = 1;
-        public static int climber_cc = 19;
         public static int deploy_cc = 18;
     }
 

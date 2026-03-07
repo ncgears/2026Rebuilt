@@ -39,7 +39,6 @@ public class ClimberConstants {
     public static final CANBus canBus = new CANBus("rio");
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable climber default command
-    public static final int kCANcoderID = ID.CANcoder.climber_cc;
     public static final boolean kUseCANcoder = true;
     public static final double kMagnetOffset = -0.6903906; //Adjust magnet to sensor offset for CANcoder
     public static final int kMotorID = ID.TalonFX.climber;
@@ -49,8 +48,6 @@ public class ClimberConstants {
     public static final double kClimbPower = 0.8;
 
     public static final int kCANdiID = ID.CANdi.climber;
-
-    public static final int kClimbSwitchID = ID.DIO.climber_limit_low;
 
     public static final double kGearRatio = 46.667; // 20:1 gearbox (0.05), 18t:42t -- this is between rotor and sensor
     public static final double kSensorGearRatio = 1.0; // no gearing between sensor and spool -- this is between sensor and spool

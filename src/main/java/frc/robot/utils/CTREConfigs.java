@@ -198,6 +198,11 @@ public final class CTREConfigs {
         //#endregion
 
         //#region Deploy
+        //     deplopyFXConfig.Feedback.FeedbackRemoteSensorID = IntakeConstants.kCANcoderID;
+        //     deplopyFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        //     deplopyFXConfig.Feedback.RotorToSensorRatio = IntakeConstants.kGearRatio;
+        //     deplopyFXConfig.Feedback.SensorToMechanismRatio = IntakeConstants.kSensorGearRatio; //CANcoder is the same as mechanism
+
         Slot0Configs deploySlot0Configs = new Slot0Configs()
             .withKP(IntakeConstants.Deploy.kP)
             .withKI(IntakeConstants.Deploy.kI)

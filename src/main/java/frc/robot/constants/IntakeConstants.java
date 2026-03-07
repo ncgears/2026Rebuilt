@@ -67,9 +67,6 @@ public class IntakeConstants {
     public static final double kStowPosition = 0;
     public static final double kDeployPower = 0.8;
 
-    public static final int kLimitLow = ID.DIO.deploy_limit_low;
-    public static final int kLimitHigh = ID.DIO.deploy_limit_high;
-
     public static final double kGearRatio = 20.0; // 20:1 gearbox (0.05) -- this is between rotor and sensor
     public static final double kSensorGearRatio = 1.0; // no gearing between sensor and spool -- this is between sensor and spool
     //PID Control
