@@ -53,10 +53,19 @@ public class IntakeConstants {
         public static final boolean kCurrentLimitEnable = false; // TODO: Test current limits
         public static final double kCurrentLimitAmps = 30.0;
         public static final double kCurrentLimitThresholdAmps = 30.0;
-        public static final double kCurrentLimitThresholdSecs = 0.3;        
+        public static final double kCurrentLimitThresholdSecs = 0.3;
+
+        public class Positions {
+            public static final double kStow = 0.0;
+            public static final double kOut = 0.0;
+            public static final double kProtect = 0.0;
+        }
     }
     public class Shoe {
         public static final int kServoID = ID.PWM.shoe;
+        public static final double kForward = 1.0;
+        public static final double kReverse = 0.0;
+        public static final double kStop = 0.5;
     }
 
     //Controller Setup
@@ -87,17 +96,8 @@ public class IntakeConstants {
     public static final double kCurrentLimitAmps = 30.0;
     public static final double kCurrentLimitThresholdAmps = 60.0;
     public static final double kCurrentLimitThresholdSecs = 0.3;
-    public class Positions {
-        public static final double kFwdLimit = 3.38; //Forward imit
-        public static final double kRevLimit = -0.01; //Reverse Limit
-        public static final double kStow = 0.0; //all the way down
-        public static final double kDeepCapture = 0.0; //Climber up to capture Deep Cage
-        public static final double kDeepClimb = 0.0; //Climber down to climb Deep Cage
-        public static final double kShallowCapture = 0.0; //Climber up to capture Shallow Cage
-        public static final double kShallowClimb = 0.0; //Climber down to climb Shallow Cage
-    }
     public static final boolean kSoftForwardLimitEnable = false;
-    public static final double kSoftForwardLimit = Positions.kFwdLimit;
+    public static final double kSoftForwardLimit = 3.38;
     public static final boolean kSoftReverseLimitEnable = false;
-    public static final double kSoftReverseLimit = Positions.kRevLimit;
+    public static final double kSoftReverseLimit = -0.01;
 }

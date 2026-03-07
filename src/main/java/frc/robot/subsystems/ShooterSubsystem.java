@@ -172,6 +172,42 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns the current front shooter state name.
+   *
+   * @return Front state name.
+   */
+  public String getFrontStateName() {
+    return m_curFrontState.toString();
+  }
+
+  /**
+   * Returns the current back shooter state name.
+   *
+   * @return Back state name.
+   */
+  public String getBackStateName() {
+    return m_curBackState.toString();
+  }
+
+  /**
+   * Returns the current front shooter state color.
+   *
+   * @return Front state color as hex string.
+   */
+  public String getFrontStateColor() {
+    return m_curFrontState.getColor();
+  }
+
+  /**
+   * Returns the current back shooter state color.
+   *
+   * @return Back state color as hex string.
+   */
+  public String getBackStateColor() {
+    return m_curBackState.getColor();
+  }
+
+  /**
    * Returns the front and back shooter state names.
    *
    * @return State names as "FRONT_STATE/BACK_STATE".

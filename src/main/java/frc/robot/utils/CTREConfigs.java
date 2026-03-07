@@ -201,7 +201,7 @@ public final class CTREConfigs {
         //CANcoder
         deployCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         deployCCConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        deployCCConfig.MagnetSensor.MagnetOffset = ClimberConstants.kMagnetOffset;
+        deployCCConfig.MagnetSensor.MagnetOffset = IntakeConstants.Deploy.kMagnetOffset;
 
         Slot0Configs deploySlot0Configs = new Slot0Configs()
             .withKP(IntakeConstants.Deploy.kP)
