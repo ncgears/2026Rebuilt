@@ -76,4 +76,11 @@ public class IndexerConstants {
         public static final double kCurrentLimitThresholdAmps = 30.0;
         public static final double kCurrentLimitThresholdSecs = 0.3;
     }
+
+    public class MatrixBreaker {
+        public static final int kServoID = ID.PWM.matrixbreaker;
+        public static final double kForward = 1.0;
+        public static final double kReverse = 0.0;
+        public static final double kStop = 0.5;
+    }
 }

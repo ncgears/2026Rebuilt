@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
 import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -26,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
-import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.DashboardConstants;
 import frc.robot.constants.IndexerConstants;
 import frc.robot.utils.Helpers;
@@ -65,11 +65,16 @@ public class IndexerSubsystem extends SubsystemBase {
   private final VelocityVoltage m_indexerVelocityRequest = new VelocityVoltage(0.0);
   private final VelocityVoltage m_knuckleVelocityRequest = new VelocityVoltage(0.0);
   // private CANcoder m_encoder;
-  private TalonFX m_indexerMotor, m_knuckleMotor;
+  private TalonFX m_indexerMotor, m_knuckleMotor, m_liveBottomMotor;
+  private Servo m_matrixBreakerServo;
   private State m_curIndexerState = State.STOP;
   private State m_curKnuckleState = State.STOP;
+  private State m_curLiveBottomState = State.STOP;
+  private State m_curMatrixBreakerState = State.STOP;
   private double m_indexerCommandedSpeedRpm = 0.0;
   private double m_knuckleCommandedSpeedRpm = 0.0;
+  private double m_liveBottomCommandedPower = 0.0;
+  private double m_matrixBreakerCommandedOutput = IndexerConstants.MatrixBreaker.kStop;
   // #endregion Declarations
 
   // #region Triggers
@@ -96,10 +101,14 @@ public class IndexerSubsystem extends SubsystemBase {
     // initialize values for private and public variables, etc.
     m_indexerMotor = new TalonFX(IndexerConstants.Indexer.kMotorID, IndexerConstants.canBus);
     m_knuckleMotor = new TalonFX(IndexerConstants.Knuckle.kMotorID, IndexerConstants.canBus);
+    m_liveBottomMotor = new TalonFX(IndexerConstants.LiveBottom.kMotorID, IndexerConstants.canBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_indexerMotor.getConfigurator().apply(RobotContainer.ctreConfigs.indexerFXConfig));
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_knuckleMotor.getConfigurator().apply(RobotContainer.ctreConfigs.knuckleFXConfig));
+    RobotContainer.ctreConfigs
+      .retryConfigApply(() -> m_liveBottomMotor.getConfigurator().apply(RobotContainer.ctreConfigs.liveBottomFXConfig));
+    m_matrixBreakerServo = new Servo(IndexerConstants.MatrixBreaker.kServoID);
 
     init();
     createDashboards();
@@ -112,8 +121,14 @@ public class IndexerSubsystem extends SubsystemBase {
     // set initial stuff, etc.
     m_curIndexerState = State.STOP;
     m_curKnuckleState = State.STOP;
+    m_curLiveBottomState = State.STOP;
+    m_curMatrixBreakerState = State.STOP;
     m_indexerCommandedSpeedRpm = 0.0;
     m_knuckleCommandedSpeedRpm = 0.0;
+    m_liveBottomCommandedPower = 0.0;
+    m_matrixBreakerCommandedOutput = IndexerConstants.MatrixBreaker.kStop;
+    m_liveBottomMotor.setControl(m_DutyCycle.withOutput(0.0));
+    m_matrixBreakerServo.set(IndexerConstants.MatrixBreaker.kStop);
     NCDebug.Debug.debug("Indexer: Initialized");
   }
 
@@ -154,10 +169,10 @@ public class IndexerSubsystem extends SubsystemBase {
    * neutralCommand is used to reset this system into a safe state when disabled. 
    * It is called when the robot is disabled to reset counters, states, etc.
    *
-   * @return Command that sets indexer and knuckle motors to coast neutral mode.
+   * @return Command that neutralizes indexer, knuckle, live bottom, and matrix breaker.
    */
   public Command neutralCommand() {
-    return indexerNeutralC();
+    return runOnce(this::indexerSystemNeutral);
   }
 
   /**
@@ -189,6 +204,70 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public Command setKnuckleSpeedC(double rpm) {
     return runOnce(() -> setKnuckleSpeedRPM(rpm));
+  }
+
+  /**
+   * Creates a command to set the live bottom motor output power.
+   *
+   * @param power Percent output from -1.0 to 1.0.
+   * @return Command that updates live bottom motor output.
+   */
+  public Command setLiveBottomPowerC(double power) {
+    return runOnce(() -> setLiveBottomPower(power));
+  }
+
+  /**
+   * Creates a command to run live bottom forward using configured power.
+   *
+   * @return Command that sets live bottom forward output.
+   */
+  public Command liveBottomForwardC() {
+    return runOnce(this::liveBottomForward);
+  }
+
+  /**
+   * Creates a command to run live bottom in reverse using configured power.
+   *
+   * @return Command that sets live bottom reverse output.
+   */
+  public Command liveBottomReverseC() {
+    return runOnce(this::liveBottomReverse);
+  }
+
+  /**
+   * Creates a command to stop live bottom output.
+   *
+   * @return Command that stops live bottom output.
+   */
+  public Command liveBottomStopC() {
+    return runOnce(this::liveBottomStop);
+  }
+
+  /**
+   * Creates a command to run the matrix breaker servo forward.
+   *
+   * @return Command that runs matrix breaker forward.
+   */
+  public Command matrixBreakerForwardC() {
+    return runOnce(this::matrixBreakerForward);
+  }
+
+  /**
+   * Creates a command to run the matrix breaker servo in reverse.
+   *
+   * @return Command that runs matrix breaker in reverse.
+   */
+  public Command matrixBreakerReverseC() {
+    return runOnce(this::matrixBreakerReverse);
+  }
+
+  /**
+   * Creates a command to stop the matrix breaker servo.
+   *
+   * @return Command that stops matrix breaker output.
+   */
+  public Command matrixBreakerStopC() {
+    return runOnce(this::matrixBreakerStop);
   }
 
   // #region Dashboard
@@ -253,6 +332,60 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns the current live bottom state.
+   *
+   * @return Current live bottom state.
+   */
+  public State getLiveBottomState() {
+    return m_curLiveBottomState;
+  }
+
+  /**
+   * Returns the current live bottom state name.
+   *
+   * @return Live bottom state name.
+   */
+  public String getLiveBottomStateName() {
+    return m_curLiveBottomState.toString();
+  }
+
+  /**
+   * Returns the current live bottom state color.
+   *
+   * @return Live bottom state color as a hex string.
+   */
+  public String getLiveBottomStateColor() {
+    return m_curLiveBottomState.getColor();
+  }
+
+  /**
+   * Returns the current matrix breaker state.
+   *
+   * @return Current matrix breaker state.
+   */
+  public State getMatrixBreakerState() {
+    return m_curMatrixBreakerState;
+  }
+
+  /**
+   * Returns the current matrix breaker state name.
+   *
+   * @return Matrix breaker state name.
+   */
+  public String getMatrixBreakerStateName() {
+    return m_curMatrixBreakerState.toString();
+  }
+
+  /**
+   * Returns the current matrix breaker state color.
+   *
+   * @return Matrix breaker state color as a hex string.
+   */
+  public String getMatrixBreakerStateColor() {
+    return m_curMatrixBreakerState.getColor();
+  }
+
+  /**
    * Returns the commanded indexer speed setpoint in RPM.
    *
    * @return Commanded indexer speed in RPM.
@@ -268,6 +401,24 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public double getKnuckleCommandedSpeedRPM() {
     return m_knuckleCommandedSpeedRpm;
+  }
+
+  /**
+   * Returns the commanded live bottom output power.
+   *
+   * @return Commanded live bottom power from -1.0 to 1.0.
+   */
+  public double getLiveBottomCommandedPower() {
+    return m_liveBottomCommandedPower;
+  }
+
+  /**
+   * Returns the commanded matrix breaker servo output value.
+   *
+   * @return Servo output value from 0.0 to 1.0.
+   */
+  public double getMatrixBreakerCommandedOutput() {
+    return m_matrixBreakerCommandedOutput;
   }
 
   /**
@@ -288,6 +439,24 @@ public class IndexerSubsystem extends SubsystemBase {
     return m_knuckleMotor.getVelocity().getValueAsDouble() * 60.0;
   }
 
+  /**
+   * Returns the current measured live bottom speed in RPM.
+   *
+   * @return Current live bottom speed in RPM.
+   */
+  public double getLiveBottomCurrentSpeedRPM() {
+    return m_liveBottomMotor.getVelocity().getValueAsDouble() * 60.0;
+  }
+
+  /**
+   * Returns the current matrix breaker servo output value.
+   *
+   * @return Servo output value from 0.0 to 1.0.
+   */
+  public double getMatrixBreakerOutput() {
+    return m_matrixBreakerServo.get();
+  }
+
   // #endregion Getters
 
   // #region Setters
@@ -300,6 +469,16 @@ public class IndexerSubsystem extends SubsystemBase {
 
   // #region Controls
   // Methods for controlling the subsystem
+
+  /**
+   * Sets all indexer-related mechanisms to their neutral safe state.
+   */
+  public void indexerSystemNeutral() {
+    indexerNeutral();
+    liveBottomStop();
+    matrixBreakerStop();
+    m_liveBottomMotor.setNeutralMode(NeutralModeValue.Coast);
+  }
 
   /**
    * Sets indexer and knuckle motors to coast neutral mode.
@@ -336,8 +515,8 @@ public class IndexerSubsystem extends SubsystemBase {
     m_knuckleMotor.setControl(m_knuckleVelocityRequest.withVelocity(knuckleRps));
     m_indexerCommandedSpeedRpm = indexerRpm;
     m_knuckleCommandedSpeedRpm = knuckleRpm;
-    m_curIndexerState = stateFromRPM(indexerRpm);
-    m_curKnuckleState = stateFromRPM(knuckleRpm);
+    m_curIndexerState = stateFromSignedValue(indexerRpm);
+    m_curKnuckleState = stateFromSignedValue(knuckleRpm);
     NCDebug.Debug.debug("Indexer: Set speed " + indexerRpm + "RPM indexer, " + knuckleRpm + "RPM knuckle");
   }
 
@@ -350,21 +529,85 @@ public class IndexerSubsystem extends SubsystemBase {
     double rps = Helpers.RPMtoRPS(rpm);
     m_knuckleMotor.setControl(m_knuckleVelocityRequest.withVelocity(rps));
     m_knuckleCommandedSpeedRpm = rpm;
-    m_curKnuckleState = stateFromRPM(rpm);
+    m_curKnuckleState = stateFromSignedValue(rpm);
     NCDebug.Debug.debug("Indexer: Set speed " + rpm + "RPM knuckle");
   }
 
   /**
-   * Converts a commanded RPM value into a directional state.
+   * Sets live bottom output power.
    *
-   * @param rpm Commanded motor speed in RPM.
-   * @return {@link State#FWD} for positive RPM, {@link State#REV} for negative RPM,
+   * @param power Percent output from -1.0 to 1.0.
+   */
+  public void setLiveBottomPower(double power) {
+    double limitedPower = Math.max(-1.0, Math.min(1.0, power));
+    m_liveBottomMotor.setControl(m_DutyCycle.withOutput(limitedPower));
+    m_liveBottomCommandedPower = limitedPower;
+    m_curLiveBottomState = stateFromSignedValue(limitedPower);
+    NCDebug.Debug.debug("Indexer: Set live bottom power " + limitedPower);
+  }
+
+  /**
+   * Runs live bottom forward using configured forward power.
+   */
+  public void liveBottomForward() {
+    setLiveBottomPower(IndexerConstants.LiveBottom.kForwardPower);
+  }
+
+  /**
+   * Runs live bottom in reverse using configured reverse power.
+   */
+  public void liveBottomReverse() {
+    setLiveBottomPower(-IndexerConstants.LiveBottom.kReversePower);
+  }
+
+  /**
+   * Stops live bottom output.
+   */
+  public void liveBottomStop() {
+    setLiveBottomPower(0.0);
+  }
+
+  /**
+   * Runs the matrix breaker servo forward.
+   */
+  public void matrixBreakerForward() {
+    m_matrixBreakerServo.set(IndexerConstants.MatrixBreaker.kForward);
+    m_matrixBreakerCommandedOutput = IndexerConstants.MatrixBreaker.kForward;
+    m_curMatrixBreakerState = State.FWD;
+    NCDebug.Debug.debug("Indexer: MatrixBreaker Forward");
+  }
+
+  /**
+   * Runs the matrix breaker servo in reverse.
+   */
+  public void matrixBreakerReverse() {
+    m_matrixBreakerServo.set(IndexerConstants.MatrixBreaker.kReverse);
+    m_matrixBreakerCommandedOutput = IndexerConstants.MatrixBreaker.kReverse;
+    m_curMatrixBreakerState = State.REV;
+    NCDebug.Debug.debug("Indexer: MatrixBreaker Reverse");
+  }
+
+  /**
+   * Stops the matrix breaker servo output.
+   */
+  public void matrixBreakerStop() {
+    m_matrixBreakerServo.set(IndexerConstants.MatrixBreaker.kStop);
+    m_matrixBreakerCommandedOutput = IndexerConstants.MatrixBreaker.kStop;
+    m_curMatrixBreakerState = State.STOP;
+    NCDebug.Debug.debug("Indexer: MatrixBreaker Stop");
+  }
+
+  /**
+   * Converts a signed command value into a directional state.
+   *
+   * @param value Signed command value.
+   * @return {@link State#FWD} for positive values, {@link State#REV} for negative values,
    *         otherwise {@link State#STOP}.
    */
-  private State stateFromRPM(double rpm) {
-    if (rpm > 0.0) {
+  private State stateFromSignedValue(double value) {
+    if (value > 0.0) {
       return State.FWD;
-    } else if (rpm < 0.0) {
+    } else if (value < 0.0) {
       return State.REV;
     }
     return State.STOP;
