@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
+import frc.robot.constants.DashboardConstants;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.utils.Helpers;
 import frc.robot.utils.NCDebug;
@@ -24,9 +25,31 @@ import frc.robot.utils.NCDebug;
 public class ShooterSubsystem extends SubsystemBase {
   private static ShooterSubsystem instance;
   // #region Declarations
+  public enum State {
+    REV(DashboardConstants.Colors.RED),
+    FWD(DashboardConstants.Colors.GREEN),
+    STOP(DashboardConstants.Colors.BLACK);
+
+    private final String color;
+
+    State(String color) {
+      this.color = color;
+    }
+
+    /**
+     * Returns the dashboard color for this state.
+     *
+     * @return Hex color string.
+     */
+    public String getColor() {
+      return this.color;
+    }
+  }
+
   private TalonFX m_shooterFrontMotor, m_shooterBackMotor;
   private final VelocityVoltage m_frontVelocityRequest = new VelocityVoltage(0.0);
   private final VelocityVoltage m_backVelocityRequest = new VelocityVoltage(0.0);
+  private State m_curState = State.STOP;
   // #endregion Declarations
 
   // #region Triggers
@@ -66,6 +89,7 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void init() {
     // set initial stuff, etc.
+    m_curState = State.STOP;
     NCDebug.Debug.debug("Shooter: Initialized");
   }
 
@@ -113,6 +137,33 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // #region Getters
   // Methods for getting data for subsystem
+
+  /**
+   * Returns the current shooter state.
+   *
+   * @return Current state.
+   */
+  public State getState() {
+    return m_curState;
+  }
+
+  /**
+   * Returns the current shooter state name.
+   *
+   * @return State name.
+   */
+  public String getStateName() {
+    return m_curState.toString();
+  }
+
+  /**
+   * Returns the current state color.
+   *
+   * @return Hex color string.
+   */
+  public String getStateColor() {
+    return m_curState.getColor();
+  }
   // #endregion Getters
 
   // #region Setters
@@ -132,6 +183,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public void shooterNeutral() {
     m_shooterFrontMotor.setNeutralMode(NeutralModeValue.Coast);
     m_shooterBackMotor.setNeutralMode(NeutralModeValue.Coast);
+    m_curState = State.STOP;
     NCDebug.Debug.debug("Shooter: Switch to Coast");
   }
 
@@ -155,6 +207,17 @@ public class ShooterSubsystem extends SubsystemBase {
     double backRps = Helpers.RPMtoRPS(backRpm);
     m_shooterFrontMotor.setControl(m_frontVelocityRequest.withVelocity(frontRps));
     m_shooterBackMotor.setControl(m_backVelocityRequest.withVelocity(backRps));
+    if (frontRpm > 0.0) {
+      m_curState = State.FWD;
+    } else if (frontRpm < 0.0) {
+      m_curState = State.REV;
+    } else if (backRpm > 0.0) {
+      m_curState = State.FWD;
+    } else if (backRpm < 0.0) {
+      m_curState = State.REV;
+    } else {
+      m_curState = State.STOP;
+    }
     NCDebug.Debug.debug("Shooter: Set speed " + frontRpm + "RPM front, " + backRpm + "RPM back");
   }
 
