@@ -7,8 +7,10 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.StaticBrake;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.Units;
 import static edu.wpi.first.units.Units.Volts;
@@ -27,6 +29,7 @@ import frc.robot.RobotContainer;
 import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.DashboardConstants;
 import frc.robot.constants.IndexerConstants;
+import frc.robot.utils.Helpers;
 import frc.robot.utils.NCDebug;
 
 /**
@@ -59,9 +62,14 @@ public class IndexerSubsystem extends SubsystemBase {
   private final DutyCycleOut m_DutyCycle = new DutyCycleOut(0);
   private final NeutralOut m_neutral = new NeutralOut();
   private final StaticBrake m_brake = new StaticBrake();
+  private final VelocityVoltage m_indexerVelocityRequest = new VelocityVoltage(0.0);
+  private final VelocityVoltage m_knuckleVelocityRequest = new VelocityVoltage(0.0);
   // private CANcoder m_encoder;
-  private TalonFX m_liveBottomMotor, m_indexerMotor;
-  private State m_curState = State.STOP;
+  private TalonFX m_indexerMotor, m_knuckleMotor;
+  private State m_curIndexerState = State.STOP;
+  private State m_curKnuckleState = State.STOP;
+  private double m_indexerCommandedSpeedRpm = 0.0;
+  private double m_knuckleCommandedSpeedRpm = 0.0;
   // #endregion Declarations
 
   // #region Triggers
@@ -86,12 +94,12 @@ public class IndexerSubsystem extends SubsystemBase {
   /** Creates the Indexer subsystem and initializes state. */
   public IndexerSubsystem() {
     // initialize values for private and public variables, etc.
-    m_liveBottomMotor = new TalonFX(IndexerConstants.LiveBottom.kMotorID, IndexerConstants.canBus);
     m_indexerMotor = new TalonFX(IndexerConstants.Indexer.kMotorID, IndexerConstants.canBus);
+    m_knuckleMotor = new TalonFX(IndexerConstants.Knuckle.kMotorID, IndexerConstants.canBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_indexerMotor.getConfigurator().apply(RobotContainer.ctreConfigs.indexerFXConfig));
     RobotContainer.ctreConfigs
-      .retryConfigApply(() -> m_liveBottomMotor.getConfigurator().apply(RobotContainer.ctreConfigs.liveBottomFXConfig));
+      .retryConfigApply(() -> m_knuckleMotor.getConfigurator().apply(RobotContainer.ctreConfigs.knuckleFXConfig));
 
     init();
     createDashboards();
@@ -102,7 +110,10 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public void init() {
     // set initial stuff, etc.
-    m_curState = State.STOP;
+    m_curIndexerState = State.STOP;
+    m_curKnuckleState = State.STOP;
+    m_indexerCommandedSpeedRpm = 0.0;
+    m_knuckleCommandedSpeedRpm = 0.0;
     NCDebug.Debug.debug("Indexer: Initialized");
   }
 
@@ -116,7 +127,7 @@ public class IndexerSubsystem extends SubsystemBase {
   /** Creates Shuffleboard widgets for the climber. */
   public void createDashboards() {
     ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
-    driverTab.addString("Climber", this::getStateColor)
+    driverTab.addString("Climber", this::getIndexStateColor)
       .withSize(2, 2)
       .withWidget("Single Color View")
       .withPosition(6, 7);
@@ -126,9 +137,9 @@ public class IndexerSubsystem extends SubsystemBase {
       .withSize(4, 6)
       .withPosition(16, 0)
       .withProperties(Map.of("Label position", "LEFT"));
-    indexerList.addString("Status", this::getStateColor)
+    indexerList.addString("Status", this::getIndexStateColor)
       .withWidget("Single Color View");
-    indexerList.addString("State", this::getStateName);
+    indexerList.addString("State", this::getIndexStateName);
 
     if (IndexerConstants.debugDashboard) {
       ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
@@ -143,11 +154,41 @@ public class IndexerSubsystem extends SubsystemBase {
    * neutralCommand is used to reset this system into a safe state when disabled. 
    * It is called when the robot is disabled to reset counters, states, etc.
    *
-   * @return command that does nothing when scheduled
+   * @return Command that sets indexer and knuckle motors to coast neutral mode.
    */
   public Command neutralCommand() {
-    m_curState = State.STOP;
-    return Commands.none();
+    return indexerNeutralC();
+  }
+
+  /**
+   * Creates a command to set both indexer motors to the same speed setpoint in RPM.
+   *
+   * @param rpm Target speed in RPM for indexer and knuckle motors.
+   * @return Command that updates both motor speed setpoints.
+   */
+  public Command setIndexerSpeedC(double rpm) {
+    return runOnce(() -> setIndexerSpeedRPM(rpm));
+  }
+
+  /**
+   * Creates a command to set independent speed setpoints in RPM.
+   *
+   * @param indexerRpm Target speed in RPM for the indexer motor.
+   * @param knuckleRpm Target speed in RPM for the knuckle motor.
+   * @return Command that updates indexer and knuckle speed setpoints.
+   */
+  public Command setIndexerSpeedC(double indexerRpm, double knuckleRpm) {
+    return runOnce(() -> setIndexerSpeedRPM(indexerRpm, knuckleRpm));
+  }
+
+  /**
+   * Creates a command to set the knuckle motor speed setpoint in RPM.
+   *
+   * @param rpm Target speed in RPM for the knuckle motor.
+   * @return Command that updates the knuckle motor speed setpoint.
+   */
+  public Command setKnuckleSpeedC(double rpm) {
+    return runOnce(() -> setKnuckleSpeedRPM(rpm));
   }
 
   // #region Dashboard
@@ -162,8 +203,8 @@ public class IndexerSubsystem extends SubsystemBase {
    *
    * @return Current state.
    */
-  public State getState() {
-    return m_curState;
+  public State getIndexState() {
+    return m_curIndexerState;
   }
 
   /**
@@ -171,8 +212,8 @@ public class IndexerSubsystem extends SubsystemBase {
    *
    * @return State name.
    */
-  public String getStateName() {
-    return m_curState.toString();
+  public String getIndexStateName() {
+    return m_curIndexerState.toString();
   }
 
   /**
@@ -180,8 +221,71 @@ public class IndexerSubsystem extends SubsystemBase {
    *
    * @return Hex color string.
    */
-  public String getStateColor() {
-    return m_curState.getColor();
+  public String getIndexStateColor() {
+    return m_curIndexerState.getColor();
+  }
+
+  /**
+   * Returns the current knuckle state.
+   *
+   * @return Current knuckle state.
+   */
+  public State getKnuckleState() {
+    return m_curKnuckleState;
+  }
+
+  /**
+   * Returns the current knuckle state name.
+   *
+   * @return Knuckle state name.
+   */
+  public String getKnuckleStateName() {
+    return m_curKnuckleState.toString();
+  }
+
+  /**
+   * Returns the current knuckle state color.
+   *
+   * @return Knuckle state color as a hex string.
+   */
+  public String getKnuckleStateColor() {
+    return m_curKnuckleState.getColor();
+  }
+
+  /**
+   * Returns the commanded indexer speed setpoint in RPM.
+   *
+   * @return Commanded indexer speed in RPM.
+   */
+  public double getIndexerCommandedSpeedRPM() {
+    return m_indexerCommandedSpeedRpm;
+  }
+
+  /**
+   * Returns the commanded knuckle speed setpoint in RPM.
+   *
+   * @return Commanded knuckle speed in RPM.
+   */
+  public double getKnuckleCommandedSpeedRPM() {
+    return m_knuckleCommandedSpeedRpm;
+  }
+
+  /**
+   * Returns the current measured indexer speed in RPM.
+   *
+   * @return Current indexer speed in RPM.
+   */
+  public double getIndexerCurrentSpeedRPM() {
+    return m_indexerMotor.getVelocity().getValueAsDouble() * 60.0;
+  }
+
+  /**
+   * Returns the current measured knuckle speed in RPM.
+   *
+   * @return Current knuckle speed in RPM.
+   */
+  public double getKnuckleCurrentSpeedRPM() {
+    return m_knuckleMotor.getVelocity().getValueAsDouble() * 60.0;
   }
 
   // #endregion Getters
@@ -196,6 +300,84 @@ public class IndexerSubsystem extends SubsystemBase {
 
   // #region Controls
   // Methods for controlling the subsystem
+
+  /**
+   * Sets indexer and knuckle motors to coast neutral mode.
+   */
+  public void indexerNeutral() {
+    m_indexerMotor.setNeutralMode(NeutralModeValue.Coast);
+    m_knuckleMotor.setNeutralMode(NeutralModeValue.Coast);
+    m_curIndexerState = State.STOP;
+    m_curKnuckleState = State.STOP;
+    m_indexerCommandedSpeedRpm = 0.0;
+    m_knuckleCommandedSpeedRpm = 0.0;
+    NCDebug.Debug.debug("Indexer: Switch to Coast");
+  }
+
+  /**
+   * Sets both indexer motors to the same speed setpoint in RPM.
+   *
+   * @param rpm Target speed in RPM for indexer and knuckle motors.
+   */
+  public void setIndexerSpeedRPM(double rpm) {
+    setIndexerSpeedRPM(rpm, rpm);
+  }
+
+  /**
+   * Sets independent speed setpoints in RPM.
+   *
+   * @param indexerRpm Target speed in RPM for the indexer motor.
+   * @param knuckleRpm Target speed in RPM for the knuckle motor.
+   */
+  public void setIndexerSpeedRPM(double indexerRpm, double knuckleRpm) {
+    double indexerRps = Helpers.RPMtoRPS(indexerRpm);
+    double knuckleRps = Helpers.RPMtoRPS(knuckleRpm);
+    m_indexerMotor.setControl(m_indexerVelocityRequest.withVelocity(indexerRps));
+    m_knuckleMotor.setControl(m_knuckleVelocityRequest.withVelocity(knuckleRps));
+    m_indexerCommandedSpeedRpm = indexerRpm;
+    m_knuckleCommandedSpeedRpm = knuckleRpm;
+    m_curIndexerState = stateFromRPM(indexerRpm);
+    m_curKnuckleState = stateFromRPM(knuckleRpm);
+    NCDebug.Debug.debug("Indexer: Set speed " + indexerRpm + "RPM indexer, " + knuckleRpm + "RPM knuckle");
+  }
+
+  /**
+   * Sets the knuckle motor speed setpoint in RPM.
+   *
+   * @param rpm Target speed in RPM for the knuckle motor.
+   */
+  public void setKnuckleSpeedRPM(double rpm) {
+    double rps = Helpers.RPMtoRPS(rpm);
+    m_knuckleMotor.setControl(m_knuckleVelocityRequest.withVelocity(rps));
+    m_knuckleCommandedSpeedRpm = rpm;
+    m_curKnuckleState = stateFromRPM(rpm);
+    NCDebug.Debug.debug("Indexer: Set speed " + rpm + "RPM knuckle");
+  }
+
+  /**
+   * Converts a commanded RPM value into a directional state.
+   *
+   * @param rpm Commanded motor speed in RPM.
+   * @return {@link State#FWD} for positive RPM, {@link State#REV} for negative RPM,
+   *         otherwise {@link State#STOP}.
+   */
+  private State stateFromRPM(double rpm) {
+    if (rpm > 0.0) {
+      return State.FWD;
+    } else if (rpm < 0.0) {
+      return State.REV;
+    }
+    return State.STOP;
+  }
+
+  /**
+   * Creates a command to set indexer and knuckle motors to coast neutral mode.
+   *
+   * @return Command that updates both indexer motor neutral modes.
+   */
+  public Command indexerNeutralC() {
+    return runOnce(this::indexerNeutral);
+  }
   // #endregion Controls
 
   // #region SysID Functions

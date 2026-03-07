@@ -49,7 +49,10 @@ public class ShooterSubsystem extends SubsystemBase {
   private TalonFX m_shooterFrontMotor, m_shooterBackMotor;
   private final VelocityVoltage m_frontVelocityRequest = new VelocityVoltage(0.0);
   private final VelocityVoltage m_backVelocityRequest = new VelocityVoltage(0.0);
-  private State m_curState = State.STOP;
+  private State m_curFrontState = State.STOP;
+  private State m_curBackState = State.STOP;
+  private double m_frontCommandedSpeedRpm = 0.0;
+  private double m_backCommandedSpeedRpm = 0.0;
   // #endregion Declarations
 
   // #region Triggers
@@ -89,7 +92,10 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void init() {
     // set initial stuff, etc.
-    m_curState = State.STOP;
+    m_curFrontState = State.STOP;
+    m_curBackState = State.STOP;
+    m_frontCommandedSpeedRpm = 0.0;
+    m_backCommandedSpeedRpm = 0.0;
     NCDebug.Debug.debug("Shooter: Initialized");
   }
 
@@ -139,30 +145,87 @@ public class ShooterSubsystem extends SubsystemBase {
   // Methods for getting data for subsystem
 
   /**
-   * Returns the current shooter state.
+   * Returns the current front shooter state.
    *
-   * @return Current state.
+   * @return Current front state.
    */
   public State getState() {
-    return m_curState;
+    return m_curFrontState;
   }
 
   /**
-   * Returns the current shooter state name.
+   * Returns the current front shooter state.
    *
-   * @return State name.
+   * @return Current front state.
+   */
+  public State getFrontState() {
+    return m_curFrontState;
+  }
+
+  /**
+   * Returns the current back shooter state.
+   *
+   * @return Current back state.
+   */
+  public State getBackState() {
+    return m_curBackState;
+  }
+
+  /**
+   * Returns the front and back shooter state names.
+   *
+   * @return State names as "FRONT_STATE/BACK_STATE".
    */
   public String getStateName() {
-    return m_curState.toString();
+    return m_curFrontState.toString() + "/" + m_curBackState.toString();
   }
 
   /**
-   * Returns the current state color.
+   * Returns the state color summary across front and back shooter states.
    *
-   * @return Hex color string.
+   * @return Shared state color when both match, otherwise orange.
    */
   public String getStateColor() {
-    return m_curState.getColor();
+    if (m_curFrontState == m_curBackState) {
+      return m_curFrontState.getColor();
+    }
+    return DashboardConstants.Colors.ORANGE;
+  }
+
+  /**
+   * Returns the commanded front shooter speed setpoint in RPM.
+   *
+   * @return Commanded front shooter speed in RPM.
+   */
+  public double getFrontCommandedSpeedRPM() {
+    return m_frontCommandedSpeedRpm;
+  }
+
+  /**
+   * Returns the commanded back shooter speed setpoint in RPM.
+   *
+   * @return Commanded back shooter speed in RPM.
+   */
+  public double getBackCommandedSpeedRPM() {
+    return m_backCommandedSpeedRpm;
+  }
+
+  /**
+   * Returns the current measured front shooter speed in RPM.
+   *
+   * @return Current front shooter speed in RPM.
+   */
+  public double getFrontCurrentSpeedRPM() {
+    return m_shooterFrontMotor.getVelocity().getValueAsDouble() * 60.0;
+  }
+
+  /**
+   * Returns the current measured back shooter speed in RPM.
+   *
+   * @return Current back shooter speed in RPM.
+   */
+  public double getBackCurrentSpeedRPM() {
+    return m_shooterBackMotor.getVelocity().getValueAsDouble() * 60.0;
   }
   // #endregion Getters
 
@@ -183,7 +246,10 @@ public class ShooterSubsystem extends SubsystemBase {
   public void shooterNeutral() {
     m_shooterFrontMotor.setNeutralMode(NeutralModeValue.Coast);
     m_shooterBackMotor.setNeutralMode(NeutralModeValue.Coast);
-    m_curState = State.STOP;
+    m_curFrontState = State.STOP;
+    m_curBackState = State.STOP;
+    m_frontCommandedSpeedRpm = 0.0;
+    m_backCommandedSpeedRpm = 0.0;
     NCDebug.Debug.debug("Shooter: Switch to Coast");
   }
 
@@ -207,18 +273,27 @@ public class ShooterSubsystem extends SubsystemBase {
     double backRps = Helpers.RPMtoRPS(backRpm);
     m_shooterFrontMotor.setControl(m_frontVelocityRequest.withVelocity(frontRps));
     m_shooterBackMotor.setControl(m_backVelocityRequest.withVelocity(backRps));
-    if (frontRpm > 0.0) {
-      m_curState = State.FWD;
-    } else if (frontRpm < 0.0) {
-      m_curState = State.REV;
-    } else if (backRpm > 0.0) {
-      m_curState = State.FWD;
-    } else if (backRpm < 0.0) {
-      m_curState = State.REV;
-    } else {
-      m_curState = State.STOP;
-    }
+    m_frontCommandedSpeedRpm = frontRpm;
+    m_backCommandedSpeedRpm = backRpm;
+    m_curFrontState = stateFromRPM(frontRpm);
+    m_curBackState = stateFromRPM(backRpm);
     NCDebug.Debug.debug("Shooter: Set speed " + frontRpm + "RPM front, " + backRpm + "RPM back");
+  }
+
+  /**
+   * Converts a commanded RPM value into a directional state.
+   *
+   * @param rpm Commanded motor speed in RPM.
+   * @return {@link State#FWD} for positive RPM, {@link State#REV} for negative RPM,
+   *         otherwise {@link State#STOP}.
+   */
+  private State stateFromRPM(double rpm) {
+    if (rpm > 0.0) {
+      return State.FWD;
+    } else if (rpm < 0.0) {
+      return State.REV;
+    }
+    return State.STOP;
   }
 
   /**
