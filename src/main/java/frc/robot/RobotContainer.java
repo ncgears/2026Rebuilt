@@ -343,6 +343,24 @@ public class RobotContainer {
         //#endregion Driver Joystick
 
         //#region Operator Joystick
+          /*
+           * lt - tracking
+           * +dpad left (left pocket)
+           * +dpad right (right pocket)
+           * rt - fire
+           * lb - shift modifier
+           * rb - intake
+           * a - momentary undeploy
+           * x - reverse indexer+knuckle
+           * b - 
+           * hamburger - climber up  
+           * ellipses - climber down
+           * lstick -
+           * rstick -
+           * dpad up -
+           * dpad down -
+           */
+
         /** OJ Left Trigger - Lock heading to hub while held */
         oj.leftTrigger().onTrue(
             noop()

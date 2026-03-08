@@ -11,7 +11,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -72,7 +71,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private CANcoder m_deployEncoder;
   private TalonFX m_deployMotor, m_intakeMotor;
-  private Servo m_shoeServo;
   private final VelocityVoltage m_intakeVelocityRequest = new VelocityVoltage(0.0);
   private final PositionVoltage m_deployPositionRequest = new PositionVoltage(0.0);
   private State m_curIntakeState = State.STOP;
@@ -113,8 +111,6 @@ public class IntakeSubsystem extends SubsystemBase {
     m_intakeMotor = new TalonFX(IntakeConstants.Intake.kMotorID, IntakeConstants.canBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_intakeMotor.getConfigurator().apply(RobotContainer.ctreConfigs.intakeFXConfig));
-
-    m_shoeServo = new Servo(IntakeConstants.Shoe.kServoID);
 
     init();
   }
@@ -264,14 +260,6 @@ public class IntakeSubsystem extends SubsystemBase {
     return m_deployEncoder.getAbsolutePosition().getValueAsDouble();
   }
 
-  /**
-   * Returns the current shoe servo output command.
-   *
-   * @return Servo output value from 0.0 to 1.0.
-   */
-  public double getShoeOutput() {
-    return m_shoeServo.get();
-  }
   // #endregion Getters
 
   // #region Setters
@@ -413,57 +401,6 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public Command setIntakeDeploySetpointsC(double intakeRpm, DeployPosition deployPosition) {
     return runOnce(() -> setIntakeDeploySetpoints(intakeRpm, deployPosition));
-  }
-
-  /**
-   * Runs the shoe servo forward.
-   */
-  public void shoeForward() {
-    m_shoeServo.set(IntakeConstants.Shoe.kForward);
-    NCDebug.Debug.debug("Intake: Shoe Forward");
-  }
-
-  /**
-   * Creates a command to run the shoe servo forward.
-   *
-   * @return Command that runs the shoe servo forward.
-   */
-  public Command shoeForwardC() {
-    return runOnce(this::shoeForward);
-  }
-
-  /**
-   * Runs the shoe servo in reverse.
-   */
-  public void shoeReverse() {
-    m_shoeServo.set(IntakeConstants.Shoe.kReverse);
-    NCDebug.Debug.debug("Intake: Shoe Reverse");
-  }
-
-  /**
-   * Creates a command to run the shoe servo in reverse.
-   *
-   * @return Command that runs the shoe servo in reverse.
-   */
-  public Command shoeReverseC() {
-    return runOnce(this::shoeReverse);
-  }
-
-  /**
-   * Stops the shoe servo.
-   */
-  public void shoeStop() {
-    m_shoeServo.set(IntakeConstants.Shoe.kStop);
-    NCDebug.Debug.debug("Intake: Shoe Stop");
-  }
-
-  /**
-   * Creates a command to stop the shoe servo.
-   *
-   * @return Command that stops the shoe servo.
-   */
-  public Command shoeStopC() {
-    return runOnce(this::shoeStop);
   }
 
   /**

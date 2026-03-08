@@ -83,4 +83,11 @@ public class IndexerConstants {
         public static final double kReverse = 0.0;
         public static final double kStop = 0.5;
     }
+
+    public class Shoe {
+        public static final int kServoID = ID.PWM.shoe;
+        public static final double kForward = 1.0;
+        public static final double kReverse = 0.0;
+        public static final double kStop = 0.5;
+    }
 }

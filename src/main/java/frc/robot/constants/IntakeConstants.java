@@ -61,13 +61,6 @@ public class IntakeConstants {
             public static final double kProtect = 0.0;
         }
     }
-    public class Shoe {
-        public static final int kServoID = ID.PWM.shoe;
-        public static final double kForward = 1.0;
-        public static final double kReverse = 0.0;
-        public static final double kStop = 0.5;
-    }
-
     //Controller Setup
     public static final CANBus canBus = new CANBus("rio");
     public static final boolean debugDashboard = false; //enable debugging dashboard

@@ -67,15 +67,17 @@ public class IndexerSubsystem extends SubsystemBase {
   private final VelocityVoltage m_knuckleVelocityRequest = new VelocityVoltage(0.0);
   // private CANcoder m_encoder;
   private TalonFX m_indexerMotor, m_knuckleMotor, m_liveBottomMotor;
-  private Servo m_matrixBreakerServo;
+  private Servo m_matrixBreakerServo, m_shoeServo;
   private State m_curIndexerState = State.STOP;
   private State m_curKnuckleState = State.STOP;
   private State m_curLiveBottomState = State.STOP;
   private State m_curMatrixBreakerState = State.STOP;
+  private State m_curShoeState = State.STOP;
   private double m_indexerCommandedSpeedRpm = 0.0;
   private double m_knuckleCommandedSpeedRpm = 0.0;
   private double m_liveBottomCommandedPower = 0.0;
   private double m_matrixBreakerCommandedOutput = IndexerConstants.MatrixBreaker.kStop;
+  private double m_shoeCommandedOutput = IndexerConstants.Shoe.kStop;
   // #endregion Declarations
 
   // #region Triggers
@@ -110,6 +112,7 @@ public class IndexerSubsystem extends SubsystemBase {
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_liveBottomMotor.getConfigurator().apply(RobotContainer.ctreConfigs.liveBottomFXConfig));
     m_matrixBreakerServo = new Servo(IndexerConstants.MatrixBreaker.kServoID);
+    m_shoeServo = new Servo(IndexerConstants.Shoe.kServoID);
 
     init();
     createDashboards();
@@ -124,12 +127,15 @@ public class IndexerSubsystem extends SubsystemBase {
     m_curKnuckleState = State.STOP;
     m_curLiveBottomState = State.STOP;
     m_curMatrixBreakerState = State.STOP;
+    m_curShoeState = State.STOP;
     m_indexerCommandedSpeedRpm = 0.0;
     m_knuckleCommandedSpeedRpm = 0.0;
     m_liveBottomCommandedPower = 0.0;
     m_matrixBreakerCommandedOutput = IndexerConstants.MatrixBreaker.kStop;
+    m_shoeCommandedOutput = IndexerConstants.Shoe.kStop;
     m_liveBottomMotor.setControl(m_DutyCycle.withOutput(0.0));
     m_matrixBreakerServo.set(IndexerConstants.MatrixBreaker.kStop);
+    m_shoeServo.set(IndexerConstants.Shoe.kStop);
     NCDebug.Debug.debug("Indexer: Initialized");
   }
 
@@ -170,7 +176,7 @@ public class IndexerSubsystem extends SubsystemBase {
    * neutralCommand is used to reset this system into a safe state when disabled. 
    * It is called when the robot is disabled to reset counters, states, etc.
    *
-   * @return Command that neutralizes indexer, knuckle, live bottom, and matrix breaker.
+   * @return Command that neutralizes indexer, knuckle, live bottom, matrix breaker, and shoe.
    */
   public Command neutralCommand() {
     return runOnce(this::indexerSystemNeutral);
@@ -269,6 +275,33 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public Command matrixBreakerStopC() {
     return runOnce(this::matrixBreakerStop);
+  }
+
+  /**
+   * Creates a command to run the shoe servo forward.
+   *
+   * @return Command that runs shoe forward.
+   */
+  public Command shoeForwardC() {
+    return runOnce(this::shoeForward);
+  }
+
+  /**
+   * Creates a command to run the shoe servo in reverse.
+   *
+   * @return Command that runs shoe in reverse.
+   */
+  public Command shoeReverseC() {
+    return runOnce(this::shoeReverse);
+  }
+
+  /**
+   * Creates a command to stop the shoe servo.
+   *
+   * @return Command that stops shoe output.
+   */
+  public Command shoeStopC() {
+    return runOnce(this::shoeStop);
   }
 
   /**
@@ -408,6 +441,33 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns the current shoe state.
+   *
+   * @return Current shoe state.
+   */
+  public State getShoeState() {
+    return m_curShoeState;
+  }
+
+  /**
+   * Returns the current shoe state name.
+   *
+   * @return Shoe state name.
+   */
+  public String getShoeStateName() {
+    return m_curShoeState.toString();
+  }
+
+  /**
+   * Returns the current shoe state color.
+   *
+   * @return Shoe state color as a hex string.
+   */
+  public String getShoeStateColor() {
+    return m_curShoeState.getColor();
+  }
+
+  /**
    * Returns the commanded indexer speed setpoint in RPM.
    *
    * @return Commanded indexer speed in RPM.
@@ -444,6 +504,15 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns the commanded shoe servo output value.
+   *
+   * @return Servo output value from 0.0 to 1.0.
+   */
+  public double getShoeCommandedOutput() {
+    return m_shoeCommandedOutput;
+  }
+
+  /**
    * Returns the current measured indexer speed in RPM.
    *
    * @return Current indexer speed in RPM.
@@ -477,6 +546,15 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public double getMatrixBreakerOutput() {
     return m_matrixBreakerServo.get();
+  }
+
+  /**
+   * Returns the current shoe servo output value.
+   *
+   * @return Servo output value from 0.0 to 1.0.
+   */
+  public double getShoeOutput() {
+    return m_shoeServo.get();
   }
 
   /**
@@ -517,6 +595,7 @@ public class IndexerSubsystem extends SubsystemBase {
     indexerNeutral();
     liveBottomStop();
     matrixBreakerStop();
+    shoeStop();
     m_liveBottomMotor.setNeutralMode(NeutralModeValue.Coast);
   }
 
@@ -635,6 +714,36 @@ public class IndexerSubsystem extends SubsystemBase {
     m_matrixBreakerCommandedOutput = IndexerConstants.MatrixBreaker.kStop;
     m_curMatrixBreakerState = State.STOP;
     NCDebug.Debug.debug("Indexer: MatrixBreaker Stop");
+  }
+
+  /**
+   * Runs the shoe servo forward.
+   */
+  public void shoeForward() {
+    m_shoeServo.set(IndexerConstants.Shoe.kForward);
+    m_shoeCommandedOutput = IndexerConstants.Shoe.kForward;
+    m_curShoeState = State.FWD;
+    NCDebug.Debug.debug("Indexer: Shoe Forward");
+  }
+
+  /**
+   * Runs the shoe servo in reverse.
+   */
+  public void shoeReverse() {
+    m_shoeServo.set(IndexerConstants.Shoe.kReverse);
+    m_shoeCommandedOutput = IndexerConstants.Shoe.kReverse;
+    m_curShoeState = State.REV;
+    NCDebug.Debug.debug("Indexer: Shoe Reverse");
+  }
+
+  /**
+   * Stops the shoe servo output.
+   */
+  public void shoeStop() {
+    m_shoeServo.set(IndexerConstants.Shoe.kStop);
+    m_shoeCommandedOutput = IndexerConstants.Shoe.kStop;
+    m_curShoeState = State.STOP;
+    NCDebug.Debug.debug("Indexer: Shoe Stop");
   }
 
   /**
