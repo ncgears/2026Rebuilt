@@ -308,7 +308,7 @@ public class IndexerSubsystem extends SubsystemBase {
    * Creates a command to start indexer feed mechanisms using derived RPM setpoints
    * from the configured default back shooter RPM.
    *
-   * @return Command that starts indexer, knuckle, live bottom, and matrix breaker.
+   * @return Command that starts indexer, knuckle, live bottom, shoe, and matrix breaker.
    */
   public Command startIndexerC() {
     return runOnce(this::startIndexer);
@@ -319,7 +319,7 @@ public class IndexerSubsystem extends SubsystemBase {
    * derived from a supplied back shooter RPM.
    *
    * @param backRpm Back shooter RPM (master).
-   * @return Command that starts indexer, knuckle, live bottom, and matrix breaker.
+   * @return Command that starts indexer, knuckle, live bottom, shoe, and matrix breaker.
    */
   public Command startIndexerC(double backRpm) {
     return runOnce(() -> startIndexer(backRpm));
@@ -595,7 +595,6 @@ public class IndexerSubsystem extends SubsystemBase {
     indexerNeutral();
     liveBottomStop();
     matrixBreakerStop();
-    shoeStop();
     m_liveBottomMotor.setNeutralMode(NeutralModeValue.Coast);
   }
 
@@ -653,13 +652,14 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets live bottom output power.
+   * Sets live bottom output power and keeps shoe direction synchronized.
    *
    * @param power Percent output from -1.0 to 1.0.
    */
   public void setLiveBottomPower(double power) {
     double limitedPower = Math.max(-1.0, Math.min(1.0, power));
     m_liveBottomMotor.setControl(m_DutyCycle.withOutput(limitedPower));
+    syncShoeToLiveBottomPower(limitedPower);
     m_liveBottomCommandedPower = limitedPower;
     m_curLiveBottomState = stateFromSignedValue(limitedPower);
     NCDebug.Debug.debug("Indexer: Set live bottom power " + limitedPower);
@@ -667,6 +667,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
   /**
    * Runs live bottom forward using configured forward power.
+   * Shoe direction is synchronized with live bottom.
    */
   public void liveBottomForward() {
     setLiveBottomPower(IndexerConstants.LiveBottom.kForwardPower);
@@ -674,6 +675,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
   /**
    * Runs live bottom in reverse using configured reverse power.
+   * Shoe direction is synchronized with live bottom.
    */
   public void liveBottomReverse() {
     setLiveBottomPower(-IndexerConstants.LiveBottom.kReversePower);
@@ -681,6 +683,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
   /**
    * Stops live bottom output.
+   * Shoe output is synchronized and also stopped.
    */
   public void liveBottomStop() {
     setLiveBottomPower(0.0);
@@ -747,8 +750,24 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   /**
+   * Synchronizes shoe direction with live bottom direction.
+   *
+   * @param liveBottomPower Signed live bottom output power.
+   */
+  private void syncShoeToLiveBottomPower(double liveBottomPower) {
+    if (liveBottomPower > 0.0) {
+      shoeForward();
+    } else if (liveBottomPower < 0.0) {
+      shoeReverse();
+    } else {
+      shoeStop();
+    }
+  }
+
+  /**
    * Starts indexer feed mechanisms using setpoints derived from the configured
    * currently commanded back shooter RPM.
+   * Also starts live bottom, shoe, and matrix breaker forward.
    */
   public void startIndexer() {
     double backRpm = RobotContainer.shooter.getCommandedMasterRPM();
@@ -758,6 +777,7 @@ public class IndexerSubsystem extends SubsystemBase {
   /**
    * Starts indexer feed mechanisms using setpoints derived from a supplied
    * back shooter RPM.
+   * Also starts live bottom, shoe, and matrix breaker forward.
    *
    * @param backRpm Back shooter RPM (master).
    */
