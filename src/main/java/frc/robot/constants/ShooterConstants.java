@@ -21,6 +21,23 @@ public class ShooterConstants {
     public static final double kDefaultBackRPM = kDefaultRPM;
 
     public static final double kIdleRPM = 0.0; //RPM when idle, to prevent ramp up spike
+    public static final double kSpinupDelaySeconds = 0.25;
+
+    /** Linear distance-to-RPM model for the back shooter wheel. */
+    public class DistanceModel {
+        public static final double kReferenceDistanceMeters = 1.6764; // 5.5 ft
+        public static final double kReferenceBackRpm = 2215.0;
+        public static final double kBackRpmPerMeter = 357.3591876;
+        public static final double kBackRpmMin = 2215.0;
+        public static final double kBackRpmMax = 6000.0;
+    }
+
+    /** Multipliers derived from the back shooter RPM (master). */
+    public class Multipliers {
+        public static final double kFrontFromBack = 1.0;
+        public static final double kIndexerFromBack = 0.6666666667;
+        public static final double kKnuckleFromBack = 0.8888888889;
+    }
 
     public class Front {
         public static final int kMotorID = ID.TalonFX.shooter_front;

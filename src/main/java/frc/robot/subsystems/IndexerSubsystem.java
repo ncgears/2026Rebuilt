@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
 import frc.robot.constants.DashboardConstants;
 import frc.robot.constants.IndexerConstants;
+import frc.robot.constants.ShooterConstants;
 import frc.robot.utils.Helpers;
 import frc.robot.utils.NCDebug;
 
@@ -270,6 +271,27 @@ public class IndexerSubsystem extends SubsystemBase {
     return runOnce(this::matrixBreakerStop);
   }
 
+  /**
+   * Creates a command to start indexer feed mechanisms using derived RPM setpoints
+   * from the configured default back shooter RPM.
+   *
+   * @return Command that starts indexer, knuckle, live bottom, and matrix breaker.
+   */
+  public Command startIndexerC() {
+    return runOnce(this::startIndexer);
+  }
+
+  /**
+   * Creates a command to start indexer feed mechanisms using RPM setpoints
+   * derived from a supplied back shooter RPM.
+   *
+   * @param backRpm Back shooter RPM (master).
+   * @return Command that starts indexer, knuckle, live bottom, and matrix breaker.
+   */
+  public Command startIndexerC(double backRpm) {
+    return runOnce(() -> startIndexer(backRpm));
+  }
+
   // #region Dashboard
   // Methods for creating and updating dashboards
   // #endregion Dashboard
@@ -457,6 +479,24 @@ public class IndexerSubsystem extends SubsystemBase {
     return m_matrixBreakerServo.get();
   }
 
+  /**
+   * Returns the derived indexer RPM from the shooter master commanded RPM.
+   *
+   * @return Derived indexer RPM.
+   */
+  public double getDerivedIndexerCommandedSpeedRPM() {
+    return calculateIndexerRPMFromBackRPM(RobotContainer.shooter.getCommandedMasterRPM());
+  }
+
+  /**
+   * Returns the derived knuckle RPM from the shooter master commanded RPM.
+   *
+   * @return Derived knuckle RPM.
+   */
+  public double getDerivedKnuckleCommandedSpeedRPM() {
+    return calculateKnuckleRPMFromBackRPM(RobotContainer.shooter.getCommandedMasterRPM());
+  }
+
   // #endregion Getters
 
   // #region Setters
@@ -595,6 +635,49 @@ public class IndexerSubsystem extends SubsystemBase {
     m_matrixBreakerCommandedOutput = IndexerConstants.MatrixBreaker.kStop;
     m_curMatrixBreakerState = State.STOP;
     NCDebug.Debug.debug("Indexer: MatrixBreaker Stop");
+  }
+
+  /**
+   * Starts indexer feed mechanisms using setpoints derived from the configured
+   * currently commanded back shooter RPM.
+   */
+  public void startIndexer() {
+    double backRpm = RobotContainer.shooter.getCommandedMasterRPM();
+    startIndexer(backRpm);
+  }
+
+  /**
+   * Starts indexer feed mechanisms using setpoints derived from a supplied
+   * back shooter RPM.
+   *
+   * @param backRpm Back shooter RPM (master).
+   */
+  public void startIndexer(double backRpm) {
+    double indexerRpm = calculateIndexerRPMFromBackRPM(backRpm);
+    double knuckleRpm = calculateKnuckleRPMFromBackRPM(backRpm);
+    setIndexerSpeedRPM(indexerRpm, knuckleRpm);
+    liveBottomForward();
+    matrixBreakerForward();
+  }
+
+  /**
+   * Calculates indexer RPM derived from back shooter RPM.
+   *
+   * @param backShooterRpm Back shooter RPM (master).
+   * @return Indexer RPM.
+   */
+  public double calculateIndexerRPMFromBackRPM(double backShooterRpm) {
+    return backShooterRpm * ShooterConstants.Multipliers.kIndexerFromBack;
+  }
+
+  /**
+   * Calculates knuckle RPM derived from back shooter RPM.
+   *
+   * @param backShooterRpm Back shooter RPM (master).
+   * @return Knuckle RPM.
+   */
+  public double calculateKnuckleRPMFromBackRPM(double backShooterRpm) {
+    return backShooterRpm * ShooterConstants.Multipliers.kKnuckleFromBack;
   }
 
   /**

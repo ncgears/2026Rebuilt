@@ -46,6 +46,41 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
+  /** Immutable shooter and feeder RPM setpoints derived from a target distance. */
+  public static class ShotSetpoints {
+    private final double shooterFrontRpm;
+    private final double shooterBackRpm;
+
+    /**
+     * Creates a set of RPM targets for shooter wheels.
+     *
+     * @param shooterFrontRpm Front shooter wheel RPM.
+     * @param shooterBackRpm Back shooter wheel RPM.
+     */
+    public ShotSetpoints(double shooterFrontRpm, double shooterBackRpm) {
+      this.shooterFrontRpm = shooterFrontRpm;
+      this.shooterBackRpm = shooterBackRpm;
+    }
+
+    /**
+     * Returns the front shooter setpoint in RPM.
+     *
+     * @return Front shooter RPM.
+     */
+    public double getShooterFrontRpm() {
+      return shooterFrontRpm;
+    }
+
+    /**
+     * Returns the back shooter setpoint in RPM.
+     *
+     * @return Back shooter RPM.
+     */
+    public double getShooterBackRpm() {
+      return shooterBackRpm;
+    }
+  }
+
   private TalonFX m_shooterFrontMotor, m_shooterBackMotor;
   private final VelocityVoltage m_frontVelocityRequest = new VelocityVoltage(0.0);
   private final VelocityVoltage m_backVelocityRequest = new VelocityVoltage(0.0);
@@ -135,6 +170,38 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Command setShooterSpeedC(double frontRpm, double backRpm) {
     return runOnce(() -> setShooterSpeedRPM(frontRpm, backRpm));
+  }
+
+  /**
+   * Creates a command to set shooter wheel setpoints from target distance.
+   *
+   * @param distanceMeters Distance to target in meters.
+   * @return Command that updates front and back shooter speed setpoints.
+   */
+  public Command setShooterFromDistanceC(double distanceMeters) {
+    return runOnce(() -> setShooterFromDistance(distanceMeters));
+  }
+
+  /**
+   * Creates a command to start shooter spin-up using the configured default back RPM.
+   * Front RPM is derived from the back-wheel master RPM multiplier.
+   *
+   * @return Command that starts shooter spin-up.
+   */
+  public Command startShooterC() {
+    return runOnce(this::startShooter);
+  }
+
+  /**
+   * Creates a command to start shooter spin-up from target distance.
+   * Back RPM is calculated from distance, and front RPM is derived from the
+   * back-wheel master RPM multiplier.
+   *
+   * @param distanceMeters Distance to target in meters.
+   * @return Command that starts shooter spin-up.
+   */
+  public Command startShooterC(double distanceMeters) {
+    return runOnce(() -> startShooter(distanceMeters));
   }
 
   // #region Dashboard
@@ -247,6 +314,16 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns the commanded master shooter RPM (back wheel).
+   * This is intended for downstream mechanisms that derive speed from shooter.
+   *
+   * @return Commanded back shooter RPM.
+   */
+  public double getCommandedMasterRPM() {
+    return m_backCommandedSpeedRpm;
+  }
+
+  /**
    * Returns the current measured front shooter speed in RPM.
    *
    * @return Current front shooter speed in RPM.
@@ -262,6 +339,42 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public double getBackCurrentSpeedRPM() {
     return m_shooterBackMotor.getVelocity().getValueAsDouble() * 60.0;
+  }
+
+  /**
+   * Calculates back shooter RPM from target distance using a linear model.
+   *
+   * @param distanceMeters Distance to target in meters.
+   * @return Back shooter RPM clamped to configured min/max.
+   */
+  public double calculateBackShooterRPM(double distanceMeters) {
+    double rpm = ShooterConstants.DistanceModel.kReferenceBackRpm
+      + (ShooterConstants.DistanceModel.kBackRpmPerMeter
+      * (distanceMeters - ShooterConstants.DistanceModel.kReferenceDistanceMeters));
+    return Math.max(ShooterConstants.DistanceModel.kBackRpmMin,
+      Math.min(ShooterConstants.DistanceModel.kBackRpmMax, rpm));
+  }
+
+  /**
+   * Calculates front shooter RPM derived from back shooter RPM.
+   *
+   * @param backShooterRpm Back shooter RPM (master).
+   * @return Front shooter RPM.
+   */
+  public double calculateFrontShooterRPMFromBackRPM(double backShooterRpm) {
+    return backShooterRpm * ShooterConstants.Multipliers.kFrontFromBack;
+  }
+
+  /**
+   * Calculates shooter wheel RPM setpoints from target distance.
+   *
+   * @param distanceMeters Distance to target in meters.
+   * @return Immutable setpoint bundle for shooter wheels.
+   */
+  public ShotSetpoints calculateShotSetpoints(double distanceMeters) {
+    double shooterBackRpm = calculateBackShooterRPM(distanceMeters);
+    double shooterFrontRpm = calculateFrontShooterRPMFromBackRPM(shooterBackRpm);
+    return new ShotSetpoints(shooterFrontRpm, shooterBackRpm);
   }
   // #endregion Getters
 
@@ -314,6 +427,41 @@ public class ShooterSubsystem extends SubsystemBase {
     m_curFrontState = stateFromRPM(frontRpm);
     m_curBackState = stateFromRPM(backRpm);
     NCDebug.Debug.debug("Shooter: Set speed " + frontRpm + "RPM front, " + backRpm + "RPM back");
+  }
+
+  /**
+   * Sets shooter wheel RPM setpoints derived from target distance.
+   *
+   * @param distanceMeters Distance to target in meters.
+   */
+  public void setShooterFromDistance(double distanceMeters) {
+    ShotSetpoints setpoints = calculateShotSetpoints(distanceMeters);
+    setShooterSpeedRPM(setpoints.getShooterFrontRpm(), setpoints.getShooterBackRpm());
+    NCDebug.Debug.debug("Shooter: Distance " + distanceMeters + "m -> Back "
+      + setpoints.getShooterBackRpm() + "RPM");
+  }
+
+  /**
+   * Starts shooter spin-up using the configured default back RPM.
+   * Front RPM is derived from the back-wheel master RPM multiplier.
+   */
+  public void startShooter() {
+    double backRpm = ShooterConstants.kDefaultBackRPM;
+    double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm);
+    setShooterSpeedRPM(frontRpm, backRpm);
+  }
+
+  /**
+   * Starts shooter spin-up from target distance.
+   * Back RPM is calculated from distance, and front RPM is derived from the
+   * back-wheel master RPM multiplier.
+   *
+   * @param distanceMeters Distance to target in meters.
+   */
+  public void startShooter(double distanceMeters) {
+    double backRpm = calculateBackShooterRPM(distanceMeters);
+    double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm);
+    setShooterSpeedRPM(frontRpm, backRpm);
   }
 
   /**

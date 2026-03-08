@@ -67,8 +67,8 @@ public class RobotContainer {
     public static final PowerDistribution power = new PowerDistribution(1,ModuleType.kRev);
     // public static final ClimberSubsystem climber = ClimberSubsystem.getInstance();
     // public static final IntakeSubsystem intake = IntakeSubsystem.getInstance();
-    // public static final IndexerSubsystem indexer = IndexerSubsystem.getInstance();
-    // public static final ShooterSubsystem shooter = ShooterSubsystem.getInstance();
+    public static final IndexerSubsystem indexer = IndexerSubsystem.getInstance();
+    public static final ShooterSubsystem shooter = ShooterSubsystem.getInstance();
     
     public static Optional<Alliance> m_alliance;
 
@@ -201,16 +201,16 @@ public class RobotContainer {
         drivetrain.init();
         // climber.init();
         // intake.init();
-        // indexer.init();
-        // shooter.init();
+        indexer.init();
+        shooter.init();
     }
 
     /** Sets subsystems to a safe neutral state while disabled. */
     public void neutralRobot() {
         // climber.neutralCommand().ignoringDisable(true);
         // intake.neutralCommand().ignoringDisable(true);
-        // indexer.neutralCommand().ignoringDisable(true);
-        // shooter.neutralCommand().ignoringDisable(true);
+        indexer.neutralCommand().ignoringDisable(true);
+        shooter.neutralCommand().ignoringDisable(true);
     }
 
     /**
@@ -343,6 +343,26 @@ public class RobotContainer {
         //#endregion Driver Joystick
 
         //#region Operator Joystick
+        /** OJ Left Trigger - Lock heading to hub while held */
+        oj.leftTrigger().onTrue(
+            noop()
+            //set a variable to make drive use snapDrive with calculated heading
+        ).onFalse(
+            noop()
+            //unset variable to make drive use snapDrive
+        );
+        /** OJ Right Trigger - Scoring sequence - spin up shooter, wait, spin up indexer/intake */
+        oj.rightTrigger().onTrue(
+            shooter.startShooterC()
+                .andThen(wait(ShooterConstants.kSpinupDelaySeconds))
+                .andThen(indexer.startIndexerC())
+        ).onFalse(
+            Commands.parallel(
+                shooter.neutralCommand(),
+                indexer.neutralCommand())
+        );
+
+
         // CORAL STUFF
         /** OJ X - L1 Position (currently stow?) */
         oj.x().onTrue(
@@ -381,14 +401,6 @@ public class RobotContainer {
             noop()
             // elevator.ElevatorPositionC(ElevatorSubsystem.Position.LINEUP)
             // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.STOW))
-        );
-        /** OJ Right Trigger - Score Coral sequence (from L2, L3, and L4) (hold trigger) */
-        oj.rightTrigger().onTrue(
-            noop()
-            // elevator.ScoreC()
-            // .until(elevator::isAtTarget)
-            // .andThen(wait(0.5))
-            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.SCORE))
         );
         /** OJ Right Bumper - Return to previous position */
         oj.ellipses().negate().and(oj.rightBumper()).onTrue(
@@ -485,14 +497,7 @@ public class RobotContainer {
             noop()
             // algae.setAlgaePositionC(AlgaeSubsystem.Position.UP)
         );
-        /** OJ Left Trigger - Outtake Algae then stop toros */
-        oj.leftTrigger().onTrue(
-            noop()
-            // algae.startToroC(true)
-        ).onFalse(
-            noop()
-            // algae.stopToroC()
-        );
+
         /** OJ Google - Stop toros */
         oj.google().onTrue(
             noop()
