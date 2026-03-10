@@ -627,15 +627,19 @@ public class IndexerSubsystem extends SubsystemBase {
    * @param knuckleRpm Target speed in RPM for the knuckle motor.
    */
   public void setIndexerSpeedRPM(double indexerRpm, double knuckleRpm) {
-    double indexerRps = Helpers.RPMtoRPS(indexerRpm);
-    double knuckleRps = Helpers.RPMtoRPS(knuckleRpm);
+    long roundedIndexerRpm = Math.round(indexerRpm);
+    long roundedKnuckleRpm = Math.round(knuckleRpm);
+    double roundedIndexerRpmAsDouble = roundedIndexerRpm;
+    double roundedKnuckleRpmAsDouble = roundedKnuckleRpm;
+    double indexerRps = Helpers.RPMtoRPS(roundedIndexerRpmAsDouble);
+    double knuckleRps = Helpers.RPMtoRPS(roundedKnuckleRpmAsDouble);
     m_indexerMotor.setControl(m_indexerVelocityRequest.withVelocity(indexerRps));
     m_knuckleMotor.setControl(m_knuckleVelocityRequest.withVelocity(knuckleRps));
-    m_indexerCommandedSpeedRpm = indexerRpm;
-    m_knuckleCommandedSpeedRpm = knuckleRpm;
-    m_curIndexerState = stateFromSignedValue(indexerRpm);
-    m_curKnuckleState = stateFromSignedValue(knuckleRpm);
-    NCDebug.Debug.debug("Indexer: Set speed " + indexerRpm + "RPM indexer, " + knuckleRpm + "RPM knuckle");
+    m_indexerCommandedSpeedRpm = roundedIndexerRpmAsDouble;
+    m_knuckleCommandedSpeedRpm = roundedKnuckleRpmAsDouble;
+    m_curIndexerState = stateFromSignedValue(roundedIndexerRpmAsDouble);
+    m_curKnuckleState = stateFromSignedValue(roundedKnuckleRpmAsDouble);
+    NCDebug.Debug.debug("Indexer: Set speed " + roundedIndexerRpm + "rpm indexer, " + roundedKnuckleRpm + "rpm knuckle");
   }
 
   /**
@@ -644,11 +648,13 @@ public class IndexerSubsystem extends SubsystemBase {
    * @param rpm Target speed in RPM for the knuckle motor.
    */
   public void setKnuckleSpeedRPM(double rpm) {
-    double rps = Helpers.RPMtoRPS(rpm);
+    long roundedRpm = Math.round(rpm);
+    double roundedRpmAsDouble = roundedRpm;
+    double rps = Helpers.RPMtoRPS(roundedRpmAsDouble);
     m_knuckleMotor.setControl(m_knuckleVelocityRequest.withVelocity(rps));
-    m_knuckleCommandedSpeedRpm = rpm;
-    m_curKnuckleState = stateFromSignedValue(rpm);
-    NCDebug.Debug.debug("Indexer: Set speed " + rpm + "RPM knuckle");
+    m_knuckleCommandedSpeedRpm = roundedRpmAsDouble;
+    m_curKnuckleState = stateFromSignedValue(roundedRpmAsDouble);
+    NCDebug.Debug.debug("Indexer: Set speed " + roundedRpm + "rpm knuckle");
   }
 
   /**
@@ -662,7 +668,6 @@ public class IndexerSubsystem extends SubsystemBase {
     syncShoeToLiveBottomPower(limitedPower);
     m_liveBottomCommandedPower = limitedPower;
     m_curLiveBottomState = stateFromSignedValue(limitedPower);
-    NCDebug.Debug.debug("Indexer: Set live bottom power " + limitedPower);
   }
 
   /**
@@ -671,6 +676,7 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public void liveBottomForward() {
     setLiveBottomPower(IndexerConstants.LiveBottom.kForwardPower);
+    NCDebug.Debug.debug("Indexer: LiveBottom Forward");
   }
 
   /**
@@ -679,6 +685,7 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public void liveBottomReverse() {
     setLiveBottomPower(-IndexerConstants.LiveBottom.kReversePower);
+    NCDebug.Debug.debug("Indexer: LiveBottom Reverse");
   }
 
   /**
@@ -687,6 +694,7 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public void liveBottomStop() {
     setLiveBottomPower(0.0);
+    NCDebug.Debug.debug("Indexer: LiveBottom Stop");
   }
 
   /**

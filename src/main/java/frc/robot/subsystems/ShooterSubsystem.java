@@ -420,13 +420,15 @@ public class ShooterSubsystem extends SubsystemBase {
   public void setShooterSpeedRPM(double frontRpm, double backRpm) {
     double frontRps = Helpers.RPMtoRPS(frontRpm);
     double backRps = Helpers.RPMtoRPS(backRpm);
+    long roundedFrontRpm = Math.round(frontRpm);
+    long roundedBackRpm = Math.round(backRpm);
     m_shooterFrontMotor.setControl(m_frontVelocityRequest.withVelocity(frontRps));
     m_shooterBackMotor.setControl(m_backVelocityRequest.withVelocity(backRps));
     m_frontCommandedSpeedRpm = frontRpm;
     m_backCommandedSpeedRpm = backRpm;
     m_curFrontState = stateFromRPM(frontRpm);
     m_curBackState = stateFromRPM(backRpm);
-    NCDebug.Debug.debug("Shooter: Set speed " + frontRpm + "RPM front, " + backRpm + "RPM back");
+    NCDebug.Debug.debug("Shooter: Set speed " + roundedFrontRpm + "rpm front, " + roundedBackRpm + "rpm back");
   }
 
   /**
@@ -436,9 +438,10 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void setShooterFromDistance(double distanceMeters) {
     ShotSetpoints setpoints = calculateShotSetpoints(distanceMeters);
+    long roundedBackRpm = Math.round(setpoints.getShooterBackRpm());
     setShooterSpeedRPM(setpoints.getShooterFrontRpm(), setpoints.getShooterBackRpm());
     NCDebug.Debug.debug("Shooter: Distance " + distanceMeters + "m -> Back "
-      + setpoints.getShooterBackRpm() + "RPM");
+      + roundedBackRpm + "rpm");
   }
 
   /**

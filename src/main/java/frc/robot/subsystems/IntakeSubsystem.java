@@ -305,7 +305,6 @@ public class IntakeSubsystem extends SubsystemBase {
     m_intakeMotor.setControl(m_intakeVelocityRequest.withVelocity(rps));
     m_intakeCommandedSpeedRpm = rpm;
     m_curIntakeState = stateFromSignedValue(rpm);
-    NCDebug.Debug.debug("Intake: Set speed " + rpm + "RPM intake");
   }
 
   /**
