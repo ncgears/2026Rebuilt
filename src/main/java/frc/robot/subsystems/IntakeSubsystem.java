@@ -321,7 +321,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /**
    * Runs the intake forward at the configured forward RPM.
    */
-  public void setIntakeForward() {
+  private void setIntakeForward() {
     NCDebug.Debug.debug("Intake: Forward");
     setIntakeSpeedRPM(IntakeConstants.Intake.kForwardRPM);
   }
@@ -338,7 +338,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /**
    * Runs the intake in reverse at the configured reverse RPM.
    */
-  public void setIntakeReverse() {
+  private void setIntakeReverse() {
     NCDebug.Debug.debug("Intake: Reverse");
     setIntakeSpeedRPM(-IntakeConstants.Intake.kReverseRPM);
   }
@@ -355,7 +355,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /**
    * Stops the intake motor.
    */
-  public void setIntakeStop() {
+  private void setIntakeStop() {
     NCDebug.Debug.debug("Intake: Stop");
     setIntakeSpeedRPM(0.0);
   }

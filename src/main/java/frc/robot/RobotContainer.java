@@ -447,33 +447,6 @@ public class RobotContainer {
             // elevator.ElevatorPositionC(ElevatorSubsystem.Position.LINEUP)
             // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.STOW))
         );
-        /** OJ Ellipses and Left Bumper - Home and Zero Coral */
-        oj.ellipses().and(oj.leftBumper()).onTrue(
-            noop()
-            // coral.CoralHomeC()
-        ).onFalse(
-            noop()
-            // coral.CoralZeroC()
-            // .andThen(coral.CoralStopC())
-        );
-        /** OJ Ellipses and Right Bumper - Zero Elevator */
-        oj.ellipses().and(oj.rightBumper()).onTrue(
-            noop()
-        ).onFalse(
-            noop()
-            // elevator.ElevatorZeroC().ignoringDisable(true)
-        );
-
-        // CLIMBER STUFF
-        // OJ Frame - Manual climb override, hold for at least 1 second
-        oj.frame().onTrue(
-            noop()
-        //   elevator.ElevatorPositionC(ElevatorSubsystem.Position.HP)
-        //   .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
-        //   .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.UP)))
-        // .onFalse(
-        //   climber.climberStopC()
-        );
 
         // ALGAE STUFF
         //Temp for testing
@@ -483,58 +456,6 @@ public class RobotContainer {
         // oj.povDown().onTrue(algae.setAlgaePositionC(AlgaeSubsystem.Position.FLOOR)
         //     .andThen(algae.startToroC(false))
         // ).onFalse(algae.stopToroC()); //wrist down
-
-        /** OJ POV Up - Barge scoring position */
-        oj.povUp().onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.BARGE)
-            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
-        );
-        /** OJ POV Down - Processor scoring position */
-        oj.povDown().onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.PROC)
-            // .andThen(wait(0.25))
-            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.PROC))
-        );
-        /** OJ POV Left - Reef High Algae Pickup (do not stop toros, use limits) */
-        oj.povLeft().onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAEHIGH)
-            // .andThen(wait(0.5))
-            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
-            // .andThen(algae.startToroC(false))
-        );
-        /** OJ POV Right - Reef High Algae Pickup (do not stop toros, use limits) */
-        oj.povRight().onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.ALGAELOW)
-            // .andThen(wait(0.5))
-            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
-            // .andThen(algae.startToroC(false))
-        );
-
-        /** OJ L3 - Floor Algae Pickup (do not stop toros, use limits) */
-        oj.leftStick().onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.FLOOR)
-            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.FLOOR))
-            // .andThen(algae.startToroC(false))
-        ).onFalse(
-            noop()
-            // algae.setAlgaePositionC(AlgaeSubsystem.Position.UP)
-        );
-
-        /** OJ Google - Stop toros */
-        oj.google().onTrue(
-            noop()
-            // algae.stopToroC()
-        );
-
-        // Other OJ bindings
-        // right stick elevator manual (see setup section)
-        // stadia - open
-        // hamburg - open
         //#endregion Operator Joystick
 
         //#region Programmer Joystick
