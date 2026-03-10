@@ -319,6 +319,57 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   /**
+   * Runs the intake forward at the configured forward RPM.
+   */
+  public void setIntakeForward() {
+    NCDebug.Debug.debug("Intake: Forward");
+    setIntakeSpeedRPM(IntakeConstants.Intake.kForwardRPM);
+  }
+
+  /**
+   * Creates a command to run the intake forward.
+   *
+   * @return Command that runs the intake forward.
+   */
+  public Command setIntakeForwardC() {
+    return runOnce(this::setIntakeForward);
+  }
+
+  /**
+   * Runs the intake in reverse at the configured reverse RPM.
+   */
+  public void setIntakeReverse() {
+    NCDebug.Debug.debug("Intake: Reverse");
+    setIntakeSpeedRPM(-IntakeConstants.Intake.kReverseRPM);
+  }
+
+  /**
+   * Creates a command to run the intake in reverse.
+   *
+   * @return Command that runs the intake in reverse.
+   */
+  public Command setIntakeReverseC() {
+    return runOnce(this::setIntakeReverse);
+  }
+
+  /**
+   * Stops the intake motor.
+   */
+  public void setIntakeStop() {
+    NCDebug.Debug.debug("Intake: Stop");
+    setIntakeSpeedRPM(0.0);
+  }
+
+  /**
+   * Creates a command to stop the intake motor.
+   *
+   * @return Command that stops the intake motor.
+   */
+  public Command setIntakeStopC() {
+    return runOnce(this::setIntakeStop);
+  }
+
+  /**
    * Sets the deploy motor position setpoint in rotations.
    *
    * @param rotations Target position in rotations for the deploy motor.

@@ -66,7 +66,7 @@ public class RobotContainer {
     public static final Targeting targeting = Targeting.getInstance(); //must be after drive
     public static final PowerDistribution power = new PowerDistribution(1,ModuleType.kRev);
     // public static final ClimberSubsystem climber = ClimberSubsystem.getInstance();
-    // public static final IntakeSubsystem intake = IntakeSubsystem.getInstance();
+    public static final IntakeSubsystem intake = IntakeSubsystem.getInstance();
     public static final IndexerSubsystem indexer = IndexerSubsystem.getInstance();
     public static final ShooterSubsystem shooter = ShooterSubsystem.getInstance();
     
@@ -200,7 +200,7 @@ public class RobotContainer {
         targeting.init();
         drivetrain.init();
         // climber.init();
-        // intake.init();
+        intake.init();
         indexer.init();
         shooter.init();
     }
@@ -208,7 +208,7 @@ public class RobotContainer {
     /** Sets subsystems to a safe neutral state while disabled. */
     public void neutralRobot() {
         // climber.neutralCommand().ignoringDisable(true);
-        // intake.neutralCommand().ignoringDisable(true);
+        intake.neutralCommand().ignoringDisable(true);
         indexer.neutralCommand().ignoringDisable(true);
         shooter.neutralCommand().ignoringDisable(true);
     }
@@ -361,14 +361,28 @@ public class RobotContainer {
            * dpad down -
            */
 
-        /** OJ Left Trigger - Lock heading to hub while held */
+        /** OJ Left Trigger - Tracking mode while held */
         oj.leftTrigger().onTrue(
             noop()
-            //set a variable to make drive use snapDrive with calculated heading
+            // TODO: Start tracking mode.
+            // TODO: Set default tracking target to HUB while LT is held.
         ).onFalse(
             noop()
-            //unset variable to make drive use snapDrive
+            // TODO: Stop tracking mode and restore normal targeting behavior.
         );
+
+        /** OJ Left Trigger + POV Left - Set tracking target to left pocket */
+        oj.leftTrigger().and(oj.povLeft()).onTrue(
+            noop()
+            // TODO: Set tracking target to LEFT_POCKET.
+        );
+
+        /** OJ Left Trigger + POV Right - Set tracking target to right pocket */
+        oj.leftTrigger().and(oj.povRight()).onTrue(
+            noop()
+            // TODO: Set tracking target to RIGHT_POCKET.
+        );
+
         /** OJ Right Trigger - Scoring sequence - spin up shooter, wait, spin up indexer/intake */
         oj.rightTrigger().onTrue(
             shooter.startShooterC()
@@ -380,8 +394,21 @@ public class RobotContainer {
                 indexer.neutralCommand())
         );
 
+        /** OJ Right Bumper (without Left Bumper) - Run intake forward while held */
+        oj.leftBumper().negate().and(oj.rightBumper()).onTrue(
+            intake.setIntakeForwardC()
+        );
 
-        // CORAL STUFF
+        /** OJ Left Bumper + Right Bumper - Run intake reverse while held */
+        oj.leftBumper().and(oj.rightBumper()).onTrue(
+            intake.setIntakeReverseC()
+        );
+
+        /** OJ Right Bumper released - Stop intake */
+        oj.rightBumper().onFalse(
+            intake.setIntakeStopC()
+        );
+
         /** OJ X - L1 Position (currently stow?) */
         oj.x().onTrue(
             noop()
@@ -419,25 +446,6 @@ public class RobotContainer {
             noop()
             // elevator.ElevatorPositionC(ElevatorSubsystem.Position.LINEUP)
             // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.STOW))
-        );
-        /** OJ Right Bumper - Return to previous position */
-        oj.ellipses().negate().and(oj.rightBumper()).onTrue(
-            noop()
-            // elevator.LastPositionC()
-            // // .andThen(wait(CoralConstants.kWaitDelay))
-            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
-        );
-        /** OJ Left Bumper without X - Human Player Intake */
-        oj.ellipses().negate().and(oj.leftBumper()).onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.HP)
-            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
-            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.UP))
-        ).onFalse(
-            noop()
-            // coral.CoralPositionC(CoralSubsystem.Position.SCORE)
-            // // .andThen(wait(0.5))
-            // // .andThen(coral.CoralStopC())
         );
         /** OJ Ellipses and Left Bumper - Home and Zero Coral */
         oj.ellipses().and(oj.leftBumper()).onTrue(
@@ -505,6 +513,7 @@ public class RobotContainer {
             // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.REEF))
             // .andThen(algae.startToroC(false))
         );
+
         /** OJ L3 - Floor Algae Pickup (do not stop toros, use limits) */
         oj.leftStick().onTrue(
             noop()

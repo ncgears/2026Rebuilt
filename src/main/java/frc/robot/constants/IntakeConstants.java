@@ -30,7 +30,10 @@ public class IntakeConstants {
         public static final boolean kCurrentLimitEnable = false; // TODO: Test current limits
         public static final double kCurrentLimitAmps = 30.0;
         public static final double kCurrentLimitThresholdAmps = 30.0;
-        public static final double kCurrentLimitThresholdSecs = 0.3;        
+        public static final double kCurrentLimitThresholdSecs = 0.3;
+        //Commanded speeds
+        public static final double kForwardRPM = 1500.0;
+        public static final double kReverseRPM = 1500.0;
     }
     public class Deploy {
         //Cancoder
