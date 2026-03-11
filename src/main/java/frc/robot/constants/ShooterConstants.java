@@ -60,7 +60,7 @@ public class ShooterConstants {
     }
     public class Back {
         public static final int kMotorID = ID.TalonFX.shooter_back;
-        public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
         public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
         public static final double kGearRatio = 1.0;
         //FF gains

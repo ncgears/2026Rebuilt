@@ -390,9 +390,11 @@ public class ShooterSubsystem extends SubsystemBase {
   // Methods for controlling the subsystem
 
   /**
-   * Sets both shooter motors to coast neutral mode.
+   * Commands both shooter motors to zero velocity and sets coast neutral mode.
    */
   public void shooterNeutral() {
+    m_shooterFrontMotor.setControl(m_frontVelocityRequest.withVelocity(0.0));
+    m_shooterBackMotor.setControl(m_backVelocityRequest.withVelocity(0.0));
     m_shooterFrontMotor.setNeutralMode(NeutralModeValue.Coast);
     m_shooterBackMotor.setNeutralMode(NeutralModeValue.Coast);
     m_curFrontState = State.STOP;

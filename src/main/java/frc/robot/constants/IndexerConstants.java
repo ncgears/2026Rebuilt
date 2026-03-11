@@ -39,7 +39,7 @@ public class IndexerConstants {
     }
     public class Knuckle {
         public static final int kMotorID = ID.TalonFX.knuckle;
-        public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
         public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
         //FF gains
         public static final double kV = 0.11756;
@@ -57,11 +57,11 @@ public class IndexerConstants {
     }
     public class LiveBottom {
         public static final int kMotorID = ID.TalonFX.livebottom;
-        public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
         public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
         //Power Levels
-        public static final double kForwardPower = 0.8;
-        public static final double kReversePower = 0.8;
+        public static final double kForwardPower = 0.25;
+        public static final double kReversePower = 0.25;
         //FF gains
         public static final double kV = 0.11756;
         public static final double kA = 0.0025794;
@@ -79,15 +79,15 @@ public class IndexerConstants {
 
     public class MatrixBreaker {
         public static final int kServoID = ID.PWM.matrixbreaker;
-        public static final double kForward = 1.0;
-        public static final double kReverse = 0.0;
+        public static final double kForward = 0.0;
+        public static final double kReverse = 1.0;
         public static final double kStop = 0.5;
     }
 
     public class Shoe {
         public static final int kServoID = ID.PWM.shoe;
-        public static final double kForward = 1.0;
-        public static final double kReverse = 0.0;
+        public static final double kForward = 0.0;
+        public static final double kReverse = 1.0;
         public static final double kStop = 0.5;
     }
 }

@@ -599,9 +599,11 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets indexer and knuckle motors to coast neutral mode.
+   * Commands indexer and knuckle motors to zero velocity and sets coast neutral mode.
    */
   public void indexerNeutral() {
+    m_indexerMotor.setControl(m_indexerVelocityRequest.withVelocity(0.0));
+    m_knuckleMotor.setControl(m_knuckleVelocityRequest.withVelocity(0.0));
     m_indexerMotor.setNeutralMode(NeutralModeValue.Coast);
     m_knuckleMotor.setNeutralMode(NeutralModeValue.Coast);
     m_curIndexerState = State.STOP;

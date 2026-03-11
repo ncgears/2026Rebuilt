@@ -16,7 +16,7 @@ public class IntakeConstants {
 
     public class Intake {
         public static final int kMotorID = ID.TalonFX.intake;
-        public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
         public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
         //FF gains
         public static final double kV = 0.11862;
@@ -39,10 +39,10 @@ public class IntakeConstants {
         //Cancoder
         public static final boolean kUseCANcoder = true;
         public static final int kCANcoderID = ID.CANcoder.deploy_cc;
-        public static final double kMagnetOffset = -0.6903906; //Adjust magnet to sensor offset for CANcoder
+        public static final double kMagnetOffset = 0.074463; //Adjust magnet to sensor offset for CANcoder
         //Motor
         public static final int kMotorID = ID.TalonFX.deploy;
-        public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
         public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
         //FF gains
         public static final double kV = 0.11862;
