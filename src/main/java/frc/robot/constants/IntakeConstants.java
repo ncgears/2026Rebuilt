@@ -32,14 +32,14 @@ public class IntakeConstants {
         public static final double kCurrentLimitThresholdAmps = 30.0;
         public static final double kCurrentLimitThresholdSecs = 0.3;
         //Commanded speeds
-        public static final double kForwardRPM = 1500.0;
-        public static final double kReverseRPM = 1500.0;
+        public static final double kForwardRPM = 3500.0;
+        public static final double kReverseRPM = 3500.0;
     }
     public class Deploy {
         //Cancoder
         public static final boolean kUseCANcoder = true;
         public static final int kCANcoderID = ID.CANcoder.deploy_cc;
-        public static final double kMagnetOffset = 0.074463; //Adjust magnet to sensor offset for CANcoder
+        public static final double kMagnetOffset = -0.344580; //Adjust magnet to sensor offset for CANcoder
         //Motor
         public static final int kMotorID = ID.TalonFX.deploy;
         public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
@@ -59,9 +59,9 @@ public class IntakeConstants {
         public static final double kCurrentLimitThresholdSecs = 0.3;
 
         public class Positions {
-            public static final double kStow = 0.0;
-            public static final double kOut = 0.0;
-            public static final double kProtect = 0.0;
+            public static final double kStow = 0.1;
+            public static final double kOut = 0.635;
+            public static final double kProtect = kStow;
         }
     }
     //Controller Setup

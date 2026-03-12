@@ -199,7 +199,7 @@ public final class CTREConfigs {
 
         //#region Deploy
         //CANcoder
-        deployCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        deployCCConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
         deployCCConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         deployCCConfig.MagnetSensor.MagnetOffset = IntakeConstants.Deploy.kMagnetOffset;
 

@@ -16,7 +16,7 @@ public class ShooterConstants {
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable shooter system
 
-    public static final double kDefaultRPM = 2500.0;
+    public static final double kDefaultRPM = 3200.0; //CHANGE THIS
     public static final double kDefaultFrontRPM = kDefaultRPM;
     public static final double kDefaultBackRPM = kDefaultRPM;
 
@@ -34,9 +34,9 @@ public class ShooterConstants {
 
     /** Multipliers derived from the back shooter RPM (master). */
     public class Multipliers {
-        public static final double kFrontFromBack = 1.0;
-        public static final double kIndexerFromBack = 0.6666666667;
-        public static final double kKnuckleFromBack = 0.8888888889;
+        public static final double kFrontFromBack = 1.0; //DONT CHANGE
+        public static final double kIndexerFromBack = 0.6666666667; //DONT CHANGE
+        public static final double kKnuckleFromBack = 0.8888888889; //DONT CHANGE
     }
 
     public class Front {
