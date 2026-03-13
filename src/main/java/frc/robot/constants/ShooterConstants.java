@@ -16,10 +16,12 @@ public class ShooterConstants {
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable shooter system
 
+    //2300 = hub corner shot
     //3200 = tower shot
     public static final double kDefaultRPM = 2300.0; //CHANGE THIS
     public static final double kDefaultFrontRPM = kDefaultRPM;
     public static final double kDefaultBackRPM = kDefaultRPM;
+    public static final double kReverseRPM = 1500.0;
 
     public static final double kIdleRPM = 0.0; //RPM when idle, to prevent ramp up spike
     public static final double kSpinupDelaySeconds = 0.25;

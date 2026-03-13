@@ -394,6 +394,13 @@ public class RobotContainer {
                 indexer.neutralCommand())
         );
 
+        /** OJ Ellipses (while held) - Run shooter in reverse for unjam/clear. */
+        oj.ellipses().whileTrue(
+            shooter.setShooterSpeedC(-ShooterConstants.kReverseRPM)
+        ).onFalse(
+            shooter.neutralCommand()
+        );
+
         /** OJ Right Bumper (without Left Bumper) - Run intake forward while held */
         oj.leftBumper().negate().and(oj.rightBumper()).onTrue(
             intake.setIntakeForwardC()
