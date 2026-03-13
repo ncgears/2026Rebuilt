@@ -16,7 +16,8 @@ public class ShooterConstants {
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable shooter system
 
-    public static final double kDefaultRPM = 3200.0; //CHANGE THIS
+    //3200 = tower shot
+    public static final double kDefaultRPM = 2300.0; //CHANGE THIS
     public static final double kDefaultFrontRPM = kDefaultRPM;
     public static final double kDefaultBackRPM = kDefaultRPM;
 
