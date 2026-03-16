@@ -3,14 +3,18 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -51,6 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public enum DeployPosition {
     STOW(IntakeConstants.Deploy.Positions.kStow),
     OUT(IntakeConstants.Deploy.Positions.kOut),
+    UNJAM(IntakeConstants.Deploy.Positions.kUnjam),
     PROTECT(IntakeConstants.Deploy.Positions.kProtect);
 
     private final double position;
@@ -72,11 +77,13 @@ public class IntakeSubsystem extends SubsystemBase {
   private CANcoder m_deployEncoder;
   private TalonFX m_deployMotor, m_intakeMotor;
   private final VelocityVoltage m_intakeVelocityRequest = new VelocityVoltage(0.0);
-  private final PositionVoltage m_deployPositionRequest = new PositionVoltage(0.0);
+  private final DutyCycleOut m_deployDutyRequest = new DutyCycleOut(0.0);
+  private final MotionMagicVoltage m_deployPositionRequest = new MotionMagicVoltage(0.0);
   private State m_curIntakeState = State.STOP;
   private State m_curDeployState = State.STOP;
   private double m_intakeCommandedSpeedRpm = 0.0;
   private double m_deployCommandedPositionRotations = 0.0;
+  private boolean m_deployManualActive = false;
   // #endregion Declarations
 
   // #region Triggers
@@ -123,8 +130,13 @@ public class IntakeSubsystem extends SubsystemBase {
     m_curIntakeState = State.STOP;
     m_curDeployState = State.STOP;
     m_intakeCommandedSpeedRpm = 0.0;
+    m_deployManualActive = false;
     seedDeployMotorPositionFromCANcoder();
-    m_deployCommandedPositionRotations = getDeployPositionRotations();
+    if (IntakeConstants.Deploy.kInitToUnjamForTuning) {
+      setDeployUnjam();
+    } else {
+      m_deployCommandedPositionRotations = getDeployPositionRotations();
+    }
     NCDebug.Debug.debug("Intake: Initialized");
   }
 
@@ -283,6 +295,7 @@ public class IntakeSubsystem extends SubsystemBase {
     m_curDeployState = State.STOP;
     m_intakeCommandedSpeedRpm = 0.0;
     m_deployCommandedPositionRotations = getDeployPositionRotations();
+    m_deployManualActive = false;
     NCDebug.Debug.debug("Intake: Switch to Coast");
   }
 
@@ -369,15 +382,85 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   /**
+   * Sets the deploy motor output as duty cycle for manual control.
+   *
+   * @param dutyCycle Duty-cycle output from -1.0 to 1.0.
+   */
+  public void setDeployDutyCycle(double dutyCycle) {
+    double clampedDuty = MathUtil.clamp(dutyCycle, -1.0, 1.0);
+    m_deployMotor.setControl(m_deployDutyRequest.withOutput(clampedDuty));
+    m_curDeployState = stateFromSignedValue(clampedDuty);
+  }
+
+  /**
+   * Applies manual deploy control from a processed axis value.
+   * When the axis is released, deploy holds its current position.
+   *
+   * @param dutyCycle Manual duty-cycle command from -1.0 to 1.0.
+   */
+  public void applyDeployManualInput(double dutyCycle) {
+    if (Math.abs(dutyCycle) > 0.0) {
+      if (!m_deployManualActive) {
+        NCDebug.Debug.debug("Intake: Deploy manual duty active");
+      }
+      m_deployManualActive = true;
+      setDeployDutyCycle(dutyCycle);
+      return;
+    }
+
+    if (m_deployManualActive) {
+      m_deployManualActive = false;
+      NCDebug.Debug.debug("Intake: Deploy manual released -> hold");
+      setDeployPositionRotations(getDeployPositionRotations());
+    }
+  }
+
+  /**
+   * Creates a default-style command for manual deploy duty-cycle control.
+   *
+   * @param dutyCycleSupplier Supplier for manual duty-cycle command.
+   * @return Command that continuously applies manual deploy input.
+   */
+  public Command deployManualC(DoubleSupplier dutyCycleSupplier) {
+    return run(() -> applyDeployManualInput(dutyCycleSupplier.getAsDouble()));
+  }
+
+  /**
    * Sets the deploy motor position setpoint in rotations.
    *
    * @param rotations Target position in rotations for the deploy motor.
    */
   public void setDeployPositionRotations(double rotations) {
-    m_deployMotor.setControl(m_deployPositionRequest.withPosition(rotations));
-    m_deployCommandedPositionRotations = rotations;
-    m_curDeployState = stateFromSignedValue(rotations - getDeployPositionRotations());
-    NCDebug.Debug.debug("Intake: Set position " + rotations + " rotations deploy");
+    setDeployPositionRotationsInternal(rotations, true);
+  }
+
+  /**
+   * Adjusts the deploy target by a delta while clamping inside configured soft limits.
+   *
+   * @param deltaRotations Delta rotations to add to the current commanded deploy position.
+   */
+  public void adjustDeployPositionRotations(double deltaRotations) {
+    setDeployPositionRotationsInternal(m_deployCommandedPositionRotations + deltaRotations, false);
+  }
+
+  /**
+   * Applies a deploy position setpoint with optional debug logging.
+   *
+   * @param rotations Target position in rotations.
+   * @param logCommand True to emit a debug log for this command update.
+   */
+  private void setDeployPositionRotationsInternal(double rotations, boolean logCommand) {
+    double clampedRotations = MathUtil.clamp(
+      rotations,
+      IntakeConstants.Deploy.kSoftLimitLow,
+      IntakeConstants.Deploy.kSoftLimitHigh
+    );
+    m_deployMotor.setControl(m_deployPositionRequest.withPosition(clampedRotations));
+    m_deployCommandedPositionRotations = clampedRotations;
+    m_curDeployState = stateFromSignedValue(clampedRotations - getDeployPositionRotations());
+    if (logCommand) {
+      NCDebug.Debug.debug("Intake: Set position " + clampedRotations + " rotations deploy");
+    }
   }
 
   /**
@@ -407,6 +490,57 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public Command setDeployPositionC(DeployPosition position) {
     return runOnce(() -> setDeployPosition(position));
+  }
+
+  /**
+   * Sets deploy to the configured stow position.
+   */
+  public void setDeployStow() {
+    NCDebug.Debug.debug("Intake: Deploy -> STOW");
+    setDeployPosition(DeployPosition.STOW);
+  }
+
+  /**
+   * Creates a command to set deploy to the configured stow position.
+   *
+   * @return Command that sets deploy to stow.
+   */
+  public Command setDeployStowC() {
+    return runOnce(this::setDeployStow);
+  }
+
+  /**
+   * Sets deploy to the configured out position.
+   */
+  public void setDeployOut() {
+    NCDebug.Debug.debug("Intake: Deploy -> OUT");
+    setDeployPosition(DeployPosition.OUT);
+  }
+
+  /**
+   * Creates a command to set deploy to the configured out position.
+   *
+   * @return Command that sets deploy to out.
+   */
+  public Command setDeployOutC() {
+    return runOnce(this::setDeployOut);
+  }
+
+  /**
+   * Sets deploy to the configured unjam position.
+   */
+  public void setDeployUnjam() {
+    NCDebug.Debug.debug("Intake: Deploy -> UNJAM");
+    setDeployPosition(DeployPosition.UNJAM);
+  }
+
+  /**
+   * Creates a command to set deploy to the configured unjam position.
+   *
+   * @return Command that sets deploy to unjam.
+   */
+  public Command setDeployUnjamC() {
+    return runOnce(this::setDeployUnjam);
   }
 
   /**
@@ -459,8 +593,9 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   public void seedDeployMotorPositionFromCANcoder() {
     double absRot = getDeployAbsolutePositionRotations();
-    m_deployMotor.setPosition(absRot);
-    NCDebug.Debug.debug("Intake: Seed deploy position from CANcoder to " + absRot + " rotations");
+    double seededRot = Math.max(0.0, Math.min(1.0, absRot));
+    m_deployMotor.setPosition(seededRot);
+    NCDebug.Debug.debug("Intake: Seed deploy position from CANcoder to " + seededRot + " rotations");
   }
 
   /**

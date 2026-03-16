@@ -18,7 +18,7 @@ public class ShooterConstants {
 
     //2300 = hub corner shot
     //3200 = tower shot
-    public static final double kDefaultRPM = 2300.0; //CHANGE THIS
+    public static final double kDefaultRPM = 2400.0; //CHANGE THIS
     public static final double kDefaultFrontRPM = kDefaultRPM;
     public static final double kDefaultBackRPM = kDefaultRPM;
     public static final double kReverseRPM = 1500.0;

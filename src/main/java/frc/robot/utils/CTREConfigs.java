@@ -211,6 +211,11 @@ public final class CTREConfigs {
             .withKV(IntakeConstants.Deploy.kV)
             .withKA(IntakeConstants.Deploy.kA);
        deployFXConfig.Slot0 = deploySlot0Configs;
+        MotionMagicConfigs deployMotionMagicConfigs = new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(IntakeConstants.Deploy.kMotionMagicCruise)
+            .withMotionMagicAcceleration(IntakeConstants.Deploy.kMotionMagicAccel)
+            .withMotionMagicJerk(IntakeConstants.Deploy.kMotionMagicJerk);
+        deployFXConfig.MotionMagic = deployMotionMagicConfigs;
 
         //Current Limits
         CurrentLimitsConfigs deployCurrentLimitsConfigs = new CurrentLimitsConfigs()
@@ -222,11 +227,18 @@ public final class CTREConfigs {
         //Neutral and Direction
         deployFXConfig.MotorOutput.NeutralMode = IntakeConstants.Deploy.kNeutralMode;
         deployFXConfig.MotorOutput.Inverted = IntakeConstants.Deploy.kInverted;
+        //Software Limits
+        SoftwareLimitSwitchConfigs deploySoftwareLimitSwitchConfigs = new SoftwareLimitSwitchConfigs()
+            .withReverseSoftLimitEnable(IntakeConstants.Deploy.kSoftLimitEnable)
+            .withReverseSoftLimitThreshold(IntakeConstants.Deploy.kSoftLimitLow)
+            .withForwardSoftLimitEnable(IntakeConstants.Deploy.kSoftLimitEnable)
+            .withForwardSoftLimitThreshold(IntakeConstants.Deploy.kSoftLimitHigh);
+        deployFXConfig.SoftwareLimitSwitch = deploySoftwareLimitSwitchConfigs;
         //Encoder
         deployFXConfig.Feedback.FeedbackRemoteSensorID = IntakeConstants.Deploy.kCANcoderID;
         deployFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        deployFXConfig.Feedback.RotorToSensorRatio = IntakeConstants.kGearRatio;
-        deployFXConfig.Feedback.SensorToMechanismRatio = IntakeConstants.kSensorGearRatio; //CANcoder is the same as mechanism
+        deployFXConfig.Feedback.RotorToSensorRatio = IntakeConstants.Deploy.kRotorToSensorRatio;
+        deployFXConfig.Feedback.SensorToMechanismRatio = IntakeConstants.Deploy.kSensorToMechanismRatio;
         //Audio
         deployFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
         //#endregion

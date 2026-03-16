@@ -129,6 +129,11 @@ public class RobotContainer {
             .withMultiplier(ClimberConstants.kClimbPower)
             .withSquaring(true)
             .withInvert(true);
+        final InputAxis m_deployAxis = new InputAxis("DeployManual", oj::getLeftY)
+            .withDeadband(OIConstants.kMinDeadband)
+            .withMultiplier(IntakeConstants.Deploy.kManualDutyCycleMax)
+            .withInvert(true)
+            .withSquaring(true);
         autoFactory = new AutoFactory(
             () -> drivetrain.getState().Pose,
             drivetrain::resetPose,
@@ -164,6 +169,9 @@ public class RobotContainer {
                   // .withRotationalRate(m_rotate.getAsDouble() * MaxAngularRate); // Drive counterclockwise with negative X (left)
               }
             })
+        );
+        intake.setDefaultCommand(
+            intake.deployManualC(m_deployAxis)
         );
         //#endregion Default Commands
       
@@ -352,10 +360,12 @@ public class RobotContainer {
            * rb - intake
            * a - momentary undeploy
            * x - reverse indexer+knuckle
+           * y - deploy
+           * lb+y - stow intake
            * b - 
            * hamburger - climber up  
-           * ellipses - climber down
-           * lstick -
+           * ellipses - shooter reverse
+           * left y - manual deploy duty
            * rstick -
            * dpad up -
            * dpad down -
@@ -416,6 +426,16 @@ public class RobotContainer {
             intake.setIntakeStopC()
         );
 
+        /** OJ Y (without Left Bumper) - Set deploy to OUT position. */
+        oj.leftBumper().negate().and(oj.y()).onTrue(
+            intake.setDeployOutC()
+        );
+
+        /** OJ Left Bumper + Y - Set deploy to STOW position. */
+        oj.leftBumper().and(oj.y()).onTrue(
+            intake.setDeployStowC()
+        );
+
         /** OJ X - L1 Position (currently stow?) */
         oj.x().onTrue(
             noop()
@@ -427,25 +447,17 @@ public class RobotContainer {
             // .until(elevator::isAtTarget)
             // .andThen(coral.CoralStopC())
         );
-        /** OJ A - L2 Scoring Position */
+        /** OJ A (while held) - Set deploy to UNJAM, then return to OUT on release. */
         oj.a().onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.L2)
-            // .andThen(wait(CoralConstants.kWaitDelay))
-            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
+            intake.setDeployUnjamC()
+        ).onFalse(
+            intake.setDeployOutC()
         );
         /** OJ B - L3 Scoring Position */
         oj.b().onTrue(
             noop()
             // elevator.ElevatorPositionC(ElevatorSubsystem.Position.L3)
             // .andThen(wait(CoralConstants.kWaitDelay))
-            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
-        );
-        /** OJ Y - L4 Scoring Position */
-        oj.y().onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.L4)
-            // .andThen(wait(CoralConstants.kWaitDelay + 0.2))
             // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
         );
         /** OJ X - L4 Scoring Position */

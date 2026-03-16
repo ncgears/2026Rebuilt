@@ -44,12 +44,21 @@ public class IntakeConstants {
         public static final int kMotorID = ID.TalonFX.deploy;
         public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
         public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
+        /**
+         * Deploy gear ratio from motor rotor rotations to CANcoder rotations.
+         * Rotor-to-mechanism is 50:14 and sensor is 5:1 reduction from mechanism.
+         */
+        /** Rotor rotations per mechanism rotation (50:14 reduction) */
+        public static final double kRotorToMechanismRatio = 50.0 / 14.0;
+        /** Sensor rotations per mechanism rotation (7:1 reduction from mechanism). */
+        public static final double kSensorToMechanismRatio = 1.0  / 7.0;
+        public static final double kRotorToSensorRatio = kRotorToMechanismRatio / kSensorToMechanismRatio;
         //FF gains
-        public static final double kV = 0.11862;
-        public static final double kA = 0.0066756;
-        public static final double kS = 0.17534;
+        public static final double kV = 0.0;
+        public static final double kA = 0.0;
+        public static final double kS = 0.65;
         //PID gains
-        public static final double kP = 0.000058859;
+        public static final double kP = 19;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         //Current Limiting
@@ -57,10 +66,23 @@ public class IntakeConstants {
         public static final double kCurrentLimitAmps = 30.0;
         public static final double kCurrentLimitThresholdAmps = 30.0;
         public static final double kCurrentLimitThresholdSecs = 0.3;
+        //Software limits (mechanism rotations)
+        public static final boolean kSoftLimitEnable = true;
+        public static final double kSoftLimitLow = 0.0;
+        public static final double kSoftLimitHigh = 0.63;
+        //Motion Magic profile (mechanism rotations)
+        public static final double kMotionMagicCruise = 0.5;
+        public static final double kMotionMagicAccel = 1.0;
+        public static final double kMotionMagicJerk = 8.0;
+        /** Manual deploy duty-cycle cap for operator stick control (0.0 to 1.0). */
+        public static final double kManualDutyCycleMax = 0.35;
+        /** During tuning, initialize deploy setpoint to unjam on subsystem init. */
+        public static final boolean kInitToUnjamForTuning = false;
 
         public class Positions {
             public static final double kStow = 0.1;
-            public static final double kOut = 0.635;
+            public static final double kOut = 0.625;
+            public static final double kUnjam = 0.4;
             public static final double kProtect = kStow;
         }
     }
@@ -74,9 +96,6 @@ public class IntakeConstants {
     public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
     public static final double kStowPosition = 0;
     public static final double kDeployPower = 0.8;
-
-    public static final double kGearRatio = 20.0; // 20:1 gearbox (0.05) -- this is between rotor and sensor
-    public static final double kSensorGearRatio = 1.0; // no gearing between sensor and spool -- this is between sensor and spool
     //PID Control
     public static final double kS = 0.22; // add kS to overcome static friction: adjust first to start moving
     public static final double kV = 0.0; // add kV for velocity target: voltage(12) / velocity target.. 1 rps results in 0.12v output
@@ -92,8 +111,4 @@ public class IntakeConstants {
     public static final double kCurrentLimitAmps = 30.0;
     public static final double kCurrentLimitThresholdAmps = 60.0;
     public static final double kCurrentLimitThresholdSecs = 0.3;
-    public static final boolean kSoftForwardLimitEnable = false;
-    public static final double kSoftForwardLimit = 3.38;
-    public static final boolean kSoftReverseLimitEnable = false;
-    public static final double kSoftReverseLimit = -0.01;
 }

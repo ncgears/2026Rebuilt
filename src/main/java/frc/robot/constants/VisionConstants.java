@@ -37,14 +37,15 @@ public class VisionConstants {
     /* AHA!
      * The first argument of kRobotToCam is the translation3d representing the center of the robot
      * to the center of the camera, regardless of orientation of the camera, such that +X is toward 
-     * the front of the robot, +Y is to the left of the robot (when facing forward), +Z is the height from the floor.
+     * the front of the robot, +Y is to the left of the robot (when facing forward), +Z is the height from the floor. 
+     * All measured in meters.
      * 
      * The second argument of kRobotToCam is the rotation3d representing the orientation of the camera
      * as it relates to the front facing robot. 
      * ie.
      *  yaw is rotation around Z (heading) 
      *  pitch is rotation around Y (tilt)
-     *  roll is rotation around X,
+     *  roll is rotation around X, Photonvision site says counterclockwise
      * 
      * Front facing camera with no yaw, pitch, or roll would typically be Rotation3d.kZero, which
      * is the same as "new Rotation3d(0,0,0)"
@@ -52,22 +53,22 @@ public class VisionConstants {
      * Rear facing camera will typically be something like "new Rotation3d(0,0,Math.toRadians(180))" 
      */
 
-    public static final class Front { //forward facing camera
+    public static final class Front { //Right facing camera 2026 *****
         public static final String kCameraName = "frontcam";
         public static final boolean kUseForPose = true;
         //+x left from center, +y forward from center, +z up from ground
         public static final Transform3d kRobotToCam = new Transform3d(
           // new Translation3d(0.290,0.250,0.280), //x,y,z location of camera on robot in meters
-          new Translation3d(0.38,0.295,0.280), //x,y,z location of camera on robot in meters
-          Rotation3d.kZero //yaw,pitch/roll of camera on robot in radians
-            // new Rotation3d(0,Math.toRadians(19.18),0) //yaw,pitch/roll of camera on robot in radians
+          new Translation3d(-0.0864,-0.3637,0.51), //x,y,z location of camera on robot in meters
+          //Rotation3d.kZero //yaw,pitch/roll of camera on robot in radians
+          new Rotation3d(0,0,Math.toRadians(270)) //yaw,pitch/roll of camera on robot in radians
         );
     }
     public static final class Back { //backwards facing camera
         public static final String kCameraName = "rearcam";
         public static final boolean kUseForPose = true;
         public static final Transform3d kRobotToCam = new Transform3d(
-          new Translation3d(-0.383,0.296,0.280), //x,y,z location of camera on robot in meters
+          new Translation3d(-0.3076,0.2094,0.359), //x,y,z location of camera on robot in meters
           new Rotation3d(0,0,Math.toRadians(180)) //yaw,pitch/roll of camera on robot in radians
         );
     }
