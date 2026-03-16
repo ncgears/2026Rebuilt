@@ -33,6 +33,7 @@ public class IntakeConstants {
         public static final double kCurrentLimitThresholdSecs = 0.3;
         //Commanded speeds
         public static final double kForwardRPM = 4000.0;
+        public static final double kSlowForwardRPM = 500.0;
         public static final double kReverseRPM = 3500.0;
     }
     public class Deploy {
@@ -48,8 +49,11 @@ public class IntakeConstants {
          * Deploy gear ratio from motor rotor rotations to CANcoder rotations.
          * Rotor-to-mechanism is 50:14 and sensor is 5:1 reduction from mechanism.
          */
-        /** Rotor rotations per mechanism rotation (50:14 reduction) */
-        public static final double kRotorToMechanismRatio = 50.0 / 14.0;
+        /** Rotor rotations per mechanism rotation (18:15 pulleys, 12:1 gearbox) 
+         * 15t pulley on gearbox, 18t on shaft
+         * 3:1 stage, 4:1 stage in gearbox
+        */
+        public static final double kRotorToMechanismRatio = (18.0 / 15.0) * 12.0 / 1;
         /** Sensor rotations per mechanism rotation (7:1 reduction from mechanism). */
         public static final double kSensorToMechanismRatio = 1.0  / 7.0;
         public static final double kRotorToSensorRatio = kRotorToMechanismRatio / kSensorToMechanismRatio;
@@ -58,7 +62,7 @@ public class IntakeConstants {
         public static final double kA = 0.0;
         public static final double kS = 0.65;
         //PID gains
-        public static final double kP = 19;
+        public static final double kP = 5.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         //Current Limiting

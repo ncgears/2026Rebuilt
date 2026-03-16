@@ -348,6 +348,23 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   /**
+   * Runs the intake forward at the configured slow forward RPM.
+   */
+  private void startIntakeSlow() {
+    NCDebug.Debug.debug("Intake: Slow Forward");
+    setIntakeSpeedRPM(IntakeConstants.Intake.kSlowForwardRPM);
+  }
+
+  /**
+   * Creates a command to run the intake forward at slow speed.
+   *
+   * @return Command that runs the intake forward slowly.
+   */
+  public Command startIntakeSlowC() {
+    return runOnce(this::startIntakeSlow);
+  }
+
+  /**
    * Runs the intake in reverse at the configured reverse RPM.
    */
   private void setIntakeReverse() {

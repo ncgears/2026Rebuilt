@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandStadiaController;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.classes.Gyro;
 import frc.robot.classes.Lighting;
@@ -101,8 +102,10 @@ public class RobotContainer {
     public static Boolean m_targetLock = false;
 
     /* Setup the joysticks */
-    private final CommandStadiaController dj = new CommandStadiaController(OIConstants.JoyDriverID);
-    private final CommandStadiaController oj = new CommandStadiaController(OIConstants.JoyOperID);
+    private final CommandXboxController dj = new CommandXboxController(OIConstants.JoyDriverID);
+    private final CommandXboxController oj = new CommandXboxController(OIConstants.JoyOperID);
+    // private final CommandStadiaController dj = new CommandStadiaController(OIConstants.JoyDriverID);
+    // private final CommandStadiaController oj = new CommandStadiaController(OIConstants.JoyOperID);
     private final CommandStadiaController pj = new CommandStadiaController(OIConstants.JoyProgID);
     //#endregion Declarations
 
@@ -274,13 +277,13 @@ public class RobotContainer {
             *  Rickroll.chrp
             *  Still-Alive.chrp
             */
-            dj.stadia().onTrue(new InstantCommand(() -> {
-                if(orchestra.isPlaying()) {
-                    orchestra.stop();
-                } else {
-                    orchestra.withMusic("Still-Alive.chrp").play();
-                }
-            }).ignoringDisable(true));
+            // dj.stadia().onTrue(new InstantCommand(() -> {
+            //     if(orchestra.isPlaying()) {
+            //         orchestra.stop();
+            //     } else {
+            //         orchestra.withMusic("Still-Alive.chrp").play();
+            //     }
+            // }).ignoringDisable(true));
         }
 
         //POV left and right are robot-centric strafing
@@ -347,7 +350,7 @@ public class RobotContainer {
         );
         
         // reset the field-centric heading on hamburger button press
-        dj.hamburger().onTrue(drivetrain.resetGyroC());
+        dj.start().onTrue(drivetrain.resetGyroC());
         //#endregion Driver Joystick
 
         //#region Operator Joystick
@@ -397,15 +400,18 @@ public class RobotContainer {
         oj.rightTrigger().onTrue(
             shooter.startShooterC()
                 .andThen(wait(ShooterConstants.kSpinupDelaySeconds))
-                .andThen(indexer.startIndexerC())
+                .andThen(Commands.parallel(
+                    indexer.startIndexerC(),
+                    intake.startIntakeSlowC()))
         ).onFalse(
             Commands.parallel(
                 shooter.neutralCommand(),
-                indexer.neutralCommand())
+                indexer.neutralCommand(),
+                intake.setIntakeStopC())
         );
 
         /** OJ Ellipses (while held) - Run shooter in reverse for unjam/clear. */
-        oj.ellipses().whileTrue(
+        oj.back().whileTrue(
             shooter.setShooterSpeedC(-ShooterConstants.kReverseRPM)
         ).onFalse(
             shooter.neutralCommand()
