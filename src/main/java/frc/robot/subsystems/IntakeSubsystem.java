@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -348,6 +349,39 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   /**
+   * Runs intake forward and selects slow or normal speed.
+   *
+   * @param useSlowSpeed True to use the configured slow forward RPM, otherwise normal forward RPM.
+   */
+  public void setIntakeForwardAdaptive(boolean useSlowSpeed) {
+    double targetRpm = useSlowSpeed
+      ? IntakeConstants.Intake.kSlowForwardRPM
+      : IntakeConstants.Intake.kForwardRPM;
+
+    if (Math.abs(m_intakeCommandedSpeedRpm - targetRpm) < 1e-6) {
+      return;
+    }
+
+    if (useSlowSpeed) {
+      NCDebug.Debug.debug("Intake: Slow Forward");
+    } else {
+      NCDebug.Debug.debug("Intake: Forward");
+    }
+    setIntakeSpeedRPM(targetRpm);
+  }
+
+  /**
+   * Creates a command that continuously applies forward intake speed and
+   * dynamically switches between normal and slow RPM.
+   *
+   * @param useSlowSpeedSupplier Supplier that determines whether slow speed should be used.
+   * @return Command that continuously updates forward intake speed selection.
+   */
+  public Command setIntakeForwardAdaptiveC(BooleanSupplier useSlowSpeedSupplier) {
+    return run(() -> setIntakeForwardAdaptive(useSlowSpeedSupplier.getAsBoolean()));
+  }
+
+  /**
    * Runs the intake forward at the configured slow forward RPM.
    */
   private void startIntakeSlow() {
@@ -609,10 +643,16 @@ public class IntakeSubsystem extends SubsystemBase {
    * This aligns the fused CANcoder feedback position at startup.
    */
   public void seedDeployMotorPositionFromCANcoder() {
-    double absRot = getDeployAbsolutePositionRotations();
-    double seededRot = Math.max(0.0, Math.min(1.0, absRot));
+    double absSensorRot = getDeployAbsolutePositionRotations();
+    double mechanismRot = absSensorRot / IntakeConstants.Deploy.kSensorToMechanismRatio;
+    double seededRot = MathUtil.clamp(
+      mechanismRot,
+      IntakeConstants.Deploy.kSoftLimitLow,
+      IntakeConstants.Deploy.kSoftLimitHigh
+    );
     m_deployMotor.setPosition(seededRot);
-    NCDebug.Debug.debug("Intake: Seed deploy position from CANcoder to " + seededRot + " rotations");
+    NCDebug.Debug.debug("Intake: Seed deploy position from CANcoder " + absSensorRot
+      + " -> mechanism " + seededRot + " rotations");
   }
 
   /**

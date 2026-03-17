@@ -324,6 +324,16 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns whether the shooter is currently commanded to shoot forward.
+   * Both shooter wheels must be in the forward state to be considered shooting.
+   *
+   * @return True when both front and back shooter wheels are commanded forward.
+   */
+  public boolean isShooting() {
+    return m_curFrontState == State.FWD && m_curBackState == State.FWD;
+  }
+
+  /**
    * Returns the current measured front shooter speed in RPM.
    *
    * @return Current front shooter speed in RPM.
@@ -395,13 +405,13 @@ public class ShooterSubsystem extends SubsystemBase {
   public void shooterNeutral() {
     m_shooterFrontMotor.setControl(m_frontVelocityRequest.withVelocity(0.0));
     m_shooterBackMotor.setControl(m_backVelocityRequest.withVelocity(0.0));
-    m_shooterFrontMotor.setNeutralMode(NeutralModeValue.Coast);
-    m_shooterBackMotor.setNeutralMode(NeutralModeValue.Coast);
+    // m_shooterFrontMotor.setNeutralMode(NeutralModeValue.Coast);
+    // m_shooterBackMotor.setNeutralMode(NeutralModeValue.Coast);
     m_curFrontState = State.STOP;
     m_curBackState = State.STOP;
     m_frontCommandedSpeedRpm = 0.0;
     m_backCommandedSpeedRpm = 0.0;
-    NCDebug.Debug.debug("Shooter: Switch to Coast");
+    NCDebug.Debug.debug("Shooter: Neutral");
   }
 
   /**

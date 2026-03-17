@@ -157,7 +157,7 @@ public final class CTREConfigs {
             .withKS(IndexerConstants.LiveBottom.kS)
             .withKV(IndexerConstants.LiveBottom.kV)
             .withKA(IndexerConstants.LiveBottom.kA);
-       liveBottomFXConfig.Slot0 = liveBottomSlot0Configs;
+        liveBottomFXConfig.Slot0 = liveBottomSlot0Configs;
 
         //Current Limits
         CurrentLimitsConfigs liveBottomCurrentLimitsConfigs = new CurrentLimitsConfigs()
@@ -210,7 +210,7 @@ public final class CTREConfigs {
             .withKS(IntakeConstants.Deploy.kS)
             .withKV(IntakeConstants.Deploy.kV)
             .withKA(IntakeConstants.Deploy.kA);
-       deployFXConfig.Slot0 = deploySlot0Configs;
+        deployFXConfig.Slot0 = deploySlot0Configs;
         MotionMagicConfigs deployMotionMagicConfigs = new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(IntakeConstants.Deploy.kMotionMagicCruise)
             .withMotionMagicAcceleration(IntakeConstants.Deploy.kMotionMagicAccel)

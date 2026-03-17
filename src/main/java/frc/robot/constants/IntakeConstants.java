@@ -40,7 +40,7 @@ public class IntakeConstants {
         //Cancoder
         public static final boolean kUseCANcoder = true;
         public static final int kCANcoderID = ID.CANcoder.deploy_cc;
-        public static final double kMagnetOffset = -0.344580; //Adjust magnet to sensor offset for CANcoder
+        public static final double kMagnetOffset = -0.166113; //Adjust magnet to sensor offset for CANcoder
         //Motor
         public static final int kMotorID = ID.TalonFX.deploy;
         public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
@@ -60,9 +60,9 @@ public class IntakeConstants {
         //FF gains
         public static final double kV = 0.0;
         public static final double kA = 0.0;
-        public static final double kS = 0.65;
+        public static final double kS = 0.9;
         //PID gains
-        public static final double kP = 5.0;
+        public static final double kP = 14.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         //Current Limiting
@@ -71,22 +71,23 @@ public class IntakeConstants {
         public static final double kCurrentLimitThresholdAmps = 30.0;
         public static final double kCurrentLimitThresholdSecs = 0.3;
         //Software limits (mechanism rotations)
-        public static final boolean kSoftLimitEnable = true;
-        public static final double kSoftLimitLow = 0.0;
-        public static final double kSoftLimitHigh = 0.63;
+        /** Disable while characterizing manual deploy travel; re-enable for normal operation. */
+        public static final boolean kSoftLimitEnable = false;
+        public static final double kSoftLimitLow = 0.7;   // CANcoder 0.10 * 7.0
+        public static final double kSoftLimitHigh = 4.378; // CANcoder 0.625 * 7.0
         //Motion Magic profile (mechanism rotations)
-        public static final double kMotionMagicCruise = 0.5;
-        public static final double kMotionMagicAccel = 1.0;
-        public static final double kMotionMagicJerk = 8.0;
+        public static final double kMotionMagicCruise = 2.25;
+        public static final double kMotionMagicAccel = 7.5;
+        public static final double kMotionMagicJerk = 80.0;
         /** Manual deploy duty-cycle cap for operator stick control (0.0 to 1.0). */
-        public static final double kManualDutyCycleMax = 0.35;
+        public static final double kManualDutyCycleMax = 1.0;
         /** During tuning, initialize deploy setpoint to unjam on subsystem init. */
         public static final boolean kInitToUnjamForTuning = false;
 
         public class Positions {
-            public static final double kStow = 0.1;
-            public static final double kOut = 0.625;
-            public static final double kUnjam = 0.4;
+            public static final double kStow = 0.7;   // CANcoder 0.10 * 7.0
+            public static final double kOut = 4.378;  // CANcoder 0.625 * 7.0
+            public static final double kUnjam = 2.8;  // CANcoder 0.40 * 7.0
             public static final double kProtect = kStow;
         }
     }

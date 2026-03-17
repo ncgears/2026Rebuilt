@@ -396,30 +396,34 @@ public class RobotContainer {
             // TODO: Set tracking target to RIGHT_POCKET.
         );
 
-        /** OJ Right Trigger - Scoring sequence - spin up shooter, wait, spin up indexer/intake */
+        /** OJ Right Trigger - Scoring sequence - spin up shooter, wait, spin up indexer */
         oj.rightTrigger().onTrue(
             shooter.startShooterC()
                 .andThen(wait(ShooterConstants.kSpinupDelaySeconds))
-                .andThen(Commands.parallel(
-                    indexer.startIndexerC(),
-                    intake.startIntakeSlowC()))
-        ).onFalse(
+                .andThen(indexer.startIndexerC())
+        )
+        .onFalse(
             Commands.parallel(
                 shooter.neutralCommand(),
-                indexer.neutralCommand(),
-                intake.setIntakeStopC())
+                indexer.neutralCommand()
+            )
         );
 
         /** OJ Ellipses (while held) - Run shooter in reverse for unjam/clear. */
         oj.back().whileTrue(
             shooter.setShooterSpeedC(-ShooterConstants.kReverseRPM)
+            .andThen(indexer.setKnuckleSpeedC(-IndexerConstants.Knuckle.kReverseRPM))
         ).onFalse(
-            shooter.neutralCommand()
+            Commands.parallel(
+                shooter.neutralCommand(),
+                indexer.neutralCommand()
+            )
         );
 
-        /** OJ Right Bumper (without Left Bumper) - Run intake forward while held */
-        oj.leftBumper().negate().and(oj.rightBumper()).onTrue(
-            intake.setIntakeForwardC()
+        /** OJ Right Bumper (without Left Bumper) - Run intake forward while held.
+         * Uses slow speed when shooter is actively shooting to avoid command contention. */
+        oj.leftBumper().negate().and(oj.rightBumper()).whileTrue(
+            intake.setIntakeForwardAdaptiveC(shooter::isShooting)
         );
 
         /** OJ Left Bumper + Right Bumper - Run intake reverse while held */

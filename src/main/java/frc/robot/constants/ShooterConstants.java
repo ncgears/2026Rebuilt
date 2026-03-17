@@ -45,7 +45,7 @@ public class ShooterConstants {
     public class Front {
         public static final int kMotorID = ID.TalonFX.shooter_front;
         public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
-        public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
+        public static final NeutralModeValue kNeutralMode = NeutralModeValue.Brake;
         public static final double kGearRatio = 1.0;
         //FF gains
         public static final double kV = 0.12165; //0.14; // add kV for velocity target: voltage(12) / velocity target.. 1 rps results in 0.12v output
@@ -64,7 +64,7 @@ public class ShooterConstants {
     public class Back {
         public static final int kMotorID = ID.TalonFX.shooter_back;
         public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
-        public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
+        public static final NeutralModeValue kNeutralMode = NeutralModeValue.Brake;
         public static final double kGearRatio = 1.0;
         //FF gains
         public static final double kV = 0.12256; //0.14; // add kV for velocity target: voltage(12) / velocity target.. 1 rps results in 0.12v output
