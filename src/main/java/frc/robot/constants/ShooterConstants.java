@@ -16,8 +16,16 @@ public class ShooterConstants {
     public static final boolean debugDashboard = false; //enable debugging dashboard
     public static final boolean isDisabled = false; //disable shooter system
 
-    //2300 = hub corner shot
-    //3200 = tower shot
+    /* Lab Tested Values 
+     * 2300 = Hub Corner
+     * 2400 = Hub Corner (Preferred)
+     * 3200 = Against Tower
+    */
+    /* GVSU Practice Field Tested Values
+     * 2300 = Hub Corner (untested)
+     * 2400 = Hub Corner Preferred (untested)
+     * 3200 = Against Tower (untested)
+     */
     public static final double kDefaultRPM = 2400.0; //CHANGE THIS
     public static final double kDefaultFrontRPM = kDefaultRPM;
     public static final double kDefaultBackRPM = kDefaultRPM;
