@@ -21,10 +21,10 @@ public class ShooterConstants {
      * 2400 = Hub Corner (Preferred)
      * 3200 = Against Tower
     */
-    /* GVSU Practice Field Tested Values
-     * 2300 = Hub Corner (untested)
-     * 2400 = Hub Corner Preferred (untested)
-     * 3200 = Against Tower (untested)
+    /* GVSU Practice Field Tested Values Hub Dimensions 47.125" Across Front x 47.25 Across 
+     * 60.348" from silver bar to center - 2400RPM Hits Backwall
+     * 121.0356" from silver bar to center of hub - 3100RPM
+     * Against the tower or 150.473" From Silver Bar to Center Hub -  3400 - 3450 RPM
      */
     public static final double kDefaultRPM = 2400.0; //CHANGE THIS
     public static final double kDefaultFrontRPM = kDefaultRPM;
