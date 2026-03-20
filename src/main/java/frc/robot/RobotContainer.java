@@ -99,6 +99,7 @@ public class RobotContainer {
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
         // .withDriveRequestType(DriveRequestType.Velocity);
     public static Rotation2d m_targetDirection = new Rotation2d();
+    public static Boolean m_trackingOverride = false;
     public static Boolean m_targetLock = false;
 
     /* Setup the joysticks */
@@ -155,22 +156,32 @@ public class RobotContainer {
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() -> {
               double rot = m_rotate.getAsDouble();
-              if(Math.abs(rot) > 0) { //turning
-                if(m_targetLock) NCDebug.Debug.debug("Drive: Heading Unlocked");
-                m_targetLock = false;
-              }
-              if(m_targetLock) { //specific facing angle
-                // NCDebug.Debug.debug("drive with facing angle");
-                return snapDrive.withVelocityX(m_fieldX.getAsDouble() * MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(m_fieldY.getAsDouble() * MaxSpeed) // Drive left with negative X (left)
-                .withTargetDirection(m_targetDirection);
-              } else {
-                // NCDebug.Debug.debug("drive with unlocked");
-                return drive.withVelocityX(m_fieldX.getAsDouble() * MaxSpeed) // Drive forward with negative Y (forward)
-                  .withVelocityY(m_fieldY.getAsDouble() * MaxSpeed) // Drive left with negative X (left)
-                  .withRotationalRate(rot * MaxAngularRate); // Drive counterclockwise with negative X (left)
-                  // .withRotationalRate(m_rotate.getAsDouble() * MaxAngularRate); // Drive counterclockwise with negative X (left)
-              }
+                if(Math.abs(rot) > 0) { //turning
+                    if(m_targetLock) NCDebug.Debug.debug("Drive: Heading Unlocked");
+                    m_targetLock = false;
+                }
+                if(targeting.getTracking() && !m_trackingOverride) {
+                    m_targetDirection = Rotation2d.fromDegrees(targeting.getBearingOfTarget(targeting.getTrackingTarget()));
+                } else {
+                    // m_targetDirection = Rotation2d.kZero;
+                    if(!m_targetLock) {
+                        m_targetDirection = drivetrain.getBotHeading();
+                        // NCDebug.Debug.debug("Drive: Heading Locked to "+drivetrain.getBotHeading().getDegrees());
+                    }
+                    m_targetLock = true;
+                }
+                if(m_targetLock) { //specific facing angle
+                    // NCDebug.Debug.debug("drive with facing angle");
+                    return snapDrive.withVelocityX(m_fieldX.getAsDouble() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(m_fieldY.getAsDouble() * MaxSpeed) // Drive left with negative X (left)
+                    .withTargetDirection(m_targetDirection);
+                } else {
+                    // NCDebug.Debug.debug("drive with unlocked");
+                    return drive.withVelocityX(m_fieldX.getAsDouble() * MaxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(m_fieldY.getAsDouble() * MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(rot * MaxAngularRate); // Drive counterclockwise with negative X (left)
+                        // .withRotationalRate(m_rotate.getAsDouble() * MaxAngularRate); // Drive counterclockwise with negative X (left)
+                }
             })
         );
         intake.setDefaultCommand(
@@ -300,6 +311,10 @@ public class RobotContainer {
             )
         );
 
+        dj.leftTrigger()
+            .onTrue(new InstantCommand(() -> { m_trackingOverride = true; m_targetLock = false;}))
+            .onFalse(new InstantCommand(() -> { m_trackingOverride = false; }));
+
         // dj.frame().onTrue((Commands.runOnce(drivetrain::zeroGyro)));
         // dj.stadia().onTrue(Commands.runOnce(drivetrain::addFakeVisionReading));
 
@@ -320,14 +335,9 @@ public class RobotContainer {
          * + Right Bumper - Align to Reef Rear Center face
          * + Right Trigger - Align to Reef Rear Right face
          */
-        dj.leftTrigger().negate().and(dj.leftBumper()).onTrue(updateTargetC(Targets.REEF_FRONT_LEFT_C));
-        dj.leftTrigger().negate().and(dj.rightBumper()).onTrue(updateTargetC(Targets.REEF_FRONT_CENTER_C));
-        dj.leftTrigger().negate().and(dj.rightTrigger()).onTrue(updateTargetC(Targets.REEF_FRONT_RIGHT_C));
-        dj.leftTrigger().and(dj.leftBumper()).onTrue(updateTargetC(Targets.REEF_BACK_LEFT_C));
-        dj.leftTrigger().and(dj.rightBumper()).onTrue(updateTargetC(Targets.REEF_BACK_CENTER_C));
-        dj.leftTrigger().and(dj.rightTrigger()).onTrue(updateTargetC(Targets.REEF_BACK_RIGHT_C));
         /** DJ Left Trigger (While Held) - Right Stick is facing angle instead of turn */
-        dj.leftTrigger().whileTrue(
+        //FACING ANGLE DRIVING
+        dj.rightTrigger().whileTrue(
           drivetrain.applyRequest(() -> {
             // Use right joystick raw for heading
             double headingX = -dj.getRightY(); // joystick -Y is forward, +X heading
@@ -336,12 +346,12 @@ public class RobotContainer {
               m_targetDirection = new Rotation2d(headingX, headingY);
               // NCDebug.Debug.debug("Drive: Heading Locked to "+NCDebug.General.roundDouble(m_targetDirection.getDegrees(),2));
             } else {
-              // m_targetDirection = Rotation2d.kZero;
-              if(!m_targetLock) {
-                m_targetDirection = drivetrain.getBotHeading();
-                // NCDebug.Debug.debug("Drive: Heading Locked to "+drivetrain.getBotHeading().getDegrees());
-              }
-              m_targetLock = true;
+                // m_targetDirection = Rotation2d.kZero;
+                if(!m_targetLock) {
+                    m_targetDirection = drivetrain.getBotHeading();
+                    // NCDebug.Debug.debug("Drive: Heading Locked to "+drivetrain.getBotHeading().getDegrees());
+                }
+                m_targetLock = true;
             }
             return snapDrive.withVelocityX(-dj.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                 .withVelocityY(-dj.getLeftX() * MaxSpeed) // Drive left with negative X (left)
@@ -376,24 +386,22 @@ public class RobotContainer {
 
         /** OJ Left Trigger - Tracking mode while held */
         oj.leftTrigger().onTrue(
-            noop()
-            // TODO: Start tracking mode.
-            // TODO: Set default tracking target to HUB while LT is held.
+            updateTargetC(Targets.HUB)
+            .andThen(targeting.trackingStartC())
         ).onFalse(
-            noop()
-            // TODO: Stop tracking mode and restore normal targeting behavior.
+            targeting.trackingStopC()
         );
-
-        /** OJ Left Trigger + POV Left - Set tracking target to left pocket */
-        oj.leftTrigger().and(oj.povLeft()).onTrue(
-            noop()
-            // TODO: Set tracking target to LEFT_POCKET.
+        oj.povLeft().onTrue(
+            updateTargetC(Targets.POCKET_LEFT)
+            .andThen(targeting.trackingStartC())
+        ).onFalse(
+            targeting.trackingStopC()
         );
-
-        /** OJ Left Trigger + POV Right - Set tracking target to right pocket */
-        oj.leftTrigger().and(oj.povRight()).onTrue(
-            noop()
-            // TODO: Set tracking target to RIGHT_POCKET.
+        oj.povRight().onTrue(
+            updateTargetC(Targets.POCKET_RIGHT)
+            .andThen(targeting.trackingStartC())
+        ).onFalse(
+            targeting.trackingStopC()
         );
 
         /** OJ Right Trigger - Scoring sequence - spin up shooter, wait, spin up indexer */

@@ -26,34 +26,13 @@ public class Targeting {
 	 * Targets represents different locations on the field that we might be interested in tracking
 	 */
 	private static final double m_fieldLength = VisionConstants.kTagLayout.getFieldLength();
+	private static final double m_fieldWidth = VisionConstants.kTagLayout.getFieldWidth();
     public enum Targets { //based on blue origin 0,0 (blue driver station, right corner)
-      HP_RIGHT(0.851154,0.65532,1.4859,54),
-      HP_LEFT(0.851154,7.39648,1.4859,306),
-      REEF_FRONT_RIGHT_R(4.2158,3.2234,0,240),
-      REEF_FRONT_RIGHT_C(4.073906,3.306318,0.308102,240),
-      REEF_FRONT_RIGHT_L(3.9312,3.3877,0,240),
-      REEF_FRONT_CENTER_R(3.6576,3.8616,0,180),
-      REEF_FRONT_CENTER_C(3.6576,4.0259,0.308102,180),
-      REEF_FRONT_CENTER_L(3.6576,4.1902,0,180),
-      REEF_FRONT_LEFT_R(3.9312,4.664,0,120),
-      REEF_FRONT_LEFT_C(4.073906,4.745482,0.308102,120),
-      REEF_FRONT_LEFT_L(4.2158,4.8283,0,120),
-      REEF_BACK_RIGHT_R(4.7629,3.2234,0,300),
-      REEF_BACK_RIGHT_C(4.90474,3.306318,0.308102,300),
-      REEF_BACK_RIGHT_L(5.0475,3.3877,0,300),
-      REEF_BACK_CENTER_R(5.321046,3.8616,0,0),
-      REEF_BACK_CENTER_C(5.321046,4.0259,0.308102,0),
-      REEF_BACK_CENTER_L(5.321046,4.1902,0,0),
-      REEF_BACK_LEFT_R(5.0475,4.664,0,60),
-      REEF_BACK_LEFT_C(4.90474,4.745482,0.308102,60),
-      REEF_BACK_LEFT_L(4.7629,4.8283,0,60),
-      PROCESSOR(5.969,-0.00381,1.30175,90),
-      SPIKE_LEFT(1.2192,5.8547,0,-1),
-      SPIKE_CENTER(1.2192,4.0259,0,-1),
-      SPIKE_RIGHT(1.2192,2.1971,0,-1),
-      BARGE_CAGE_RIGHT(8.7741,5.0784,0,-1),
-      BARGE_CAGE_CENTER(8.7741,6.169,0,-1),
-      BARGE_CAGE_LEFT(8.7741,7.2596,0,-1);
+      HUB(0.851154,0.65532,1.4859,54),
+      POCKET_LEFT(0.851154,7.39648,1.4859,306),
+      POCKET_RIGHT(4.2158,3.2234,0,240),
+      TOWER_LEFT(4.073906,3.306318,0.308102,240),
+      TOWER_RIGHT(3.9312,3.3877,0,240);
       private final double x,y,z,angle;
       Targets(double x, double y, double z, double angle) { this.x=x; this.y=y; this.z=z; this.angle=angle; }
       /**
@@ -98,6 +77,19 @@ public class Targeting {
           // new Rotation3d(0,0,Math.PI - Math.toRadians(this.angle))
         );
       }
+      /**
+       * Returns the rotated 3D pose for the opposite side of the field using
+       * 180-degree rotational symmetry.
+       *
+       * @return Rotated pose for this target.
+       */
+      public Pose3d getRotatedPose() { return new Pose3d(
+        new Translation3d(m_fieldLength - this.x, m_fieldWidth - this.y, this.z),
+        new Rotation3d()
+          // new Rotation3d(0,0,Math.PI + Math.toRadians(this.angle))
+        );
+      }
+	  
     }
 	/** State represents different tracking system states */
     public enum State {
@@ -115,7 +107,7 @@ public class Targeting {
         public String getColor() { return this.color; }
     }
     private State m_trackingState = State.STOP; //current Tracking state
-    private Targets m_trackingTarget = Targets.HP_LEFT; //current Tracking target
+    private Targets m_trackingTarget = Targets.HUB; //current Tracking target
     // private Pose3d m_shooterPose = new Pose3d();
     // private boolean m_adjustUp = false;
     public final Trigger isTracking = new Trigger(() -> { return (m_trackingState==State.READY || m_trackingState==State.TRACKING); });
@@ -131,11 +123,11 @@ public class Targeting {
     /** Resets tracking state and initializes the starting pose. */
 	public void init() {
 		m_trackingState = State.STOP;
-		m_trackingTarget = Targets.HP_LEFT;
+		m_trackingTarget = Targets.HUB;
 		resetPose(
 			(RobotContainer.isAllianceRed()) //more realistic starting position, center on black line
-				? new Pose2d(m_fieldLength - 7.2439,4.0082,Rotation2d.k180deg) 
-				: new Pose2d(7.2439,4.0082,Rotation2d.kZero)
+				? new Pose2d(m_fieldLength - 3.978,m_fieldWidth - 7.4279,Rotation2d.k180deg) 
+				: new Pose2d(3.978,7.4279,Rotation2d.kZero)
 		);
 		NCDebug.Debug.debug("Pose: Initialized");
 	}
@@ -275,12 +267,14 @@ public class Targeting {
 		m_trackingState = State.TRACKING;
 		NCDebug.Debug.debug("Tracking: Start Tracking ("+m_trackingTarget.toString()+")");
     }
+	public Command trackingStartC() { return new InstantCommand(() -> trackingStart() );}
 	/** Disables target tracking */
     public void trackingStop() {
         m_trackingState = State.STOP;
 		// RobotContainer.drivetrain.lockHeading();
 		NCDebug.Debug.debug("Tracking: Stop Tracking");
 	}
+	public Command trackingStopC() { return new InstantCommand(() -> trackingStop() );}
 	/** Sets the requested tracking target
 	 * @param target Target to track
 	 */
@@ -288,22 +282,12 @@ public class Targeting {
 		m_trackingTarget = target; 
 		NCDebug.Debug.debug("Tracking: Set Tracking Target ("+target.toString()+")");
 	}
-	/** Sets the tracking target to Reef Front CENTER_C (2025 REEFSCAPE) */
-	public Command setTrackingRFCC() { return new InstantCommand(() -> setTrackingTarget(Targets.REEF_FRONT_CENTER_C)); }
-	/** Sets the tracking target to Reef Front LEFT_C (2025 REEFSCAPE) */
-	public Command setTrackingRFLC() { return new InstantCommand(() -> setTrackingTarget(Targets.REEF_FRONT_LEFT_C)); }
-	/** Sets the tracking target to Reef Front RIGHT_C (2025 REEFSCAPE) */
-	public Command setTrackingRFRC() { return new InstantCommand(() -> setTrackingTarget(Targets.REEF_FRONT_RIGHT_C)); }
-	/** Sets the tracking target to Reef Back CENTER_C (2025 REEFSCAPE) */
-	public Command setTrackingRBCC() { return new InstantCommand(() -> setTrackingTarget(Targets.REEF_BACK_CENTER_C)); }
-	/** Sets the tracking target to Reef Back LEFT_C (2025 REEFSCAPE) */
-	public Command setTrackingRBLC() { return new InstantCommand(() -> setTrackingTarget(Targets.REEF_BACK_LEFT_C)); }
-	/** Sets the tracking target to Reef Back RIGHT_C (2025 REEFSCAPE) */
-	public Command setTrackingRBRC() { return new InstantCommand(() -> setTrackingTarget(Targets.REEF_BACK_RIGHT_C)); }
-	/** Sets the tracking target to Reef HP LEFT (2025 REEFSCAPE) */
-	public Command setTrackingHPL() { return new InstantCommand(() -> setTrackingTarget(Targets.HP_LEFT)); }
-	/** Sets the tracking target to Reef HP RIGHT (2025 REEFSCAPE) */
-	public Command setTrackingHPR() { return new InstantCommand(() -> setTrackingTarget(Targets.HP_RIGHT)); }
+	/** Sets the tracking target to Hub (2026 Rebuilt) */
+	public Command setTrackingHubC() { return new InstantCommand(() -> setTrackingTarget(Targets.HUB)); }
+	/** Sets the tracking target to Pocket Left (2026 Rebuilt) */
+	public Command setTrackingPocketLC() { return new InstantCommand(() -> setTrackingTarget(Targets.POCKET_LEFT)); }
+	/** Sets the tracking target to Pocket Right (2026 Rebuilt) */
+	public Command setTrackingPocketRightC() { return new InstantCommand(() -> setTrackingTarget(Targets.POCKET_RIGHT)); }
 	/**
 	 * Updates the tracking state to ready or tracking.
 	 *
