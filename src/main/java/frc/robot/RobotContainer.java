@@ -155,22 +155,23 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() -> {
-              double rot = m_rotate.getAsDouble();
-                if(Math.abs(rot) > 0) { //turning
-                    if(m_targetLock) NCDebug.Debug.debug("Drive: Heading Unlocked");
-                    m_targetLock = false;
-                }
+                double rot = m_rotate.getAsDouble();
                 if(targeting.getTracking() && !m_trackingOverride) {
                     m_targetDirection = Rotation2d.fromDegrees(targeting.getBearingOfTarget(targeting.getTrackingTarget()));
                 } else {
-                    // m_targetDirection = Rotation2d.kZero;
-                    if(!m_targetLock) {
-                        m_targetDirection = drivetrain.getBotHeading();
-                        // NCDebug.Debug.debug("Drive: Heading Locked to "+drivetrain.getBotHeading().getDegrees());
+                    if(Math.abs(rot) > 0) { //turning
+                        if(m_targetLock) NCDebug.Debug.debug("Drive: Heading Unlocked");
+                        m_targetLock = false;
+                    } else {
+                        // m_targetDirection = Rotation2d.kZero;
+                        if(!m_targetLock) {
+                            m_targetDirection = drivetrain.getBotHeading();
+                            // NCDebug.Debug.debug("Drive: Heading Locked to "+drivetrain.getBotHeading().getDegrees());
+                            m_targetLock = true;
+                        }
                     }
-                    m_targetLock = true;
                 }
-                if(m_targetLock) { //specific facing angle
+                if(m_targetLock || targeting.getTracking()) { //specific facing angle
                     // NCDebug.Debug.debug("drive with facing angle");
                     return snapDrive.withVelocityX(m_fieldX.getAsDouble() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(m_fieldY.getAsDouble() * MaxSpeed) // Drive left with negative X (left)
@@ -312,7 +313,7 @@ public class RobotContainer {
         );
 
         dj.leftTrigger()
-            .onTrue(new InstantCommand(() -> { m_trackingOverride = true; m_targetLock = false;}))
+            .onTrue(new InstantCommand(() -> { /*m_trackingOverride = true; m_targetLock = false;*/}))
             .onFalse(new InstantCommand(() -> { m_trackingOverride = false; }));
 
         // dj.frame().onTrue((Commands.runOnce(drivetrain::zeroGyro)));
@@ -386,19 +387,19 @@ public class RobotContainer {
 
         /** OJ Left Trigger - Tracking mode while held */
         oj.leftTrigger().onTrue(
-            updateTargetC(Targets.HUB)
+            targeting.setTrackingHubC()
             .andThen(targeting.trackingStartC())
         ).onFalse(
             targeting.trackingStopC()
         );
         oj.povLeft().onTrue(
-            updateTargetC(Targets.POCKET_LEFT)
+            targeting.setTrackingPocketLeftC()
             .andThen(targeting.trackingStartC())
         ).onFalse(
             targeting.trackingStopC()
         );
         oj.povRight().onTrue(
-            updateTargetC(Targets.POCKET_RIGHT)
+            targeting.setTrackingPocketRightC()
             .andThen(targeting.trackingStartC())
         ).onFalse(
             targeting.trackingStopC()
@@ -657,7 +658,7 @@ public class RobotContainer {
      * @param target Target to face.
      */
     private void updateTarget(Targets target) {
-      Rotation2d angle = targeting.getAngleOfTarget(target);
+      Rotation2d angle = Rotation2d.fromDegrees(targeting.getBearingOfTarget(target));
       NCDebug.Debug.debug("Update target to "+target.toString()+" ("+NCDebug.General.roundDouble(angle.getDegrees(),2)+" deg)");
       m_targetDirection = angle;
       m_targetLock = true;

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -16,11 +17,16 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
 import frc.robot.constants.DashboardConstants;
+import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.utils.Helpers;
 import frc.robot.utils.NCDebug;
@@ -160,6 +166,31 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // #region Dashboard
   // Methods for creating and updating dashboards
+    /** Creates Shuffleboard widgets for the climber. */
+  public void createDashboards() {
+    ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
+    driverTab.addString("Intake", this::getIntakeStateColor)
+      .withSize(2, 2)
+      .withWidget("Single Color View")
+      .withPosition(6, 7);
+
+    ShuffleboardTab systemTab = Shuffleboard.getTab("System");
+    ShuffleboardLayout intakeList = systemTab.getLayout("Intake", BuiltInLayouts.kList)
+      .withSize(4, 6)
+      .withPosition(16, 0)
+      .withProperties(Map.of("Label position", "LEFT"));
+    intakeList.addString("Status", this::getIntakeStateColor)
+      .withWidget("Single Color View");
+    intakeList.addString("State", this::getIntakeStateName);
+
+    if (IntakeConstants.debugDashboard) {
+      ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
+      ShuffleboardLayout dbgintakeerList = debugTab.getLayout("Intake", BuiltInLayouts.kList)
+        .withSize(4, 11)
+        .withPosition(4, 0)
+        .withProperties(Map.of("Label position", "LEFT"));
+    }
+  }
   // #endregion Dashboard
 
   // #region Getters

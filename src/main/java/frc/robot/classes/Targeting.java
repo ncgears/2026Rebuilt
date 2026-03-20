@@ -1,5 +1,6 @@
 package frc.robot.classes;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -8,6 +9,10 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -129,7 +134,7 @@ public class Targeting {
 				? new Pose2d(m_fieldLength - 3.978,m_fieldWidth - 7.4279,Rotation2d.k180deg) 
 				: new Pose2d(3.978,7.4279,Rotation2d.kZero)
 		);
-		NCDebug.Debug.debug("Pose: Initialized");
+		NCDebug.Debug.debug("Targeting: Initialized");
 	}
 
     /**
@@ -218,26 +223,26 @@ public class Targeting {
 	/** Creates the dashboard for the tracking system */
 	public void createDashboards() {
 		// if(true) { //false to disable tracking dashboard
-		// 	ShuffleboardTab systemTab = Shuffleboard.getTab("System");
+			ShuffleboardTab systemTab = Shuffleboard.getTab("System");
 		// 	systemTab.addNumber("Bot Pose Hdg", () -> NCDebug.General.roundDouble(getPose().get().getRotation().getDegrees(),2))
 		// 		.withSize(4,2)
 		// 		.withPosition(0,4);
 		// 	// systemTab.addNumber("Shooter Hdg", () -> NCDebug.General.roundDouble(getPose().get().rotateBy(new Rotation2d(Math.PI)).getRotation().getDegrees(),2))
 		// 	// 	.withSize(4,2)
 		// 	// 	.withPosition(4,2);
-		// 	ShuffleboardLayout trackingList = systemTab.getLayout("Target Tracking", BuiltInLayouts.kList)
-		// 		.withSize(4,5)
-		// 		.withPosition(12,5)
-		// 		.withProperties(Map.of("Label position","LEFT"));
-		// 	trackingList.addString("Tracking", this::getTrackingStateColor)
-		// 		.withWidget("Single Color View");
-		// 	trackingList.addString("State", this::getTrackingStateName)
-		// 		.withWidget("Text Display");
-		// 	trackingList.addString("Target", this::getTrackingTargetName)
-		// 		.withWidget("Text Display");
-		// 	trackingList.addNumber("Bearing", this::getTrackingTargetBearing);
-		// 	trackingList.addNumber("Distance", this::getTrackingTargetDistance);
-		// 	trackingList.addNumber("Angle", this::getTrackingTargetAngle);
+			ShuffleboardLayout trackingList = systemTab.getLayout("Target Tracking", BuiltInLayouts.kList)
+				.withSize(4,5)
+				.withPosition(12,5)
+				.withProperties(Map.of("Label position","LEFT"));
+			trackingList.addString("Tracking", this::getTrackingStateColor)
+				.withWidget("Single Color View");
+			trackingList.addString("State", this::getTrackingStateName)
+				.withWidget("Text Display");
+			trackingList.addString("Target", this::getTrackingTargetName)
+				.withWidget("Text Display");
+			trackingList.addNumber("Bearing", this::getTrackingTargetBearing);
+			trackingList.addNumber("Distance", this::getTrackingTargetDistance);
+			trackingList.addNumber("Angle", this::getTrackingTargetAngle);
 		// }
 	}
 	/** Determines if the robot should be tracking a target
@@ -285,7 +290,7 @@ public class Targeting {
 	/** Sets the tracking target to Hub (2026 Rebuilt) */
 	public Command setTrackingHubC() { return new InstantCommand(() -> setTrackingTarget(Targets.HUB)); }
 	/** Sets the tracking target to Pocket Left (2026 Rebuilt) */
-	public Command setTrackingPocketLC() { return new InstantCommand(() -> setTrackingTarget(Targets.POCKET_LEFT)); }
+	public Command setTrackingPocketLeftC() { return new InstantCommand(() -> setTrackingTarget(Targets.POCKET_LEFT)); }
 	/** Sets the tracking target to Pocket Right (2026 Rebuilt) */
 	public Command setTrackingPocketRightC() { return new InstantCommand(() -> setTrackingTarget(Targets.POCKET_RIGHT)); }
 	/**
