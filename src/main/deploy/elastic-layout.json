@@ -8,8 +8,8 @@
         "layouts": [
           {
             "title": "Gyro",
-            "x": 512.0,
-            "y": 512.0,
+            "x": 1216.0,
+            "y": 320.0,
             "width": 256.0,
             "height": 256.0,
             "type": "List Layout",
@@ -90,8 +90,8 @@
           },
           {
             "title": "Vision",
-            "x": 1152.0,
-            "y": 384.0,
+            "x": 1216.0,
+            "y": 0.0,
             "width": 256.0,
             "height": 320.0,
             "type": "List Layout",
@@ -172,7 +172,7 @@
           {
             "title": "Targeting",
             "x": 0.0,
-            "y": 256.0,
+            "y": 0.0,
             "width": 256.0,
             "height": 256.0,
             "type": "List Layout",
@@ -254,7 +254,7 @@
           {
             "title": "Shooter",
             "x": 0.0,
-            "y": 512.0,
+            "y": 256.0,
             "width": 256.0,
             "height": 384.0,
             "type": "List Layout",
@@ -377,7 +377,7 @@
           {
             "title": "Indexer",
             "x": 256.0,
-            "y": 256.0,
+            "y": 0.0,
             "width": 256.0,
             "height": 640.0,
             "type": "List Layout",
@@ -582,9 +582,9 @@
         "containers": [
           {
             "title": "Autonomous Chooser",
-            "x": 0.0,
-            "y": 128.0,
-            "width": 512.0,
+            "x": 512.0,
+            "y": 384.0,
+            "width": 320.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -595,9 +595,9 @@
           },
           {
             "title": "FMSInfo",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 512.0,
+            "x": 832.0,
+            "y": 384.0,
+            "width": 384.0,
             "height": 128.0,
             "type": "FMSInfo",
             "properties": {
@@ -609,7 +609,7 @@
             "title": "Field",
             "x": 512.0,
             "y": 0.0,
-            "width": 896.0,
+            "width": 704.0,
             "height": 384.0,
             "type": "Field",
             "properties": {
@@ -629,8 +629,8 @@
           {
             "title": "robotPose",
             "x": 512.0,
-            "y": 384.0,
-            "width": 640.0,
+            "y": 512.0,
+            "width": 448.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -2294,7 +2294,7 @@
           {
             "title": "Vision",
             "x": 576.0,
-            "y": 384.0,
+            "y": 0.0,
             "width": 256.0,
             "height": 384.0,
             "type": "List Layout",
@@ -2433,7 +2433,7 @@
           {
             "title": "Robot",
             "x": 0.0,
-            "y": 384.0,
+            "y": 320.0,
             "width": 576.0,
             "height": 128.0,
             "type": "Text Display",
@@ -2448,8 +2448,8 @@
             "title": "Field",
             "x": 0.0,
             "y": 0.0,
-            "width": 832.0,
-            "height": 384.0,
+            "width": 576.0,
+            "height": 320.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Subsystems/Drivetrain/Field",
