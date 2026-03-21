@@ -157,8 +157,20 @@ public class RobotContainer {
                 double fieldX = m_fieldX.getAsDouble();
                 double fieldY = m_fieldY.getAsDouble();
                 double rot = m_rotate.getAsDouble();
+                boolean targetingActive = targeting.getTracking() && !m_trackingOverride;
                 boolean requestingTranslation = Math.abs(fieldX) > 0.0 || Math.abs(fieldY) > 0.0;
-                if(targeting.getTracking() && !m_trackingOverride) {
+                double requestedVX = fieldX * MaxSpeed;
+                double requestedVY = fieldY * MaxSpeed;
+                if (targetingActive) {
+                    double targetingMaxSpeed = TargetingConstants.kMaxSpeedMetersPerSecond.in(MetersPerSecond);
+                    double requestedSpeed = Math.hypot(requestedVX, requestedVY);
+                    if (requestedSpeed > targetingMaxSpeed && requestedSpeed > 1e-9) {
+                        double scale = targetingMaxSpeed / requestedSpeed;
+                        requestedVX *= scale;
+                        requestedVY *= scale;
+                    }
+                }
+                if(targetingActive) {
                     Rotation2d targetBearing = Rotation2d.fromDegrees(targeting.getBearingOfTarget(targeting.getTrackingTarget()));
                     Rotation2d perspective = (isAllianceRed()) ? Rotation2d.k180deg : Rotation2d.kZero;
                     m_targetDirection = targetBearing.minus(perspective);
@@ -177,13 +189,13 @@ public class RobotContainer {
                 }
                 if(m_targetLock || targeting.getTracking()) { //specific facing angle
                     // NCDebug.Debug.debug("drive with facing angle");
-                    return snapDrive.withVelocityX(fieldX * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(fieldY * MaxSpeed) // Drive left with negative X (left)
+                    return snapDrive.withVelocityX(requestedVX) // Drive forward with negative Y (forward)
+                    .withVelocityY(requestedVY) // Drive left with negative X (left)
                     .withTargetDirection(m_targetDirection);
                 } else {
                     // NCDebug.Debug.debug("drive with unlocked");
-                    return drive.withVelocityX(fieldX * MaxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(fieldY * MaxSpeed) // Drive left with negative X (left)
+                    return drive.withVelocityX(requestedVX) // Drive forward with negative Y (forward)
+                        .withVelocityY(requestedVY) // Drive left with negative X (left)
                         .withRotationalRate(rot * MaxAngularRate); // Drive counterclockwise with negative X (left)
                         // .withRotationalRate(m_rotate.getAsDouble() * MaxAngularRate); // Drive counterclockwise with negative X (left)
                 }
