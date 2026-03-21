@@ -51,8 +51,8 @@ public class SwerveConstants {
             public static final Angle kEncoderOffset = Rotations.of(0.417969);
             public static final boolean kSteerMotorInverted = true;
             public static final boolean kEncoderInverted = true;
-            public static final Distance kXPos = Inches.of(11.5); //forward+ from center
-            public static final Distance kYPos = Inches.of(11.5); //left+ from center
+            public static final Distance kXPos = Inches.of(10.0); //forward+ from center
+            public static final Distance kYPos = Inches.of(10.0); //left+ from center
         }
         public class FrontRight {
             public static final int kDriveMotorId = ID.TalonFX.swerve_fr_drive;
@@ -61,8 +61,8 @@ public class SwerveConstants {
             public static final Angle kEncoderOffset = Rotations.of(-0.218018);
             public static final boolean kSteerMotorInverted = true;
             public static final boolean kEncoderInverted = true;
-            public static final Distance kXPos = Inches.of(11.5); //forward+ from center
-            public static final Distance kYPos = Inches.of(-11.5); //left+ from center
+            public static final Distance kXPos = Inches.of(10.0); //forward+ from center
+            public static final Distance kYPos = Inches.of(-10.0); //left+ from center
         }
         public class BackLeft {
             public static final int kDriveMotorId = ID.TalonFX.swerve_bl_drive;
@@ -71,8 +71,8 @@ public class SwerveConstants {
             public static final Angle kEncoderOffset = Rotations.of(-0.058594);
             public static final boolean kSteerMotorInverted = true;
             public static final boolean kEncoderInverted = true;
-            public static final Distance kXPos = Inches.of(-11.5); //forward+ from center
-            public static final Distance kYPos = Inches.of(11.5); //left+ from center
+            public static final Distance kXPos = Inches.of(-10.0); //forward+ from center
+            public static final Distance kYPos = Inches.of(10.0); //left+ from center
         }
         public class BackRight {
             public static final int kDriveMotorId = ID.TalonFX.swerve_br_drive;
@@ -81,8 +81,8 @@ public class SwerveConstants {
             public static final Angle kEncoderOffset = Rotations.of(0.497559);
             public static final boolean kSteerMotorInverted = true;
             public static final boolean kEncoderInverted = true;
-            public static final Distance kXPos = Inches.of(-11.5); //forward+ from center
-            public static final Distance kYPos = Inches.of(-11.5); //left+ from center
+            public static final Distance kXPos = Inches.of(-10.0); //forward+ from center
+            public static final Distance kYPos = Inches.of(-10.0); //left+ from center
         }
     }
 }
