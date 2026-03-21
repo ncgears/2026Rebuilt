@@ -42,10 +42,15 @@ public class ClimberSubsystem extends SubsystemBase {
 
   private CANdi candi = new CANdi(ClimberConstants.kCANdiID);
   
+  /** Operating states for the climber subsystem. */
   public enum State {
+    /** Climber moving upward. */
     UP(DashboardConstants.Colors.ORANGE),
+    /** Climber moving downward. */
     DOWN(DashboardConstants.Colors.RED),
+    /** Climber holding position. */
     HOLD(DashboardConstants.Colors.GREEN),
+    /** Climber stopped. */
     STOP(DashboardConstants.Colors.BLACK);
 
     private final String color;

@@ -21,6 +21,9 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import frc.robot.constants.*; 
 
+/**
+ * Centralized CTRE device configuration container for all robot subsystems.
+ */
 public final class CTREConfigs {
     private static final class Container {
         public static final CTREConfigs INSTANCE = new CTREConfigs();
@@ -36,16 +39,26 @@ public final class CTREConfigs {
     }
 
     //TalonFX
+        /** Shared base drive TalonFX configuration. */
         public final TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
+        /** Shooter front TalonFX configuration. */
         public final TalonFXConfiguration shooterFrontFXConfig = new TalonFXConfiguration();
+        /** Shooter back TalonFX configuration. */
         public final TalonFXConfiguration shooterBackFXConfig = new TalonFXConfiguration();
+        /** Indexer TalonFX configuration. */
         public final TalonFXConfiguration indexerFXConfig = new TalonFXConfiguration();
+        /** Intake knuckle TalonFX configuration. */
         public final TalonFXConfiguration knuckleFXConfig = new TalonFXConfiguration();
+        /** Climber TalonFX configuration. */
         public final TalonFXConfiguration climberFXConfig = new TalonFXConfiguration();
+        /** Intake deploy TalonFX configuration. */
         public final TalonFXConfiguration deployFXConfig = new TalonFXConfiguration();
+        /** Intake live-bottom TalonFX configuration. */
         public final TalonFXConfiguration liveBottomFXConfig = new TalonFXConfiguration();
+        /** Intake roller TalonFX configuration. */
         public final TalonFXConfiguration intakeFXConfig = new TalonFXConfiguration();
     //CANcoder
+        /** Intake deploy CANcoder configuration. */
         public final CANcoderConfiguration deployCCConfig = new CANcoderConfiguration();
 
     /** Creates and populates CTRE configuration objects for all subsystems. */

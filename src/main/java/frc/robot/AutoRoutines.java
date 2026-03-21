@@ -13,6 +13,9 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.utils.NCDebug;
 
+/**
+ * Builds and wires all autonomous routines and helper command fragments.
+ */
 public class AutoRoutines {
     private final AutoFactory m_factory;
 

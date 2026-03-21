@@ -2,10 +2,10 @@
 package frc.robot.constants;
 
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
-@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 /** 
  * Constants for the Dashboard Interface 
  */
+@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 public class DashboardConstants {
     public class Colors {
         public static final String NCGREEN = "#00B50F"; //approximate
@@ -17,4 +17,5 @@ public class DashboardConstants {
         public static final String BLACK = "#000000";
     }
 }
+
 

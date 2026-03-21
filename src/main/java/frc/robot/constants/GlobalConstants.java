@@ -2,10 +2,10 @@
 package frc.robot.constants;
 
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
-@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 /**
  * Constants that are Global for the robot
  */
+@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 public class GlobalConstants {
     /**
      * Telemetry verbosity levels used to gate dashboard publishing.
@@ -49,3 +49,4 @@ public class GlobalConstants {
         return configured.ordinal() >= required.ordinal();
     }
 }
+

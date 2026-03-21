@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -58,6 +59,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private boolean m_dashboardRegistered = false;
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+    /** Field visualization sendable published to dashboards. */
     public Field2d field = new Field2d();
     
     private boolean m_suppressFrontVision = false;
@@ -248,12 +250,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putString("Subsystems/Drivetrain/HeadingLockColor", getHeadingLockedColor());
         SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/FrontSuppressed", isFrontVisionSuppressed());
         SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/BackSuppressed", isBackVisionSuppressed());
-
-        if (!GlobalConstants.telemetryAtLeast(SwerveConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
-        // DEBUG level telemetry goes here
         SmartDashboard.putNumber("Subsystems/Drivetrain/TargetHeading", NCDebug.General.roundDouble(getTargetHeading(), 4));
         SmartDashboard.putNumber("Subsystems/Drivetrain/CurrentHeading", NCDebug.General.roundDouble(getBotHeading().getDegrees(), 4));
         SmartDashboard.putNumber("Subsystems/Drivetrain/HeadingError", NCDebug.General.roundDouble(getHeadingError().getDegrees(), 4));
+
+        if (!GlobalConstants.telemetryAtLeast(SwerveConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+        // DEBUG level telemetry goes here
         SmartDashboard.putNumber("Subsystems/Drivetrain/PoseX", NCDebug.General.roundDouble(getBotPose().getX(), 4));
         SmartDashboard.putNumber("Subsystems/Drivetrain/PoseY", NCDebug.General.roundDouble(getBotPose().getY(), 4));
     }
@@ -493,7 +495,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
      *
-     * @param request Function returning the request to apply
+     * @param requestSupplier Function returning the request to apply.
      * @return Command to run
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -616,6 +618,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+
+    /** Add a fake vision reading to test vision corrections */
+    public Command addFakeVisionReadingC() {
+        return runOnce(() -> {
+            addVisionMeasurement(new Pose2d(3,3,Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+            NCDebug.Debug.debug("Drive: Added fake vision measurement");
+        });
     }
 }
 

@@ -17,12 +17,12 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Filesystem;
 
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
-@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 /**
  * Constants for the Vision class
  */
+@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 public class VisionConstants {
-    public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.INFO;
+    public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.DEBUG;
     public static final boolean kUseVisionForPose = true; //enable vision measurements to pose correction
     public static final boolean kUseAutoSuppress = false; //enable suppressing vision measurements based on speed
     public static final double kAutosuppressSpeedMetersPerSecond = 2.5; //speed at which to suppress vision addition
@@ -84,3 +84,4 @@ public class VisionConstants {
       }
     }
 }
+

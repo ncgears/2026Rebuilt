@@ -8,10 +8,10 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
-@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 /**
  * Constants for the Indexer Subsystem
  */
+@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 public class IndexerConstants {
 
     //Controller Setup
@@ -92,3 +92,4 @@ public class IndexerConstants {
         public static final double kStop = 0.5;
     }
 }
+

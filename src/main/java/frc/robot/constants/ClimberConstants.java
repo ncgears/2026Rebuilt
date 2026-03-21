@@ -8,10 +8,10 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 //Sometimes it is useful to comment out the following to see what variables or what controller buttons are not assigned yet
-@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 /**
  * Constants for the Climber Subsystem
  */
+@SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 public class ClimberConstants {
 
     public class Climber {
@@ -80,3 +80,4 @@ public class ClimberConstants {
     public static final boolean kSoftReverseLimitEnable = false;
     public static final double kSoftReverseLimit = Positions.kRevLimit;
 }
+
