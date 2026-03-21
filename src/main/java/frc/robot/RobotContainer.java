@@ -390,13 +390,13 @@ public class RobotContainer {
         ).onFalse(
             targeting.trackingStopC()
         );
-        oj.povLeft().onTrue(
+        oj.povLeft().or(oj.povUpLeft()).or(oj.povDownLeft()).onTrue(
             targeting.setTrackingPocketLeftC()
             .andThen(targeting.trackingStartC())
         ).onFalse(
             targeting.trackingStopC()
         );
-        oj.povRight().onTrue(
+        oj.povRight().or(oj.povUpRight()).or(oj.povDownRight()).onTrue(
             targeting.setTrackingPocketRightC()
             .andThen(targeting.trackingStartC())
         ).onFalse(
