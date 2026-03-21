@@ -162,6 +162,7 @@ public class RobotContainer {
                     Rotation2d targetBearing = Rotation2d.fromDegrees(targeting.getBearingOfTarget(targeting.getTrackingTarget()));
                     Rotation2d perspective = (isAllianceRed()) ? Rotation2d.k180deg : Rotation2d.kZero;
                     m_targetDirection = targetBearing.minus(perspective);
+                    targeting.setTrackingReady();
                 } else {
                     if(Math.abs(rot) > 0.0) {
                         if(m_targetLock) NCDebug.Debug.debug("Drive: Heading Unlocked");

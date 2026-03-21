@@ -339,6 +339,19 @@ public class Targeting {
 		return getAngleOfTarget(m_trackingTarget).getRotations();
 	} //.plus(getGravityAdjustmentOfTarget(m_trackingTarget))
 
+	/**
+	 * Returns the current heading error to the tracking target in degrees.
+	 * This is the angular difference between current robot heading and desired snap heading.
+	 *
+	 * @return Heading error in degrees.
+	 */
+	public double getTrackingHeadingErrorDegrees() {
+		Rotation2d targetBearing = Rotation2d.fromDegrees(getBearingOfTarget(m_trackingTarget));
+		Rotation2d perspective = (RobotContainer.isAllianceRed()) ? Rotation2d.k180deg : Rotation2d.kZero;
+		Rotation2d desiredHeading = targetBearing.minus(perspective);
+		return desiredHeading.minus(RobotContainer.drivetrain.getBotHeading()).getDegrees();
+	}
+
 	/** Enables target tracking */
 	public void trackingStart() {
 		m_trackingState = State.TRACKING;
@@ -436,12 +449,16 @@ public class Targeting {
 	}
 
 	/**
-	 * Updates the tracking state to ready or tracking.
-	 *
-	 * @param ready True when the robot is ready to track.
+	 * Updates tracking state between TRACKING and READY using heading error tolerance.
+	 * READY is entered when absolute heading error is within
+	 * {@link TargetingConstants#kReadyToleranceDegrees}.
 	 */
-	public void setTrackingReady(boolean ready) {
-		m_trackingState = (ready) ? State.READY : State.TRACKING;
+	public void setTrackingReady() {
+		if (m_trackingState != State.TRACKING && m_trackingState != State.READY) {
+			return;
+		}
+		double headingErrorDegrees = Math.abs(getTrackingHeadingErrorDegrees());
+		m_trackingState = (headingErrorDegrees <= TargetingConstants.kReadyToleranceDegrees) ? State.READY : State.TRACKING;
 	}
 	////#endregion "Tracking"
 }
