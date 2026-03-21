@@ -99,18 +99,16 @@ public class Vision {
   public Vision() {
     front_camera = new PhotonCamera(VisionConstants.Front.kCameraName);
     photonEstimatorFront = new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.Front.kRobotToCam);
-    // photonEstimatorFront = new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, front_camera, VisionConstants.Front.kRobotToCam);
     photonEstimatorFront.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     Matrix<N3, N1> front_curStdDevs;
 
     back_camera = new PhotonCamera(VisionConstants.Back.kCameraName);
     photonEstimatorBack = new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.Back.kRobotToCam);
-    // photonEstimatorBack = new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, back_camera, VisionConstants.Back.kRobotToCam);
     photonEstimatorBack.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     Matrix<N3, N1> back_curStdDevs;
 
     // Simulation
-    // if (Robot.isSimulation()) {
+    if (Robot.isSimulation()) {
         // Create the vision system simulation which handles cameras and targets on the field.
         visionSim = new VisionSystemSim("main");
         // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
@@ -129,10 +127,7 @@ public class Vision {
         // Add the simulated camera to view the targets on this simulated field.
         visionSim.addCamera(front_cameraSim, VisionConstants.Front.kRobotToCam);
         visionSim.addCamera(back_cameraSim,VisionConstants.Back.kRobotToCam);
-
-        // front_cameraSim.enableDrawWireframe(true);
-        // back_cameraSim.enableDrawWireframe(true);
-    // }
+    }
   }
 
   /**
@@ -220,7 +215,6 @@ public class Vision {
    */
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(PhotonPoseEstimator estimator, PhotonCamera camera, Matrix<N3, N1> stdDevs) {
       Optional<EstimatedRobotPose> visionEst = Optional.empty();
-      // estimator.setReferencePose(RobotContainer.drivetrain.getState().Pose);
       for (var change: camera.getAllUnreadResults()) {
         if (camera == front_camera) {
           m_frontHasTargets = change.hasTargets();
@@ -413,9 +407,6 @@ public class Vision {
 			visionEstFront.ifPresent(
 				est -> {
 					var estPose = est.estimatedPose.toPose2d();
-					//workaround for remove camera to robot center
-					// estPose = estPose.transformBy(new Transform2d(new Translation2d(-0.339,-0.250), new Rotation2d())); 
-					// Change our trust in the measurement based on the tags we can see
 					var estStdDevs = RobotContainer.vision.getFrontEstimationStdDevs(estPose);
           //For CTR, timestamp must be in correct timebase, use Utils.fpgaToCurrentTime(timestamp) to correct
 					RobotContainer.drivetrain.addVisionMeasurement(estPose, Utils.fpgaToCurrentTime(est.timestampSeconds), estStdDevs);
@@ -427,9 +418,6 @@ public class Vision {
 			visionEstBack.ifPresent(
 				est -> {
 					var estPose = est.estimatedPose.toPose2d();
-					//workaround for remove camera to robot center
-					// estPose = estPose.transformBy(new Transform2d(new Translation2d(0.44,0.0), new Rotation2d())); 
-					// Change our trust in the measurement based on the tags we can see
 					var estStdDevs = RobotContainer.vision.getBackEstimationStdDevs(estPose);
           //For CTR, timestamp must be in correct timebase, use Utils.fpgaToCurrentTime(timestamp) to correct
 					RobotContainer.drivetrain.addVisionMeasurement(estPose, Utils.fpgaToCurrentTime(est.timestampSeconds), estStdDevs);

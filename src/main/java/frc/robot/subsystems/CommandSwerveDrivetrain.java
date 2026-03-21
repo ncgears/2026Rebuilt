@@ -534,11 +534,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return Array of module positions.
      */
     public SwerveModulePosition[] getSwerveModulePositions() {
-        // SwerveModulePosition[] positions = new SwerveModulePosition[4];
-        // for (SwerveModule module: modules) {
-        //     positions[module.ID]=module.getPosition();
-        // }
-        // return positions;
         return getState().ModulePositions;
     }
 

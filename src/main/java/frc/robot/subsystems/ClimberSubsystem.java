@@ -67,7 +67,6 @@ public class ClimberSubsystem extends SubsystemBase {
   private final DutyCycleOut m_DutyCycle = new DutyCycleOut(0);
   private final NeutralOut m_neutral = new NeutralOut();
   private final StaticBrake m_brake = new StaticBrake();
-  // private CANcoder m_encoder;
   private TalonFX m_motor1;
   private State m_curState = State.STOP;
 
@@ -95,11 +94,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
   /** Creates the climber subsystem and configures hardware. */
   public ClimberSubsystem() {
-    // initialize values for private and public variables, etc.
-    // m_encoder = new CANcoder(ClimberConstants.kCANcoderID,
-    // ClimberConstants.canBus);
-    // RobotContainer.ctreConfigs.retryConfigApply(()->m_encoder.getConfigurator().apply(RobotContainer.ctreConfigs.climberCCConfig));
-
     m_motor1 = new TalonFX(ClimberConstants.kMotorID, ClimberConstants.canBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_motor1.getConfigurator().apply(RobotContainer.ctreConfigs.climberFXConfig));

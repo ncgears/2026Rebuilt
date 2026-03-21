@@ -29,15 +29,6 @@ public class InputAxis implements DoubleSupplier {
     m_supplier = supplier;
   }
 
-  // @Override
-  // public String configureLogName() {
-  //     return name;
-  // }
-
-  // private double inputValue() {
-  //   return m_supplier.getAsDouble();
-  // }
-
   /**
    * Applies an asymmetric slew rate limiter.
    *

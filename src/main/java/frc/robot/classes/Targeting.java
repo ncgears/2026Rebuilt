@@ -142,8 +142,6 @@ public class Targeting {
 	private State m_trackingState = State.STOP; //current Tracking state
 	private State m_trackingStateBeforeOverride = State.STOP; //state to restore when override ends
 	private Targets m_trackingTarget = Targets.HUB; //current Tracking target
-	// private Pose3d m_shooterPose = new Pose3d();
-	// private boolean m_adjustUp = false;
 	public final Trigger isTracking = new Trigger(() -> {
 		return (m_trackingState == State.READY || m_trackingState == State.TRACKING || m_trackingState == State.OVERRIDE);
 	});
@@ -240,15 +238,6 @@ public class Targeting {
 		// return target.getRawAngle();
 	}
 
-	// /**
-	//  * Reset the estimated pose of the swerve drive on the field.
-	//  *
-	//  * @param heading Heading to reset robot to (for configuring a yaw offset)
-	//  * @param pose New robot pose.
-	//  */
-	// public void resetPose(double heading, Pose2d pose) {
-	// 	poseEstimator.resetPosition(RobotContainer.gyro.getYaw(), RobotContainer.drivetrain.getSwerveModulePositions(), pose);
-	// }
 	/**
 	 * Reset the estimated pose of the swerve drive on the field.
 	 *
@@ -258,7 +247,7 @@ public class Targeting {
 		RobotContainer.drivetrain.resetPose(pose);
 	}
 
-	////#region "Tracking"
+	//#region "Tracking"
 	/**
 	 * Publishes targeting telemetry to SmartDashboard.
 	 * All current targeting telemetry is published at INFO level.
@@ -337,7 +326,7 @@ public class Targeting {
 	/** Gets the relative angle from the shooter to the current tracking target as rotations from 0.0 */
 	public double getTrackingTargetAngleAsRotations() {
 		return getAngleOfTarget(m_trackingTarget).getRotations();
-	} //.plus(getGravityAdjustmentOfTarget(m_trackingTarget))
+	}
 
 	/**
 	 * Returns the current heading error to the tracking target in degrees.
@@ -371,7 +360,6 @@ public class Targeting {
 	public void trackingStop() {
 		m_trackingState = State.STOP;
 		m_trackingStateBeforeOverride = State.STOP;
-		// RobotContainer.drivetrain.lockHeading();
 		NCDebug.Debug.debug("Tracking: Stop Tracking");
 	}
 

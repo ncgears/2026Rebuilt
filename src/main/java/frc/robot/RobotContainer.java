@@ -342,8 +342,8 @@ public class RobotContainer {
                     .andThen(targeting.trackingOverrideStopC())
             );
 
-        // dj.frame().onTrue((Commands.runOnce(drivetrain::zeroGyro)));
-        // dj.stadia().onTrue(Commands.runOnce(drivetrain::addFakeVisionReading));
+        dj.start().onTrue(drivetrain.resetGyroC());
+        // dj.back().onTrue(vision.addFakeVisionReading());
 
         //hold A to apply brake
         dj.a().whileTrue(drivetrain.applyRequest(() -> brake));
@@ -352,12 +352,13 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-dj.getLeftY(),-dj.getLeftX()))
         ));
 
-        dj.rightTrigger().onTrue(
-            targeting.setTrackingHubC()
-            .andThen(targeting.trackingStartC())
-        ).onFalse(
-            targeting.trackingStopC()
-        );
+        // Right Trigger binding for testing with a single controller
+        // dj.rightTrigger().onTrue(
+        //     targeting.setTrackingHubC()
+        //     .andThen(targeting.trackingStartC())
+        // ).onFalse(
+        //     targeting.trackingStopC()
+        // );
 
         // reset the field-centric heading on hamburger button press
         dj.start().onTrue(drivetrain.resetGyroC());
@@ -376,8 +377,8 @@ public class RobotContainer {
            * y - deploy
            * lb+y - stow intake
            * b - 
-           * hamburger - climber up  
-           * ellipses - shooter reverse
+           * start - climber up  
+           * back - shooter reverse
            * left y - manual deploy duty
            * rstick -
            * dpad up -
@@ -454,45 +455,12 @@ public class RobotContainer {
             intake.setDeployStowC()
         );
 
-        /** OJ X - L1 Position (currently stow?) */
-        oj.x().onTrue(
-            noop()
-            // coral.CoralPositionC(CoralSubsystem.Position.SCORE)
-            // .andThen(wait(0.4))
-            // .andThen(
-            //     elevator.ElevatorPositionC(ElevatorSubsystem.Position.L1)
-            // )
-            // .until(elevator::isAtTarget)
-            // .andThen(coral.CoralStopC())
-        );
         /** OJ A (while held) - Set deploy to UNJAM, then return to OUT on release. */
         oj.a().onTrue(
             intake.setDeployUnjamC()
         ).onFalse(
             intake.setDeployOutC()
         );
-        /** OJ B - L3 Scoring Position */
-        oj.b().onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.L3)
-            // .andThen(wait(CoralConstants.kWaitDelay))
-            // .andThen(coral.CoralPositionC(CoralSubsystem.Position.OUT))
-        );
-        /** OJ X - L4 Scoring Position */
-        oj.x().onTrue(
-            noop()
-            // elevator.ElevatorPositionC(ElevatorSubsystem.Position.LINEUP)
-            // .andThen(algae.setAlgaePositionC(AlgaeSubsystem.Position.STOW))
-        );
-
-        // ALGAE STUFF
-        //Temp for testing
-        // oj.povRight().onTrue(algae.startToroC(false)).onFalse(algae.stopToroC()); //intake
-        // oj.povLeft().onTrue(algae.startToroC(true)).onFalse(algae.stopToroC()); //outtake
-        // oj.povUp().onTrue(algae.setAlgaePositionC(AlgaeSubsystem.Position.UP)); //wrist up
-        // oj.povDown().onTrue(algae.setAlgaePositionC(AlgaeSubsystem.Position.FLOOR)
-        //     .andThen(algae.startToroC(false))
-        // ).onFalse(algae.stopToroC()); //wrist down
         //#endregion Operator Joystick
 
         //#region Programmer Joystick
