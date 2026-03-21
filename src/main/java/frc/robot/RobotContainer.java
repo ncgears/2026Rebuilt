@@ -242,6 +242,7 @@ public class RobotContainer {
         drivetrain.init();
         // climber.init();
         intake.init();
+        intake.setDeployStow();
         indexer.init();
         shooter.init();
     }

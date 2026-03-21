@@ -72,7 +72,7 @@ public class IntakeConstants {
         public static final double kCurrentLimitThresholdSecs = 0.3;
         //Software limits (mechanism rotations)
         /** Disable while characterizing manual deploy travel; re-enable for normal operation. */
-        public static final boolean kSoftLimitEnable = false;
+        public static final boolean kSoftLimitEnable = true;
         public static final double kSoftLimitLow = 0.7;   // CANcoder 0.10 * 7.0
         public static final double kSoftLimitHigh = 4.378; // CANcoder 0.625 * 7.0
         //Motion Magic profile (mechanism rotations)
