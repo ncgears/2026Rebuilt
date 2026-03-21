@@ -5,6 +5,7 @@
 - All methods created should include Javadocs so IntelliSense in VS Code shows relevant information.
 - When asked to commit, add an appropriate commit message for the staged changes, if the user didn't supply one.
 - When appropriate, ask if commits should be split into related, granular commits.
+- `src/main/deploy/elastic-layout.json` must always be committed in its own dedicated commit (never bundled with code changes).
 
 ## Persistent Global Formatting Rules
 Use this formatting style for all Java files going forward.
