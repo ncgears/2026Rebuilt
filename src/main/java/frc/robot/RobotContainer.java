@@ -652,27 +652,6 @@ public class RobotContainer {
     //#endregion Dashboard
 
     //#region Convenience
-    /**
-     * Updates the target heading and enables target lock.
-     *
-     * @param target Target to face.
-     */
-    private void updateTarget(Targets target) {
-      Rotation2d angle = Rotation2d.fromDegrees(targeting.getBearingOfTarget(target));
-      NCDebug.Debug.debug("Update target to "+target.toString()+" ("+NCDebug.General.roundDouble(angle.getDegrees(),2)+" deg)");
-      m_targetDirection = angle;
-      m_targetLock = true;
-    }
-
-    /**
-     * Creates a command to update the target heading.
-     *
-     * @param target Target to face.
-     * @return Command that updates the target.
-     */
-    private Command updateTargetC(Targets target) {
-      return new InstantCommand(() -> updateTarget(target)); 
-    }    
     //This command is a shortcut for WaitCommand
     /**
      * Convenience wrapper for {@link WaitCommand}.
