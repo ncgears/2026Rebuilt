@@ -1,0 +1,43 @@
+{
+  "NetworkTables": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Pose": "Field2d",
+      "/Shuffleboard/Auton/Autonomous Chooser": "String Chooser",
+      "/SmartDashboard/Autonomous Chooser": "String Chooser",
+      "/SmartDashboard/Choreo Alerts": "Alerts",
+      "/SmartDashboard/Module 0": "Mechanism2d",
+      "/SmartDashboard/Module 1": "Mechanism2d",
+      "/SmartDashboard/Module 2": "Mechanism2d",
+      "/SmartDashboard/Module 3": "Mechanism2d",
+      "/SmartDashboard/PhotonAlerts": "Alerts",
+      "/SmartDashboard/Subsystems/Drivetrain/Field": "Field2d",
+      "/SmartDashboard/Subsystems/Gyro/Widget": "Gyro"
+    }
+  },
+  "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "Elastic@1": {
+      "Subscribers": {
+        "open": true
+      },
+      "open": true
+    },
+    "Server": {
+      "Publishers": {
+        "open": true
+      },
+      "Subscribers": {
+        "open": true
+      },
+      "open": true
+    },
+    "visible": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "1918"
+  }
+}

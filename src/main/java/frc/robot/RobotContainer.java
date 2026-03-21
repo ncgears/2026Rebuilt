@@ -26,6 +26,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -73,7 +75,7 @@ public class RobotContainer {
     private AutoFactory autoFactory;
     private AutoRoutines autoRoutines;
         
-    private final AutoChooser autoChooser = new AutoChooser("000: Do Nothing");
+    private AutoChooser autoChooser = new AutoChooser("000: Do Nothing");
     //Sendables definitions
     private SendableChooser<Command> m_auto_chooser = new SendableChooser<>();
 
@@ -575,8 +577,12 @@ public class RobotContainer {
                 autoChooser.addRoutine("001: sTL-Direct-1Pass", autoRoutines::sTLDirect1Pass);
                 autoChooser.addRoutine("999: Test Run", autoRoutines::testRun);
 
-                SmartDashboard.putData("Autonomous Chooser", autoChooser);
-                RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+                ShuffleboardTab systemTab = Shuffleboard.getTab("Auton");
+                systemTab.add("Autonomous Chooser", autoChooser);
+
+                //I feel dirty using shuffleboard for this, but below is not working
+                // SmartDashboard.putData("Autonomous Chooser", autoChooser);
+                // RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
             }
         }
     }

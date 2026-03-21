@@ -581,19 +581,6 @@
         ],
         "containers": [
           {
-            "title": "Autonomous Chooser",
-            "x": 512.0,
-            "y": 384.0,
-            "width": 320.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Autonomous Chooser",
-              "period": 0.06,
-              "sort_options": false
-            }
-          },
-          {
             "title": "FMSInfo",
             "x": 832.0,
             "y": 384.0,
@@ -651,6 +638,19 @@
               "topic": "/SmartDashboard/Subsystems/Lighting/ColorHex",
               "period": 0.06,
               "data_type": "string"
+            }
+          },
+          {
+            "title": "Autonomous Chooser",
+            "x": 512.0,
+            "y": 384.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/Shuffleboard/Auton/Autonomous Chooser",
+              "period": 0.06,
+              "sort_options": false
             }
           }
         ]
