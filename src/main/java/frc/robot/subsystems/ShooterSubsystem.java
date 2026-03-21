@@ -219,13 +219,13 @@ public class ShooterSubsystem extends SubsystemBase {
     //Front
     SmartDashboard.putString("Subsystems/Shooter/Front/State", this.getFrontStateName());
     SmartDashboard.putString("Subsystems/Shooter/Front/StateColor", this.getFrontStateColor());
-    SmartDashboard.putNumber("Subsystems/Shooter/Front/RequestedSpeed", this.getFrontCommandedSpeedRPM());
-    SmartDashboard.putNumber("Subsystems/Shooter/Front/CurrentSpeed", this.getFrontCurrentSpeedRPM());
+    SmartDashboard.putNumber("Subsystems/Shooter/Front/RequestedSpeed", Math.round(this.getFrontCommandedSpeedRPM()));
+    SmartDashboard.putNumber("Subsystems/Shooter/Front/CurrentSpeed", Math.round(this.getFrontCurrentSpeedRPM()));
     //Back
     SmartDashboard.putString("Subsystems/Shooter/Back/State", getBackStateName());
     SmartDashboard.putString("Subsystems/Shooter/Back/StateColor", getBackStateColor());
-    SmartDashboard.putNumber("Subsystems/Shooter/Back/RequestedSpeed", getBackCommandedSpeedRPM());
-    SmartDashboard.putNumber("Subsystems/Shooter/Back/CurrentSpeed", getBackCurrentSpeedRPM());
+    SmartDashboard.putNumber("Subsystems/Shooter/Back/RequestedSpeed", Math.round(getBackCommandedSpeedRPM()));
+    SmartDashboard.putNumber("Subsystems/Shooter/Back/CurrentSpeed", Math.round(getBackCurrentSpeedRPM()));
 
     if (!GlobalConstants.telemetryAtLeast(ShooterConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
     // DEBUG level telemetry goes here

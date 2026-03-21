@@ -364,13 +364,44 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-dj.getLeftY(),-dj.getLeftX()))
         ));
 
-        // Right Trigger binding for testing with a single controller
+        // Right Trigger bindings for testing with a single controller
         // dj.rightTrigger().onTrue(
         //     targeting.setTrackingHubC()
         //     .andThen(targeting.trackingStartC())
         // ).onFalse(
         //     targeting.trackingStopC()
         // );
+
+        dj.rightTrigger().whileTrue(
+            Commands.sequence(
+                targeting.setTrackingHubC(),
+                targeting.trackingStartC(),
+                Commands.deadline(
+                    wait(ShooterConstants.kSpinupDelaySeconds),
+                    Commands.run(
+                        () -> shooter.startShooter(targeting.getDistanceOfTarget(targeting.getTrackingTarget())),
+                        shooter
+                    )
+                ),
+                Commands.run(
+                    () -> {
+                        shooter.startShooter(targeting.getDistanceOfTarget(targeting.getTrackingTarget()));
+                        indexer.startIndexer();
+                    },
+                    shooter,
+                    indexer
+                )
+            )
+        ).onFalse(
+            targeting.trackingStopC()
+            .andThen(
+                Commands.parallel(
+                    shooter.neutralCommand(),
+                    indexer.neutralCommand()
+                )
+            )
+        );
+
 
         // reset the field-centric heading on hamburger button press
         dj.start().onTrue(drivetrain.resetGyroC());
@@ -417,13 +448,26 @@ public class RobotContainer {
             targeting.trackingStopC()
         );
 
-        /** OJ Right Trigger - Scoring sequence - spin up shooter, wait, spin up indexer */
-        oj.rightTrigger().onTrue(
-            shooter.startShooterC()
-                .andThen(wait(ShooterConstants.kSpinupDelaySeconds))
-                .andThen(indexer.startIndexerC())
-        )
-        .onFalse(
+        /** OJ Right Trigger - Scoring sequence - continuously update shooter from distance and feed after spinup */
+        oj.rightTrigger().whileTrue(
+            Commands.sequence(
+                Commands.deadline(
+                    wait(ShooterConstants.kSpinupDelaySeconds),
+                    Commands.run(
+                        () -> shooter.startShooter(targeting.getDistanceOfTarget(targeting.getTrackingTarget())),
+                        shooter
+                    )
+                ),
+                Commands.run(
+                    () -> {
+                        shooter.startShooter(targeting.getDistanceOfTarget(targeting.getTrackingTarget()));
+                        indexer.startIndexer();
+                    },
+                    shooter,
+                    indexer
+                )
+            )
+        ).onFalse(
             Commands.parallel(
                 shooter.neutralCommand(),
                 indexer.neutralCommand()
