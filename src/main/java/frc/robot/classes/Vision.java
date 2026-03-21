@@ -49,41 +49,6 @@ public class Vision {
   // Simulator
   private VisionSystemSim visionSim;
 
-  public enum Tags {
-    BLUE_SOURCE_RIGHT(1),
-    BLUE_SOURCE_LEFT(2),
-    BLUE_AMP(6),
-    BLUE_SPEAKER_CENTER(7),
-    BLUE_SPEAKER_SIDE(8),
-    BLUE_STAGE_LEFT(15),
-    BLUE_STAGE_RIGHT(16),
-    BLUE_STAGE_CENTER(14),
-    RED_SOURCE_RIGHT(9),
-    RED_SOURCE_LEFT(10),
-    RED_AMP(5),
-    RED_SPEAKER_CENTER(4),
-    RED_SPEAKER_SIDE(3),
-    RED_STAGE_LEFT(11),
-    RED_STAGE_RIGHT(12),
-    RED_STAGE_CENTER(13);
-    private final int id;
-    Tags(int id) { this.id = id; }
-    /**
-     * Returns the AprilTag ID for this enum value.
-     *
-     * @return Tag ID.
-     */
-    public int ID() { return this.id; }
-  }
-  public enum Targets {
-    SPEAKER,
-    AMP,
-    STAGE_LEFT,
-    STAGE_RIGHT,
-    STAGE_CENTER,
-    SOURCE;
-  }
-
   /**
 	 * Returns the instance of the class.
 	 * The purpose of this is to only create an instance if one does not already exist.

@@ -40,7 +40,7 @@ public class IntakeConstants {
         //Cancoder
         public static final boolean kUseCANcoder = true;
         public static final int kCANcoderID = ID.CANcoder.deploy_cc;
-        public static final double kMagnetOffset = -0.166113; //Adjust magnet to sensor offset for CANcoder
+        public static final double kMagnetOffset = -0.657324; //Adjust magnet to sensor offset for CANcoder
         //Motor
         public static final int kMotorID = ID.TalonFX.deploy;
         public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
@@ -51,9 +51,9 @@ public class IntakeConstants {
          */
         /** Rotor rotations per mechanism rotation (18:15 pulleys, 12:1 gearbox) 
          * 15t pulley on gearbox, 18t on shaft
-         * 3:1 stage, 4:1 stage in gearbox
+         * 7:1 stage in gearbox
         */
-        public static final double kRotorToMechanismRatio = (18.0 / 15.0) * 12.0 / 1;
+        public static final double kRotorToMechanismRatio = (18.0 / 15.0) * 7.0 / 1;
         /** Sensor rotations per mechanism rotation (7:1 reduction from mechanism). */
         public static final double kSensorToMechanismRatio = 1.0  / 7.0;
         public static final double kRotorToSensorRatio = kRotorToMechanismRatio / kSensorToMechanismRatio;
