@@ -162,8 +162,8 @@ public class Targeting {
 		m_trackingTarget = Targets.HUB;
 		resetPose(
 			(RobotContainer.isAllianceRed()) //more realistic starting position, center on black line
-				? new Pose2d(m_fieldLength - 3.978, m_fieldWidth - 7.4279, Rotation2d.k180deg)
-				: new Pose2d(3.978, 7.4279, Rotation2d.kZero)
+				? new Pose2d(m_fieldLength - 3.478, m_fieldWidth - 7.4279, Rotation2d.fromDegrees(90.0))
+				: new Pose2d(3.478, 7.4279, Rotation2d.fromDegrees(-90.0))
 		);
 		NCDebug.Debug.debug("Targeting: Initialized");
 	}

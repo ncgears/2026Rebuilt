@@ -50,7 +50,6 @@ import frc.robot.utils.InputAxis;
 import frc.robot.utils.NCDebug;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 // import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.*;
 
 public class RobotContainer {
@@ -560,7 +559,6 @@ public class RobotContainer {
     public void buildDashboards(){
         //List of Widgets: https://github.com/Gold872/elastic-dashboard/wiki/Widgets-List-&-Properties-Reference
         buildAutonChooser();
-        publishAutonChooserSendable();
         gyro.buildDashboards();
     }    
     
@@ -569,22 +567,18 @@ public class RobotContainer {
         //This builds the auton chooser, giving driver friendly names to the commands from above
         if(AutonConstants.isDisabled) {
             m_auto_chooser.setDefaultOption("00: None (Auto Disabled)", Commands.none());
+            SmartDashboard.putData("Autonomous Chooser", m_auto_chooser);
         } else {
             if(AutonConstants.kUseChoreo) {
                 autoFactory = drivetrain.createAutoFactory();
                 autoRoutines = new AutoRoutines(autoFactory);
-                autoChooser.addRoutine("001: sLL-Move Off Line", autoRoutines::sLLmoveOffLine);
+                autoChooser.addRoutine("001: sTL-Direct-1Pass", autoRoutines::sTLDirect1Pass);
                 autoChooser.addRoutine("999: Test Run", autoRoutines::testRun);
+
+                SmartDashboard.putData("Autonomous Chooser", autoChooser);
+                RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
             }
         }
-    }
-
-    /**
-     * Publishes the autonomous chooser as a sendable.
-     */
-    private void publishAutonChooserSendable() {
-        var chooser = (AutonConstants.isDisabled) ? m_auto_chooser : autoChooser;
-        SmartDashboard.putData("Autonomous Chooser", chooser);
     }
 
     //#endregion Dashboard
