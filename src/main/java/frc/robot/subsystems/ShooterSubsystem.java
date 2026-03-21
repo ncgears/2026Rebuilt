@@ -11,16 +11,13 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
 import frc.robot.constants.DashboardConstants;
+import frc.robot.constants.GlobalConstants;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.utils.Helpers;
@@ -128,7 +125,6 @@ public class ShooterSubsystem extends SubsystemBase {
       .retryConfigApply(() -> m_shooterBackMotor.getConfigurator().apply(RobotContainer.ctreConfigs.shooterBackFXConfig));
 
     init();
-    createDashboards();
   }
 
   /**
@@ -146,6 +142,7 @@ public class ShooterSubsystem extends SubsystemBase {
   /** Runs periodically for the Shooter subsystem. */
   @Override
   public void periodic() {
+    updateDashboards();
   }
   // #endregion Setup
 
@@ -215,48 +212,23 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // #region Dashboard
   // Methods for creating and updating dashboards
-    /** Creates Shuffleboard widgets for the climber. */
-  public void createDashboards() {
+  public void updateDashboards() {
+    if (!GlobalConstants.telemetryAtLeast(ShooterConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
+    // INFO level telemetry goes here
+
     //Front
-    SmartDashboard.putString("Subsystems/Shooter/Front/State", getFrontStateName());
-    SmartDashboard.putString("Subsystems/Shooter/Front/StateColor", getFrontStateColor());
-    SmartDashboard.putNumber("Subsystems/Shooter/Front/RequestedSpeed", getFrontCommandedSpeedRPM());
-    SmartDashboard.putNumber("Subsystems/Shooter/Front/CurrentSpeed", getFrontCurrentSpeedRPM());
+    SmartDashboard.putString("Subsystems/Shooter/Front/State", this.getFrontStateName());
+    SmartDashboard.putString("Subsystems/Shooter/Front/StateColor", this.getFrontStateColor());
+    SmartDashboard.putNumber("Subsystems/Shooter/Front/RequestedSpeed", this.getFrontCommandedSpeedRPM());
+    SmartDashboard.putNumber("Subsystems/Shooter/Front/CurrentSpeed", this.getFrontCurrentSpeedRPM());
     //Back
     SmartDashboard.putString("Subsystems/Shooter/Back/State", getBackStateName());
     SmartDashboard.putString("Subsystems/Shooter/Back/StateColor", getBackStateColor());
     SmartDashboard.putNumber("Subsystems/Shooter/Back/RequestedSpeed", getBackCommandedSpeedRPM());
     SmartDashboard.putNumber("Subsystems/Shooter/Back/CurrentSpeed", getBackCurrentSpeedRPM());
 
-
-    // ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
-    // driverTab.addString("Shooter Front", this::getFrontStateColor)
-    //   .withSize(2, 2)
-    //   .withWidget("Single Color View")
-    //   .withPosition(6, 7);
-    // driverTab.addString("Shooter Back", this::getBackStateColor)
-    //   .withSize(2, 2)
-    //   .withWidget("Single Color View")
-    //   .withPosition(6, 7);
-
-    ShuffleboardTab systemTab = Shuffleboard.getTab("System");
-    ShuffleboardLayout shooterList = systemTab.getLayout("Shooter", BuiltInLayouts.kList)
-      .withSize(4, 6)
-      .withPosition(16, 0)
-      .withProperties(Map.of("Label position", "LEFT"));
-    shooterList.addString("Front Status", this::getFrontStateColor)
-      .withWidget("Single Color View");
-    shooterList.addString("Front State", this::getFrontStateName);
-    shooterList.addNumber("Front Requested", this::getFrontCommandedSpeedRPM);
-    shooterList.addNumber("Front Actual", this::getFrontCurrentSpeedRPM);
-
-    if (ShooterConstants.debugDashboard) {
-      ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
-      ShuffleboardLayout dbgshooterList = debugTab.getLayout("Intake", BuiltInLayouts.kList)
-        .withSize(4, 11)
-        .withPosition(4, 0)
-        .withProperties(Map.of("Label position", "LEFT"));
-    }
+    if (!GlobalConstants.telemetryAtLeast(ShooterConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+    // DEBUG level telemetry goes here
   }
   // #endregion Dashboard
 

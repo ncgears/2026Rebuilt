@@ -7,6 +7,15 @@ package frc.robot.constants;
  * Constants that are Global for the robot
  */
 public class GlobalConstants {
+    /**
+     * Telemetry verbosity levels used to gate dashboard publishing.
+     */
+    public enum TelemetryLevel {
+        NONE,
+        INFO,
+        DEBUG
+    }
+
     //Global Constants
     public static final int kFalconMaxRPS = 6350 / 60;
     public static final int kKrakenMaxRPS = 5800 / 60;
@@ -28,4 +37,15 @@ public class GlobalConstants {
     public static final int DEBUG_RECURRING_TICKS = 100; //Periodic cycles for recubring debug messages
     public static final int DASH_RECURRING_TICKS = 50; //Periodic cycles for dashboard updates
     public final static boolean tuningMode = true; //Enable tunable numbers
+
+    /**
+     * Returns true when configured telemetry level is at least the required level.
+     *
+     * @param configured Configured level.
+     * @param required Required level.
+     * @return True when telemetry at the required level should be published.
+     */
+    public static boolean telemetryAtLeast(TelemetryLevel configured, TelemetryLevel required) {
+        return configured.ordinal() >= required.ordinal();
+    }
 }

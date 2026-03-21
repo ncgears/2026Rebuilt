@@ -16,10 +16,7 @@ import edu.wpi.first.units.Units;
 import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -28,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
 import frc.robot.constants.DashboardConstants;
+import frc.robot.constants.GlobalConstants;
 import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.utils.Helpers;
@@ -115,7 +113,6 @@ public class IndexerSubsystem extends SubsystemBase {
     m_shoeServo = new Servo(IndexerConstants.Shoe.kServoID);
 
     init();
-    createDashboards();
   }
 
   /**
@@ -142,36 +139,11 @@ public class IndexerSubsystem extends SubsystemBase {
   /** Runs periodically for the Indexer subsystem. */
   @Override
   public void periodic() {
+    updateDashboards();
   }
   // #endregion Setup
 
   // #region Commands
-  /** Creates Shuffleboard widgets for the climber. */
-  public void createDashboards() {
-    ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
-    driverTab.addString("Climber", this::getIndexStateColor)
-      .withSize(2, 2)
-      .withWidget("Single Color View")
-      .withPosition(6, 7);
-
-    ShuffleboardTab systemTab = Shuffleboard.getTab("System");
-    ShuffleboardLayout indexerList = systemTab.getLayout("Indexer", BuiltInLayouts.kList)
-      .withSize(4, 6)
-      .withPosition(16, 0)
-      .withProperties(Map.of("Label position", "LEFT"));
-    indexerList.addString("Status", this::getIndexStateColor)
-      .withWidget("Single Color View");
-    indexerList.addString("State", this::getIndexStateName);
-
-    if (IndexerConstants.debugDashboard) {
-      ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
-      ShuffleboardLayout dbgindexerList = debugTab.getLayout("Indexer", BuiltInLayouts.kList)
-        .withSize(4, 11)
-        .withPosition(4, 0)
-        .withProperties(Map.of("Label position", "LEFT"));
-    }
-  }
-
   /**
    * neutralCommand is used to reset this system into a safe state when disabled. 
    * It is called when the robot is disabled to reset counters, states, etc.
@@ -327,6 +299,41 @@ public class IndexerSubsystem extends SubsystemBase {
 
   // #region Dashboard
   // Methods for creating and updating dashboards
+  /**
+   * Publishes indexer telemetry to SmartDashboard.
+   */
+  public void updateDashboards() {
+    if (!GlobalConstants.telemetryAtLeast(IndexerConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
+    // INFO level telemetry goes here
+
+    SmartDashboard.putString("Subsystems/Indexer/Indexer/State", getIndexStateName());
+    SmartDashboard.putString("Subsystems/Indexer/Indexer/StateColor", getIndexStateColor());
+    SmartDashboard.putNumber("Subsystems/Indexer/Indexer/RequestedSpeed", getIndexerCommandedSpeedRPM());
+    SmartDashboard.putNumber("Subsystems/Indexer/Indexer/CurrentSpeed", getIndexerCurrentSpeedRPM());
+
+    SmartDashboard.putString("Subsystems/Indexer/Knuckle/State", getKnuckleStateName());
+    SmartDashboard.putString("Subsystems/Indexer/Knuckle/StateColor", getKnuckleStateColor());
+    SmartDashboard.putNumber("Subsystems/Indexer/Knuckle/RequestedSpeed", getKnuckleCommandedSpeedRPM());
+    SmartDashboard.putNumber("Subsystems/Indexer/Knuckle/CurrentSpeed", getKnuckleCurrentSpeedRPM());
+
+    SmartDashboard.putString("Subsystems/Indexer/LiveBottom/State", getLiveBottomStateName());
+    SmartDashboard.putString("Subsystems/Indexer/LiveBottom/StateColor", getLiveBottomStateColor());
+    SmartDashboard.putNumber("Subsystems/Indexer/LiveBottom/RequestedPower", getLiveBottomCommandedPower());
+    SmartDashboard.putNumber("Subsystems/Indexer/LiveBottom/CurrentSpeed", getLiveBottomCurrentSpeedRPM());
+
+    SmartDashboard.putString("Subsystems/Indexer/MatrixBreaker/State", getMatrixBreakerStateName());
+    SmartDashboard.putString("Subsystems/Indexer/MatrixBreaker/StateColor", getMatrixBreakerStateColor());
+    SmartDashboard.putNumber("Subsystems/Indexer/MatrixBreaker/RequestedOutput", getMatrixBreakerCommandedOutput());
+    SmartDashboard.putNumber("Subsystems/Indexer/MatrixBreaker/CurrentOutput", getMatrixBreakerOutput());
+
+    SmartDashboard.putString("Subsystems/Indexer/Shoe/State", getShoeStateName());
+    SmartDashboard.putString("Subsystems/Indexer/Shoe/StateColor", getShoeStateColor());
+    SmartDashboard.putNumber("Subsystems/Indexer/Shoe/RequestedOutput", getShoeCommandedOutput());
+    SmartDashboard.putNumber("Subsystems/Indexer/Shoe/CurrentOutput", getShoeOutput());
+
+    if (!GlobalConstants.telemetryAtLeast(IndexerConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+    // DEBUG level telemetry goes here
+  }
   // #endregion Dashboard
 
   // #region Getters

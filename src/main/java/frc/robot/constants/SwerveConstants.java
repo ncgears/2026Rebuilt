@@ -15,7 +15,7 @@ public class SwerveConstants {
     public static final boolean kInvertLeftSide = false;
     public static final boolean kInvertRightSide = true;
     public static final double kAlignStrafeSpeed = 0.5; //when using pov alignment buttons, this is the requested strafe speed percentage
-    public static final boolean debugDashboard = false;
+    public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.INFO;
     public class steer {
         public static final double kP = 40.739;
         public static final double kI = 0.0;

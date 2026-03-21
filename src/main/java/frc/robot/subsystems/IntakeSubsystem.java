@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -17,15 +16,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
 import frc.robot.constants.DashboardConstants;
+import frc.robot.constants.GlobalConstants;
 import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.utils.Helpers;
@@ -127,7 +124,6 @@ public class IntakeSubsystem extends SubsystemBase {
       .retryConfigApply(() -> m_intakeMotor.getConfigurator().apply(RobotContainer.ctreConfigs.intakeFXConfig));
 
     init();
-    createDashboards();
   }
 
   /**
@@ -151,6 +147,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Runs periodically for the Intake subsystem. */
   @Override
   public void periodic() {
+    updateDashboards();
   }
   // #endregion Setup
 
@@ -167,30 +164,27 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // #region Dashboard
   // Methods for creating and updating dashboards
-    /** Creates Shuffleboard widgets for the climber. */
-  public void createDashboards() {
-    ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
-    driverTab.addString("Intake", this::getIntakeStateColor)
-      .withSize(2, 2)
-      .withWidget("Single Color View")
-      .withPosition(6, 7);
+  /**
+   * Publishes intake and deploy telemetry to SmartDashboard.
+   */
+  public void updateDashboards() {
+    if (!GlobalConstants.telemetryAtLeast(IntakeConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
+    // INFO level telemetry goes here
 
-    ShuffleboardTab systemTab = Shuffleboard.getTab("System");
-    ShuffleboardLayout intakeList = systemTab.getLayout("Intake", BuiltInLayouts.kList)
-      .withSize(4, 6)
-      .withPosition(16, 0)
-      .withProperties(Map.of("Label position", "LEFT"));
-    intakeList.addString("Status", this::getIntakeStateColor)
-      .withWidget("Single Color View");
-    intakeList.addString("State", this::getIntakeStateName);
+    SmartDashboard.putString("Subsystems/Intake/Intake/State", getIntakeStateName());
+    SmartDashboard.putString("Subsystems/Intake/Intake/StateColor", getIntakeStateColor());
+    SmartDashboard.putNumber("Subsystems/Intake/Intake/RequestedSpeed", getIntakeCommandedSpeedRPM());
+    SmartDashboard.putNumber("Subsystems/Intake/Intake/CurrentSpeed", getIntakeCurrentSpeedRPM());
+    SmartDashboard.putString("Subsystems/Intake/Deploy/State", getDeployStateName());
+    SmartDashboard.putString("Subsystems/Intake/Deploy/StateColor", getDeployStateColor());
+    SmartDashboard.putNumber("Subsystems/Intake/Deploy/RequestedPosition", NCDebug.General.roundDouble(getDeployCommandedPositionRotations(), 6));
+    SmartDashboard.putNumber("Subsystems/Intake/Deploy/CurrentPosition", NCDebug.General.roundDouble(getDeployPositionRotations(), 6));
 
-    if (IntakeConstants.debugDashboard) {
-      ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
-      ShuffleboardLayout dbgintakeerList = debugTab.getLayout("Intake", BuiltInLayouts.kList)
-        .withSize(4, 11)
-        .withPosition(4, 0)
-        .withProperties(Map.of("Label position", "LEFT"));
-    }
+    if (!GlobalConstants.telemetryAtLeast(IntakeConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+    // DEBUG level telemetry goes here
+    SmartDashboard.putNumber("Subsystems/Intake/Deploy/CurrentSpeed", NCDebug.General.roundDouble(getDeployCurrentSpeedRPM(), 6));
+    SmartDashboard.putNumber("Subsystems/Intake/Deploy/AbsolutePosition", NCDebug.General.roundDouble(getDeployAbsolutePositionRotations(), 6));
+    SmartDashboard.putBoolean("Subsystems/Intake/Deploy/ManualActive", m_deployManualActive);
   }
   // #endregion Dashboard
 

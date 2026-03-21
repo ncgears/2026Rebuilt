@@ -1,22 +1,19 @@
 package frc.robot.classes;
 
-import java.util.Map;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.constants.*; 
 import frc.robot.utils.NCDebug;
-import frc.robot.RobotContainer;
 
 public class Gyro implements Sendable {
 	private static Gyro instance;
 	private static double m_yawOffset = 0.0;
+  private boolean m_dashboardRegistered = false;
 
 	private static Pigeon2 m_gyro = new Pigeon2(GyroConstants.kPigeonID, new CANBus(GyroConstants.kCANbus));
 
@@ -37,26 +34,32 @@ public class Gyro implements Sendable {
     public Gyro() {
     }
 
-	/** Builds gyro dashboards on Shuffleboard. */
+	/**
+	 * Publishes gyro telemetry to SmartDashboard.
+	 * This method exists for backward compatibility with existing dashboard setup calls.
+	 */
 	public void buildDashboards() {
-    if(true) { //false to disable gyro on system dashboard
-			ShuffleboardTab systemTab = Shuffleboard.getTab("System");
-			systemTab.add("Gyro", this)
-				.withSize(4, 4)
-				.withPosition(0, 0)  
-				.withProperties(Map.of("counter_clockwise_positive",true));
-    }
-	  if(GyroConstants.debugDashboard) {
-			ShuffleboardTab debugTab = Shuffleboard.getTab("DBG:Gyro");
-			debugTab.add("Value", this)
-				.withSize(5, 4)
-				.withPosition(0, 0)  
-				.withProperties(Map.of("counter_clockwise_positive",true));
-			debugTab.addNumber("Pitch", this::getPitch)
-				.withSize(5, 2)
-				.withPosition(0, 4)
-				.withWidget("Text Display");
+		updateDashboards();
+	}
+
+	/**
+	 * Publishes current gyro values to SmartDashboard.
+	 */
+	public void updateDashboards() {
+		if (!GlobalConstants.telemetryAtLeast(GyroConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
+		// INFO level telemetry goes here
+
+		if (!m_dashboardRegistered) {
+			SmartDashboard.putData("Subsystems/Gyro/Widget", this);
+			m_dashboardRegistered = true;
 		}
+		SmartDashboard.putNumber("Subsystems/Gyro/YawDegrees", getYaw().getDegrees());
+		SmartDashboard.putNumber("Subsystems/Gyro/PitchDegrees", getPitch());
+		SmartDashboard.putNumber("Subsystems/Gyro/RollDegrees", getRoll());
+		SmartDashboard.putNumber("Subsystems/Gyro/YawOffsetDegrees", m_yawOffset);
+
+		if (!GlobalConstants.telemetryAtLeast(GyroConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+		// DEBUG level telemetry goes here
 	}
 
 	/**

@@ -4,17 +4,13 @@ package frc.robot.classes;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.signals.RGBWColor;
-import com.ctre.phoenix6.CANBus;
 
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.RobotContainer;
 import frc.robot.constants.*; 
 import frc.robot.utils.NCDebug;
 
@@ -84,11 +80,11 @@ public class Lighting {
 		return instance;
 	}
   
-  /** Creates the lighting subsystem and initializes dashboards. */
+  /** Creates the lighting subsystem and initializes state. */
   public Lighting() {
     //initialize values for private and public variables, etc.
     init();
-    createDashboards();
+    updateDashboards();
   }
   
     
@@ -101,24 +97,19 @@ public class Lighting {
   }
   
 
-  /** Creates Shuffleboard widgets for lighting state. */
-  public void createDashboards() {
-    ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
-    driverTab.addString("LED Color", this::getColor)
-      .withSize(8, 2)
-      .withWidget("Single Color View")
-      .withPosition(0, 5);  
-		if(LightingConstants.debugDashboard) {
-      ShuffleboardTab debugTab = Shuffleboard.getTab("DBG:Lighting");
-      debugTab.addString("LED Color", this::getColor)
-        .withSize(6, 4)
-        .withWidget("Single Color View")
-        .withPosition(0, 0);  
-      // debugTab.addString("LED Hex", this::getColor)
-      //   .withSize(6, 2)
-      //   .withWidget("Text String")
-      //   .withPosition(0, 4);  
-    }
+  /**
+   * Publishes lighting telemetry to SmartDashboard.
+   */
+  public void updateDashboards() {
+    if (!GlobalConstants.telemetryAtLeast(LightingConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
+    // INFO level telemetry goes here
+    SmartDashboard.putString("Subsystems/Lighting/ColorHex", getColor());
+    SmartDashboard.putString("Subsystems/Lighting/ColorName", (m_currentColor == null ? Colors.OFF : m_currentColor).toString());
+
+    if (!GlobalConstants.telemetryAtLeast(LightingConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+    // DEBUG level telemetry goes here
+    SmartDashboard.putBoolean("Subsystems/Lighting/Blinking", m_blinking);
+    SmartDashboard.putNumber("Subsystems/Lighting/Intensity", m_intensity);
   }
 
   /**

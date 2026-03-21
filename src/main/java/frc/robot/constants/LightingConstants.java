@@ -10,7 +10,7 @@ import com.ctre.phoenix6.CANBus;
  */
 public class LightingConstants {
     public static final CANBus canBus = new CANBus("rio");
-    public static final boolean debugDashboard = false; //enable debugging dashboard
+    public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.INFO;
     public static final int kCandle1ID = ID.CANdle.candle1;
     public static final int kCandle2ID = ID.CANdle.candle2;
 }

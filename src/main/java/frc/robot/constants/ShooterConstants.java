@@ -13,7 +13,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 public class ShooterConstants {
     //Controller Setup
     public static final CANBus canBus = new CANBus("rio");
-    public static final boolean debugDashboard = false; //enable debugging dashboard
+    public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.INFO;
     public static final boolean isDisabled = false; //disable shooter system
 
     /* Lab Tested Values 

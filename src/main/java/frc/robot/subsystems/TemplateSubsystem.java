@@ -6,12 +6,15 @@ import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.VoltageOut;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.constants.GlobalConstants;
+import frc.robot.constants.TemplateConstants;
 import frc.robot.utils.NCDebug;
 
 /**
@@ -59,6 +62,7 @@ public class TemplateSubsystem extends SubsystemBase {
   /** Runs periodically for the Template subsystem. */
   @Override
   public void periodic() {
+    updateDashboards();
   }
   // #endregion Setup
 
@@ -77,6 +81,18 @@ public class TemplateSubsystem extends SubsystemBase {
 
   // #region Dashboard
   // Methods for creating and updating dashboards
+  /**
+   * Publishes template subsystem telemetry to SmartDashboard.
+   */
+  public void updateDashboards() {
+    if (!GlobalConstants.telemetryAtLeast(TemplateConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
+    // INFO level telemetry goes here
+
+    SmartDashboard.putString("Subsystems/Template/State", "READY");
+
+    if (!GlobalConstants.telemetryAtLeast(TemplateConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+    // DEBUG level telemetry goes here
+  }
   // #endregion Dashboard
 
   // #region Getters

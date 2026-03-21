@@ -37,7 +37,7 @@ public class ClimberConstants {
     
     //Controller Setup
     public static final CANBus canBus = new CANBus("rio");
-    public static final boolean debugDashboard = false; //enable debugging dashboard
+    public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.INFO;
     public static final boolean isDisabled = false; //disable climber default command
     public static final boolean kUseCANcoder = true;
     public static final double kMagnetOffset = -0.6903906; //Adjust magnet to sensor offset for CANcoder

@@ -24,6 +24,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
+    RobotContainer.lighting.updateDashboards();
+    RobotContainer.gyro.updateDashboards();
+    RobotContainer.vision.updateDashboards();
+    RobotContainer.targeting.updateDashboards();
   }
 
   /** Runs once when the robot is disabled. */

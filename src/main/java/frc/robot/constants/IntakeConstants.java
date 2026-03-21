@@ -93,7 +93,7 @@ public class IntakeConstants {
     }
     //Controller Setup
     public static final CANBus canBus = new CANBus("rio");
-    public static final boolean debugDashboard = false; //enable debugging dashboard
+    public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.INFO;
     public static final boolean isDisabled = false; //disable climber default command
 
     public static final int kMotorID = ID.TalonFX.intake;

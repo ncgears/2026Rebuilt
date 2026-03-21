@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.Map;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -21,10 +20,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -109,7 +105,6 @@ public class ClimberSubsystem extends SubsystemBase {
       .retryConfigApply(() -> m_motor1.getConfigurator().apply(RobotContainer.ctreConfigs.climberFXConfig));
 
     init();
-    createDashboards();
   }
 
   /**
@@ -123,6 +118,7 @@ public class ClimberSubsystem extends SubsystemBase {
   /** Runs periodic updates for the climber subsystem. */
   @Override
   public void periodic() {
+    updateDashboards();
   }
 
 
@@ -137,51 +133,22 @@ public class ClimberSubsystem extends SubsystemBase {
     return Commands.none();
   }
 
-  /** Creates Shuffleboard widgets for the climber. */
-  public void createDashboards() {
-    ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
-    driverTab.addString("Climber", this::getStateColor)
-      .withSize(2, 2)
-      .withWidget("Single Color View")
-      .withPosition(6, 7);
+  /**
+   * Publishes climber telemetry to SmartDashboard.
+   */
+  public void updateDashboards() {
+    if (!GlobalConstants.telemetryAtLeast(ClimberConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
+    // INFO level telemetry goes here
 
-    ShuffleboardTab systemTab = Shuffleboard.getTab("System");
-    ShuffleboardLayout climberList = systemTab.getLayout("Climber", BuiltInLayouts.kList)
-      .withSize(4, 6)
-      .withPosition(16, 0)
-      .withProperties(Map.of("Label position", "LEFT"));
-    climberList.addString("Status", this::getStateColor)
-      .withWidget("Single Color View");
-    climberList.addBoolean("Complete", this::getClimbComplete);
-    climberList.addString("State", this::getStateName);
-    climberList.addNumber("Position", () -> NCDebug.General.roundDouble(getPosition().in(Units.Rotations), 7));
-    climberList.addBoolean("StartSw", this::getStartSwitch);
-    climberList.addBoolean("EndSw", this::getEndSwitch);
+    SmartDashboard.putString("Subsystems/Climber/State", getStateName());
+    SmartDashboard.putString("Subsystems/Climber/StateColor", getStateColor());
+    SmartDashboard.putBoolean("Subsystems/Climber/Complete", getClimbComplete());
+    SmartDashboard.putNumber("Subsystems/Climber/Position", NCDebug.General.roundDouble(getPosition().in(Units.Rotations), 7));
+    SmartDashboard.putBoolean("Subsystems/Climber/StartSwitch", getStartSwitch());
+    SmartDashboard.putBoolean("Subsystems/Climber/EndSwitch", getEndSwitch());
 
-    if (ClimberConstants.debugDashboard) {
-      ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
-      ShuffleboardLayout dbgClimberList = debugTab.getLayout("Climber", BuiltInLayouts.kList)
-        .withSize(4, 11)
-        .withPosition(4, 0)
-        .withProperties(Map.of("Label position", "LEFT"));
-      dbgClimberList.addString("Status", this::getStateColor)
-        .withWidget("Single Color View");
-      dbgClimberList.addBoolean("Complete", this::getClimbComplete);
-      dbgClimberList.addString("State", this::getStateName);
-      dbgClimberList.addNumber("Position", () -> {
-        return NCDebug.General.roundDouble(getPosition().in(Units.Rotations), 6);
-      });
-      dbgClimberList.addBoolean("StartSw", this::getStartSwitch);
-      dbgClimberList.addBoolean("EndSw", this::getEndSwitch);
-      dbgClimberList.add("Climber Up", new InstantCommand(this::climberUp))
-        .withProperties(Map.of("show_type", false));
-      dbgClimberList.add("Climber Down", new InstantCommand(this::climberDown))
-        .withProperties(Map.of("show_type", false));
-      dbgClimberList.add("Climber Hold", new InstantCommand(this::climberHold))
-        .withProperties(Map.of("show_type", false));
-      dbgClimberList.add("Climber Stop", new InstantCommand(this::climberStop))
-        .withProperties(Map.of("show_type", false));
-    }
+    if (!GlobalConstants.telemetryAtLeast(ClimberConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+    // DEBUG level telemetry goes here
   }
 
   /**

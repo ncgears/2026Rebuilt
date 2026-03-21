@@ -1,6 +1,5 @@
 package frc.robot.classes;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -9,10 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -158,7 +154,7 @@ public class Targeting {
 	/** Creates the targeting helper and initializes pose state. */
 	public Targeting() {
 		init();
-		createDashboards();
+		updateDashboards();
 	}
 
 	/** Resets tracking state and initializes the starting pose. */
@@ -263,30 +259,25 @@ public class Targeting {
 	}
 
 	////#region "Tracking"
-	/** Creates the dashboard for the tracking system */
-	public void createDashboards() {
-		// if(true) { //false to disable tracking dashboard
-		ShuffleboardTab systemTab = Shuffleboard.getTab("System");
-		// 	systemTab.addNumber("Bot Pose Hdg", () -> NCDebug.General.roundDouble(getPose().get().getRotation().getDegrees(),2))
-		// 		.withSize(4,2)
-		// 		.withPosition(0,4);
-		// 	// systemTab.addNumber("Shooter Hdg", () -> NCDebug.General.roundDouble(getPose().get().rotateBy(new Rotation2d(Math.PI)).getRotation().getDegrees(),2))
-		// 	// 	.withSize(4,2)
-		// 	// 	.withPosition(4,2);
-		ShuffleboardLayout trackingList = systemTab.getLayout("Target Tracking", BuiltInLayouts.kList)
-			.withSize(4, 5)
-			.withPosition(12, 5)
-			.withProperties(Map.of("Label position", "LEFT"));
-		trackingList.addString("Tracking", this::getTrackingStateColor)
-			.withWidget("Single Color View");
-		trackingList.addString("State", this::getTrackingStateName)
-			.withWidget("Text Display");
-		trackingList.addString("Target", this::getTrackingTargetName)
-			.withWidget("Text Display");
-		trackingList.addNumber("Bearing", this::getTrackingTargetBearing);
-		trackingList.addNumber("Distance", this::getTrackingTargetDistance);
-		trackingList.addNumber("Angle", this::getTrackingTargetAngle);
-		// }
+	/**
+	 * Publishes targeting telemetry to SmartDashboard.
+	 * All current targeting telemetry is published at INFO level.
+	 */
+	public void updateDashboards() {
+		if (!GlobalConstants.telemetryAtLeast(TargetingConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
+		// INFO level telemetry goes here
+
+		SmartDashboard.putString("Subsystems/Targeting/State", getTrackingStateName());
+		SmartDashboard.putString("Subsystems/Targeting/StateColor", getTrackingStateColor());
+		SmartDashboard.putString("Subsystems/Targeting/Target", getTrackingTargetName());
+		SmartDashboard.putNumber("Subsystems/Targeting/Bearing", getTrackingTargetBearing());
+		SmartDashboard.putNumber("Subsystems/Targeting/Distance", getTrackingTargetDistance());
+
+		if (!GlobalConstants.telemetryAtLeast(TargetingConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+		// DEBUG level telemetry goes here
+		SmartDashboard.putBoolean("Subsystems/Targeting/Tracking", getTracking());
+		SmartDashboard.putBoolean("Subsystems/Targeting/Override", getOverride());
+		SmartDashboard.putNumber("Subsystems/Targeting/Angle", getTrackingTargetAngle());
 	}
 
 	/** Determines if the robot should be tracking a target

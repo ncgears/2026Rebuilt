@@ -2,7 +2,6 @@
 package frc.robot.classes;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -27,14 +26,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.constants.*; 
-import frc.robot.utils.NCDebug;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The Vision class handles getting and managing data from the PhotoVision system.
@@ -48,6 +43,8 @@ public class Vision {
   private double lastEstTimestampFront, lastEstTimestampBack = 0;
   private Pose2d m_visFrontPose = Pose2d.kZero;
   private Pose2d m_visBackPose = Pose2d.kZero;
+  private boolean m_frontHasTargets = false;
+  private boolean m_backHasTargets = false;
 
   // Simulator
   private VisionSystemSim visionSim;
@@ -136,37 +133,41 @@ public class Vision {
         // front_cameraSim.enableDrawWireframe(true);
         // back_cameraSim.enableDrawWireframe(true);
     // }
-    createDashboards();
   }
 
-    /** Creates vision Shuffleboard widgets. */
-    public void createDashboards() {
-    // ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
-    // driverTab.addString("LED Color", this::getColor)
-    //   .withSize(5, 4)
-    //   .withWidget("Single Color View")
-    //   .withPosition(19, 0);  
-		if(VisionConstants.debugDashboard) {
-      ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
-      ShuffleboardLayout dbgVisionList = debugTab.getLayout("Vision", BuiltInLayouts.kList)
-        .withSize(4, 8)
-        .withPosition(0, 0)
-        .withProperties(Map.of("Label position", "LEFT"));
-      dbgVisionList.addBoolean("Front Targets", () -> getLatestResult(front_camera).hasTargets())
-        .withWidget("Boolean Box");
-      dbgVisionList.addBoolean("Back Targets", () -> getLatestResult(back_camera).hasTargets())
-        .withWidget("Boolean Box");
-      dbgVisionList.addBoolean("Front Suppressed", () -> RobotContainer.drivetrain.isFrontVisionSuppressed())
-        .withWidget("Boolean Box");
-      dbgVisionList.addBoolean("Back Suppressed", () -> RobotContainer.drivetrain.isFrontVisionSuppressed())
-        .withWidget("Boolean Box");
-      dbgVisionList.addNumber("Front Vision Pose X", () -> NCDebug.General.roundDouble(getVisionPose("front").getX(),3));
-      dbgVisionList.addNumber("Front Vision Pose Y", () -> NCDebug.General.roundDouble(getVisionPose("front").getY(),3));
-      dbgVisionList.addNumber("Back Vision Pose X", () -> NCDebug.General.roundDouble(getVisionPose("back").getX(),3));
-      dbgVisionList.addNumber("Back Vision Pose Y", () -> NCDebug.General.roundDouble(getVisionPose("back").getY(),3));
-      dbgVisionList.addNumber("Robot Pose X", () -> NCDebug.General.roundDouble(RobotContainer.drivetrain.getBotPose().getX(),3));
-      dbgVisionList.addNumber("Robot Pose Y", () -> NCDebug.General.roundDouble(RobotContainer.drivetrain.getBotPose().getY(),3));
+  /**
+   * Publishes vision telemetry to SmartDashboard.
+   * INFO-level fields are always published at {@link GlobalConstants.TelemetryLevel#INFO}
+   * and above. Additional pose details are published at
+   * {@link GlobalConstants.TelemetryLevel#DEBUG}.
+   */
+  public void updateDashboards() {
+    if (!GlobalConstants.telemetryAtLeast(VisionConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
+    // INFO level telemetry goes here
+
+    boolean frontSuppressed = false;
+    boolean backSuppressed = false;
+    if (RobotContainer.drivetrain != null) {
+      frontSuppressed = RobotContainer.drivetrain.isFrontVisionSuppressed();
+      backSuppressed = RobotContainer.drivetrain.isBackVisionSuppressed();
     }
+
+    SmartDashboard.putBoolean("Subsystems/Vision/Front/HasTargets", m_frontHasTargets);
+    SmartDashboard.putBoolean("Subsystems/Vision/Back/HasTargets", m_backHasTargets);
+    SmartDashboard.putBoolean("Subsystems/Vision/Front/Suppressed", frontSuppressed);
+    SmartDashboard.putBoolean("Subsystems/Vision/Back/Suppressed", backSuppressed);
+
+    if (!GlobalConstants.telemetryAtLeast(VisionConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
+    // DEBUG level telemetry goes here
+
+    SmartDashboard.putNumber("Subsystems/Vision/Front/PoseX", m_visFrontPose.getX());
+    SmartDashboard.putNumber("Subsystems/Vision/Front/PoseY", m_visFrontPose.getY());
+    SmartDashboard.putNumber("Subsystems/Vision/Back/PoseX", m_visBackPose.getX());
+    SmartDashboard.putNumber("Subsystems/Vision/Back/PoseY", m_visBackPose.getY());
+    SmartDashboard.putNumber("Subsystems/Vision/Robot/PoseX", RobotContainer.drivetrain.getBotPose().getX());
+    SmartDashboard.putNumber("Subsystems/Vision/Robot/PoseY", RobotContainer.drivetrain.getBotPose().getY());
+    SmartDashboard.putNumber("Subsystems/Vision/Front/LastTimestamp", lastEstTimestampFront);
+    SmartDashboard.putNumber("Subsystems/Vision/Back/LastTimestamp", lastEstTimestampBack);
   }
 
   /**
@@ -176,17 +177,8 @@ public class Vision {
    * @return Estimated pose for the camera.
    */
   public Pose2d getVisionPose(String cam) {
-    Optional<EstimatedRobotPose> estimatedPose;
-    if(cam == "front") {
-      estimatedPose = getFrontEstimatedGlobalPose();
-      if (!estimatedPose.isEmpty()) {
-        m_visFrontPose = estimatedPose.get().estimatedPose.toPose2d();
-      }
+    if ("front".equalsIgnoreCase(cam)) {
       return m_visFrontPose;
-    }
-    estimatedPose = getBackEstimatedGlobalPose();
-    if (!estimatedPose.isEmpty()) {
-      m_visBackPose = estimatedPose.get().estimatedPose.toPose2d();
     }
     return m_visBackPose;
   }
@@ -230,8 +222,23 @@ public class Vision {
       Optional<EstimatedRobotPose> visionEst = Optional.empty();
       // estimator.setReferencePose(RobotContainer.drivetrain.getState().Pose);
       for (var change: camera.getAllUnreadResults()) {
+        if (camera == front_camera) {
+          m_frontHasTargets = change.hasTargets();
+        } else if (camera == back_camera) {
+          m_backHasTargets = change.hasTargets();
+        }
         visionEst = estimator.update(change);
         updateEstimationStdDevs(visionEst, change.getTargets(), estimator, stdDevs);
+        if (visionEst.isPresent()) {
+          Pose2d estimatedPose = visionEst.get().estimatedPose.toPose2d();
+          if (camera == front_camera) {
+            m_visFrontPose = estimatedPose;
+            lastEstTimestampFront = visionEst.get().timestampSeconds;
+          } else if (camera == back_camera) {
+            m_visBackPose = estimatedPose;
+            lastEstTimestampBack = visionEst.get().timestampSeconds;
+          }
+        }
         if (Robot.isSimulation()) {
           visionEst.ifPresentOrElse(
             est ->
@@ -370,11 +377,6 @@ public class Vision {
   public Field2d getSimDebugField() {
       if (!Robot.isSimulation()) return null;
       return visionSim.getDebugField();
-  }
-
-  /** Updates dashboard widgets for vision (currently unused). */
-  public void updateDashboard() {
-    // Dashboard.Vision.setVisionRinglight(llresults.targetingResults.);
   }
 
   /** Updates internal vision results (placeholder). */
