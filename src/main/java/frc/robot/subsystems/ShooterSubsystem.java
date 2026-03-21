@@ -376,15 +376,15 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * Calculates back shooter RPM from target distance using a linear model.
+   * Calculates back shooter RPM from target distance using a fitted linear model.
    *
-   * @param distanceMeters Distance to target in meters.
+   * @param distanceMeters Distance from robot center to target in meters.
    * @return Back shooter RPM clamped to configured min/max.
    */
   public double calculateBackShooterRPM(double distanceMeters) {
-    double rpm = ShooterConstants.DistanceModel.kReferenceBackRpm
-      + (ShooterConstants.DistanceModel.kBackRpmPerMeter
-      * (distanceMeters - ShooterConstants.DistanceModel.kReferenceDistanceMeters));
+    double shooterDistanceMeters = distanceMeters + ShooterConstants.kRobotToShooter;
+    double rpm = (ShooterConstants.DistanceModel.kBackRpmPerMeter * shooterDistanceMeters)
+      + ShooterConstants.DistanceModel.kBackRpmIntercept;
     return Math.max(ShooterConstants.DistanceModel.kBackRpmMin,
       Math.min(ShooterConstants.DistanceModel.kBackRpmMax, rpm));
   }

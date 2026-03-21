@@ -15,6 +15,7 @@ public class ShooterConstants {
     public static final CANBus canBus = new CANBus("rio");
     public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.INFO;
     public static final boolean isDisabled = false; //disable shooter system
+    public static final double kRobotToShooter = 0.25; //Meters from the center of the robot to the shooter
 
     /* Lab Tested Values 
      * 2300 = Hub Corner
@@ -34,12 +35,16 @@ public class ShooterConstants {
     public static final double kIdleRPM = 0.0; //RPM when idle, to prevent ramp up spike
     public static final double kSpinupDelaySeconds = 0.25;
 
-    /** Linear distance-to-RPM model for the back shooter wheel. */
+    /** Distance-to-RPM model for the back shooter wheel. */
     public class DistanceModel {
-        public static final double kReferenceDistanceMeters = 1.6764; // 5.5 ft
-        public static final double kReferenceBackRpm = 2215.0;
-        public static final double kBackRpmPerMeter = 357.3591876;
-        public static final double kBackRpmMin = 2215.0;
+        /**
+         * Linear fit from measured points (distance shooter->hub):
+         * 1.5367 m -> 2350 RPM, 3.0734 m -> 3100 RPM, 3.8227 m -> 3450 RPM.
+         * Formula: backRpm = kBackRpmPerMeter * distanceMeters + kBackRpmIntercept.
+         */
+        public static final double kBackRpmPerMeter = 482.2098239;
+        public static final double kBackRpmIntercept = 1611.206999;
+        public static final double kBackRpmMin = 2400.0;
         public static final double kBackRpmMax = 6000.0;
     }
 
