@@ -157,7 +157,9 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> {
                 double rot = m_rotate.getAsDouble();
                 if(targeting.getTracking() && !m_trackingOverride) {
-                    m_targetDirection = Rotation2d.fromDegrees(targeting.getBearingOfTarget(targeting.getTrackingTarget()));
+                    Rotation2d targetBearing = Rotation2d.fromDegrees(targeting.getBearingOfTarget(targeting.getTrackingTarget()));
+                    Rotation2d perspective = (isAllianceRed()) ? Rotation2d.k180deg : Rotation2d.kZero;
+                    m_targetDirection = targetBearing.minus(perspective);
                 } else {
                     if(Math.abs(rot) > 0) { //turning
                         if(m_targetLock) NCDebug.Debug.debug("Drive: Heading Unlocked");
