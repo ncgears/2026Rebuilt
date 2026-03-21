@@ -115,25 +115,26 @@ public class RobotContainer {
         snapDrive.HeadingController = new PhoenixPIDController(SnapDriveConstants.kP, SnapDriveConstants.kI, SnapDriveConstants.kD);
         snapDrive.HeadingController.enableContinuousInput(-Math.PI,Math.PI);
         snapDrive.HeadingController.setTolerance(Math.toRadians(SnapDriveConstants.kToleranceDegrees));
+        double joystickDeadband = (Robot.isSimulation()) ? OIConstants.kMinDeadband * 2.0 : OIConstants.kMinDeadband;
 
         final InputAxis m_fieldX = new InputAxis("Forward", dj::getLeftY)
-            .withDeadband(OIConstants.kMinDeadband)
+            .withDeadband(joystickDeadband)
             .withInvert(true)
             .withSquaring(false);
         final InputAxis m_fieldY = new InputAxis("Strafe", dj::getLeftX)
-            .withDeadband(OIConstants.kMinDeadband)
+            .withDeadband(joystickDeadband)
             .withInvert(true)
             .withSquaring(false);
         final InputAxis m_rotate = new InputAxis("Rotate", dj::getRightX)
-            .withDeadband(OIConstants.kMinDeadband)
+            .withDeadband(joystickDeadband)
             .withInvert(true);
         final InputAxis m_climbAxis = new InputAxis("Climber", oj::getRightY)
-            .withDeadband(OIConstants.kMinDeadband)
+            .withDeadband(joystickDeadband)
             .withMultiplier(ClimberConstants.kClimbPower)
             .withSquaring(true)
             .withInvert(true);
         final InputAxis m_deployAxis = new InputAxis("DeployManual", oj::getLeftY)
-            .withDeadband(OIConstants.kMinDeadband)
+            .withDeadband(joystickDeadband)
             .withMultiplier(IntakeConstants.Deploy.kManualDutyCycleMax)
             .withInvert(true)
             .withSquaring(true);
