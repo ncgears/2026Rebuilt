@@ -311,7 +311,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 "trajectory_color","0xffb000ff",
                 "field_rotation",RobotContainer.isAllianceRed()?90.0:270.0
             ));
-        ShuffleboardLayout systemThetaList = systemTab.getLayout("theta Controller", BuiltInLayouts.kList)
+        ShuffleboardLayout systemThetaList = systemTab.getLayout("SnapDrive Controller", BuiltInLayouts.kList)
             .withSize(4,5)
             .withPosition(0,4)
             .withProperties(Map.of("Label position","LEFT"));

@@ -94,7 +94,7 @@ public class RobotContainer {
     private final SwerveRequest.RobotCentric robotdrive = new SwerveRequest.RobotCentric()
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.FieldCentricFacingAngle snapDrive = new SwerveRequest.FieldCentricFacingAngle()
-        .withHeadingPID(7.0,0.0,0.0)
+        .withHeadingPID(SnapDriveConstants.kP, SnapDriveConstants.kI, SnapDriveConstants.kD)
         .withDeadband(MaxSpeed * 0.035)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
         // .withDriveRequestType(DriveRequestType.Velocity);
@@ -114,8 +114,9 @@ public class RobotContainer {
     public RobotContainer() {
         WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
 
-        snapDrive.HeadingController = new PhoenixPIDController(5,0,0);
+        snapDrive.HeadingController = new PhoenixPIDController(SnapDriveConstants.kP, SnapDriveConstants.kI, SnapDriveConstants.kD);
         snapDrive.HeadingController.enableContinuousInput(-Math.PI,Math.PI);
+        snapDrive.HeadingController.setTolerance(Math.toRadians(SnapDriveConstants.kToleranceDegrees));
 
         final InputAxis m_fieldX = new InputAxis("Forward", dj::getLeftY)
             .withDeadband(OIConstants.kMinDeadband)
@@ -155,18 +156,20 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() -> {
+                double fieldX = m_fieldX.getAsDouble();
+                double fieldY = m_fieldY.getAsDouble();
                 double rot = m_rotate.getAsDouble();
+                boolean requestingTranslation = Math.abs(fieldX) > 0.0 || Math.abs(fieldY) > 0.0;
                 if(targeting.getTracking() && !m_trackingOverride) {
                     Rotation2d targetBearing = Rotation2d.fromDegrees(targeting.getBearingOfTarget(targeting.getTrackingTarget()));
                     Rotation2d perspective = (isAllianceRed()) ? Rotation2d.k180deg : Rotation2d.kZero;
                     m_targetDirection = targetBearing.minus(perspective);
                 } else {
-                    if(Math.abs(rot) > 0) { //turning
+                    if(Math.abs(rot) > 0.0) {
                         if(m_targetLock) NCDebug.Debug.debug("Drive: Heading Unlocked");
                         m_targetLock = false;
                     } else {
-                        // m_targetDirection = Rotation2d.kZero;
-                        if(!m_targetLock) {
+                        if(!m_targetLock && requestingTranslation) {
                             m_targetDirection = drivetrain.getBotHeading();
                             // NCDebug.Debug.debug("Drive: Heading Locked to "+drivetrain.getBotHeading().getDegrees());
                             m_targetLock = true;
@@ -175,13 +178,13 @@ public class RobotContainer {
                 }
                 if(m_targetLock || targeting.getTracking()) { //specific facing angle
                     // NCDebug.Debug.debug("drive with facing angle");
-                    return snapDrive.withVelocityX(m_fieldX.getAsDouble() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(m_fieldY.getAsDouble() * MaxSpeed) // Drive left with negative X (left)
+                    return snapDrive.withVelocityX(fieldX * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(fieldY * MaxSpeed) // Drive left with negative X (left)
                     .withTargetDirection(m_targetDirection);
                 } else {
                     // NCDebug.Debug.debug("drive with unlocked");
-                    return drive.withVelocityX(m_fieldX.getAsDouble() * MaxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(m_fieldY.getAsDouble() * MaxSpeed) // Drive left with negative X (left)
+                    return drive.withVelocityX(fieldX * MaxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(fieldY * MaxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(rot * MaxAngularRate); // Drive counterclockwise with negative X (left)
                         // .withRotationalRate(m_rotate.getAsDouble() * MaxAngularRate); // Drive counterclockwise with negative X (left)
                 }
@@ -331,8 +334,14 @@ public class RobotContainer {
         );
 
         dj.leftTrigger()
-            .onTrue(new InstantCommand(() -> { /*m_trackingOverride = true; m_targetLock = false;*/}))
-            .onFalse(new InstantCommand(() -> { m_trackingOverride = false; }));
+            .onTrue(
+                new InstantCommand(() -> { m_trackingOverride = true; m_targetLock = false; })
+                    .andThen(targeting.trackingOverrideStartC())
+            )
+            .onFalse(
+                new InstantCommand(() -> { m_trackingOverride = false; })
+                    .andThen(targeting.trackingOverrideStopC())
+            );
 
         // dj.frame().onTrue((Commands.runOnce(drivetrain::zeroGyro)));
         // dj.stadia().onTrue(Commands.runOnce(drivetrain::addFakeVisionReading));
@@ -344,40 +353,13 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-dj.getLeftY(),-dj.getLeftX()))
         ));
 
-        //target tracking/alignment buttons
-        /** DJ NO Left Trigger...
-         * + Left Bumper - Align to Reef Front Left face
-         * + Right Bumper - Align to Reef Front Center face
-         * + Right Trigger - Align to Reef Front Right face
-         * DJ YES Left Trigger...
-         * + Left Bumper - Align to Reef Rear Left face
-         * + Right Bumper - Align to Reef Rear Center face
-         * + Right Trigger - Align to Reef Rear Right face
-         */
-        /** DJ Left Trigger (While Held) - Right Stick is facing angle instead of turn */
-        //FACING ANGLE DRIVING
-        dj.rightTrigger().whileTrue(
-          drivetrain.applyRequest(() -> {
-            // Use right joystick raw for heading
-            double headingX = -dj.getRightY(); // joystick -Y is forward, +X heading
-            double headingY = -dj.getRightX(); // joystick -X is left, +Y heading
-            if ((MathUtil.applyDeadband(headingX, 0.25) != 0.0 || MathUtil.applyDeadband(headingY,0.25) != 0.0) && Math.hypot(headingX, headingY) > 0.1) {
-              m_targetDirection = new Rotation2d(headingX, headingY);
-              // NCDebug.Debug.debug("Drive: Heading Locked to "+NCDebug.General.roundDouble(m_targetDirection.getDegrees(),2));
-            } else {
-                // m_targetDirection = Rotation2d.kZero;
-                if(!m_targetLock) {
-                    m_targetDirection = drivetrain.getBotHeading();
-                    // NCDebug.Debug.debug("Drive: Heading Locked to "+drivetrain.getBotHeading().getDegrees());
-                }
-                m_targetLock = true;
-            }
-            return snapDrive.withVelocityX(-dj.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(-dj.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                .withTargetDirection(m_targetDirection);
-          })
+        dj.rightTrigger().onTrue(
+            targeting.setTrackingHubC()
+            .andThen(targeting.trackingStartC())
+        ).onFalse(
+            targeting.trackingStopC()
         );
-        
+
         // reset the field-centric heading on hamburger button press
         dj.start().onTrue(drivetrain.resetGyroC());
         //#endregion Driver Joystick

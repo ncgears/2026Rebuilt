@@ -3,7 +3,6 @@ package frc.robot.classes;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -124,6 +123,7 @@ public class Targeting {
 	public enum State {
 		READY(DashboardConstants.Colors.GREEN),
 		TRACKING(DashboardConstants.Colors.ORANGE),
+		OVERRIDE(DashboardConstants.Colors.RED),
 		ERROR(DashboardConstants.Colors.RED),
 		STOP(DashboardConstants.Colors.BLACK);
 
@@ -144,21 +144,16 @@ public class Targeting {
 	}
 
 	private State m_trackingState = State.STOP; //current Tracking state
+	private State m_trackingStateBeforeOverride = State.STOP; //state to restore when override ends
 	private Targets m_trackingTarget = Targets.HUB; //current Tracking target
 	// private Pose3d m_shooterPose = new Pose3d();
 	// private boolean m_adjustUp = false;
 	public final Trigger isTracking = new Trigger(() -> {
-		return (m_trackingState == State.READY || m_trackingState == State.TRACKING);
+		return (m_trackingState == State.READY || m_trackingState == State.TRACKING || m_trackingState == State.OVERRIDE);
 	});
 	public final Trigger isReady = new Trigger(() -> {
 		return (m_trackingState == State.READY);
 	});
-	public final PIDController thetaController = new PIDController(
-		ThetaConstants.kP,
-		ThetaConstants.kI,
-		ThetaConstants.kP,
-		ThetaConstants.kIZone
-	);
 
 	/** Creates the targeting helper and initializes pose state. */
 	public Targeting() {
@@ -169,6 +164,7 @@ public class Targeting {
 	/** Resets tracking state and initializes the starting pose. */
 	public void init() {
 		m_trackingState = State.STOP;
+		m_trackingStateBeforeOverride = State.STOP;
 		m_trackingTarget = Targets.HUB;
 		resetPose(
 			(RobotContainer.isAllianceRed()) //more realistic starting position, center on black line
@@ -297,7 +293,14 @@ public class Targeting {
 	 * @return boolean indicating if robot is tracking
 	 */
 	public boolean getTracking() {
-		return m_trackingState != State.STOP;
+		return m_trackingState != State.STOP && m_trackingState != State.OVERRIDE;
+	}
+
+	/** Determines if tracking override is active
+	 * @return boolean indicating if robot is in override
+	 */
+	public boolean getOverride() {
+		return m_trackingState == State.OVERRIDE;
 	}
 
 	/** Gets the current target tracking state */
@@ -351,6 +354,11 @@ public class Targeting {
 		NCDebug.Debug.debug("Tracking: Start Tracking (" + m_trackingTarget.toString() + ")");
 	}
 
+	/**
+	 * Creates a command that enables target tracking.
+	 *
+	 * @return Command that sets tracking state to TRACKING.
+	 */
 	public Command trackingStartC() {
 		return new InstantCommand(() -> trackingStart());
 	}
@@ -358,12 +366,59 @@ public class Targeting {
 	/** Disables target tracking */
 	public void trackingStop() {
 		m_trackingState = State.STOP;
+		m_trackingStateBeforeOverride = State.STOP;
 		// RobotContainer.drivetrain.lockHeading();
 		NCDebug.Debug.debug("Tracking: Stop Tracking");
 	}
 
+	/**
+	 * Creates a command that disables target tracking.
+	 *
+	 * @return Command that sets tracking state to STOP.
+	 */
 	public Command trackingStopC() {
 		return new InstantCommand(() -> trackingStop());
+	}
+
+	/**
+	 * Enables tracking override state and saves the previous state for restoration.
+	 */
+	public void trackingOverrideStart() {
+		if (m_trackingState != State.OVERRIDE) {
+			m_trackingStateBeforeOverride = m_trackingState;
+		}
+		m_trackingState = State.OVERRIDE;
+		NCDebug.Debug.debug("Tracking: Override Enabled");
+	}
+
+	/**
+	 * Creates a command that enables tracking override.
+	 *
+	 * @return Command that sets tracking state to OVERRIDE.
+	 */
+	public Command trackingOverrideStartC() {
+		return new InstantCommand(() -> trackingOverrideStart());
+	}
+
+	/**
+	 * Disables tracking override and restores the pre-override tracking state.
+	 */
+	public void trackingOverrideStop() {
+		if (m_trackingState == State.OVERRIDE) {
+			State restoredState = (m_trackingStateBeforeOverride == State.OVERRIDE) ? State.STOP : m_trackingStateBeforeOverride;
+			m_trackingState = restoredState;
+			m_trackingStateBeforeOverride = restoredState;
+			NCDebug.Debug.debug("Tracking: Override Disabled (" + restoredState.toString() + ")");
+		}
+	}
+
+	/**
+	 * Creates a command that disables tracking override.
+	 *
+	 * @return Command that restores the pre-override tracking state.
+	 */
+	public Command trackingOverrideStopC() {
+		return new InstantCommand(() -> trackingOverrideStop());
 	}
 
 	/** Sets the requested tracking target

@@ -127,6 +127,7 @@ public class IntakeSubsystem extends SubsystemBase {
       .retryConfigApply(() -> m_intakeMotor.getConfigurator().apply(RobotContainer.ctreConfigs.intakeFXConfig));
 
     init();
+    createDashboards();
   }
 
   /**
