@@ -56,6 +56,9 @@ import frc.robot.utils.NCDebug;
 @SuppressWarnings({"unused"})
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
+    private static final String kTrackedTargetFieldObjectName = "Tracked Target";
+    private static final double kTrackedTargetRingRadiusMeters = 0.20;
+    private static final int kTrackedTargetRingPoints = 24;
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
     public Field2d field = new Field2d();
@@ -301,10 +304,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             .withPosition(4,0)
             .withWidget("Field")
             .withProperties(Map.of(
-                "field_game","Reefscape",
+                "field_game","Rebuilt",
                 "robot_width",Units.inchesToMeters(GlobalConstants.kBumperWidth),
                 "robot_length",Units.inchesToMeters(GlobalConstants.kBumperLength),
                 "robot_color","0xff0000ff",
+                "trajectory_color","0xffb000ff",
                 "field_rotation",RobotContainer.isAllianceRed()?90.0:270.0
             ));
         ShuffleboardLayout systemThetaList = systemTab.getLayout("theta Controller", BuiltInLayouts.kList)
@@ -482,6 +486,39 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
+     * Returns the alliance-adjusted field pose of the currently selected tracking target.
+     *
+     * @return Target pose in field coordinates.
+     */
+    private Pose2d getTrackedTargetPose() {
+        var trackingTarget = RobotContainer.targeting.getTrackingTarget();
+        return RobotContainer.isAllianceRed()
+            ? trackingTarget.getRotatedPose().toPose2d()
+            : trackingTarget.getPose().toPose2d();
+    }
+
+    /**
+     * Updates the tracked target overlay on Field2d as a ring around the selected target.
+     * The ring is published as a trajectory so it renders as a continuous loop.
+     */
+    private void updateTrackedTargetFieldObject() {
+        if (!RobotContainer.targeting.getTracking()) {
+            field.getObject(kTrackedTargetFieldObjectName).setPoses();
+            return;
+        }
+
+        Pose2d targetPose = getTrackedTargetPose();
+        Pose2d[] ringPoses = new Pose2d[kTrackedTargetRingPoints + 1];
+        for (int i = 0; i <= kTrackedTargetRingPoints; i++) {
+            double angleRadians = 2.0 * Math.PI * i / kTrackedTargetRingPoints;
+            double x = targetPose.getX() + (kTrackedTargetRingRadiusMeters * Math.cos(angleRadians));
+            double y = targetPose.getY() + (kTrackedTargetRingRadiusMeters * Math.sin(angleRadians));
+            ringPoses[i] = new Pose2d(x, y, Rotation2d.fromRadians(angleRadians));
+        }
+        field.getObject(kTrackedTargetFieldObjectName).setPoses(ringPoses);
+    }
+
+    /**
      * Creates a new auto factory for this drivetrain.
      *
      * @return AutoFactory for this drivetrain
@@ -621,6 +658,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (!m_suppressBackVision) {
             RobotContainer.vision.correctPoseWithVision();
         }
+        updateTrackedTargetFieldObject();
         field.setRobotPose(this.getState().Pose);
     }
 

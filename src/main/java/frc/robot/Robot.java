@@ -34,7 +34,9 @@ public class Robot extends TimedRobot {
 
   /** Runs periodically while the robot is disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.monitorAllianceChangeWhileDisabled();
+  }
 
   /** Runs once when exiting disabled mode. */
   @Override

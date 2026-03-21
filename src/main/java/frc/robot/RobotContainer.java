@@ -71,7 +71,7 @@ public class RobotContainer {
     public static final IndexerSubsystem indexer = IndexerSubsystem.getInstance();
     public static final ShooterSubsystem shooter = ShooterSubsystem.getInstance();
     
-    public static Optional<Alliance> m_alliance;
+    public static Optional<Alliance> m_alliance = Optional.empty();
 
     private AutoFactory autoFactory;
     private AutoRoutines autoRoutines;
@@ -221,6 +221,7 @@ public class RobotContainer {
     private void resetRobot() {
         lighting.init();
         targeting.init();
+        m_alliance = DriverStation.getAlliance();
         drivetrain.init();
         // climber.init();
         intake.init();
@@ -234,6 +235,21 @@ public class RobotContainer {
         intake.neutralCommand().ignoringDisable(true);
         indexer.neutralCommand().ignoringDisable(true);
         shooter.neutralCommand().ignoringDisable(true);
+    }
+
+    /**
+     * Monitors alliance color while disabled and reseeds targeting pose when it changes.
+     * This avoids unnecessary reseeding while enabled, where vision normally refines pose.
+     */
+    public void monitorAllianceChangeWhileDisabled() {
+        Optional<Alliance> currentAlliance = DriverStation.getAlliance();
+        if (currentAlliance.isPresent() && !currentAlliance.equals(m_alliance)) {
+            NCDebug.Debug.debug("Robot: Alliance changed while disabled to " + currentAlliance.get() + ", reseeding pose");
+            m_alliance = currentAlliance;
+            targeting.init();
+        } else if (currentAlliance.isEmpty() && m_alliance.isPresent()) {
+            m_alliance = Optional.empty();
+        }
     }
 
     /**
