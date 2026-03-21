@@ -82,12 +82,14 @@ public class IntakeSubsystem extends SubsystemBase {
   private TalonFX m_deployMotor, m_intakeMotor;
   private final VelocityVoltage m_intakeVelocityRequest = new VelocityVoltage(0.0);
   private final DutyCycleOut m_deployDutyRequest = new DutyCycleOut(0.0);
-  private final MotionMagicVoltage m_deployPositionRequest = new MotionMagicVoltage(0.0);
+  private final MotionMagicVoltage m_deployPositionRequest = new MotionMagicVoltage(0.0).withSlot(0);
+  private final MotionMagicVoltage m_deploySoftHoldRequest = new MotionMagicVoltage(0.0).withSlot(1);
   private State m_curIntakeState = State.STOP;
   private State m_curDeployState = State.STOP;
   private double m_intakeCommandedSpeedRpm = 0.0;
   private double m_deployCommandedPositionRotations = 0.0;
   private boolean m_deployManualActive = false;
+  private boolean m_deploySoftHoldEnabled = false;
   // #endregion Declarations
 
   // #region Triggers
@@ -135,6 +137,7 @@ public class IntakeSubsystem extends SubsystemBase {
     m_curDeployState = State.STOP;
     m_intakeCommandedSpeedRpm = 0.0;
     m_deployManualActive = false;
+    m_deploySoftHoldEnabled = false;
     seedDeployMotorPositionFromCANcoder();
     if (IntakeConstants.Deploy.kInitToUnjamForTuning) {
       setDeployUnjam();
@@ -147,6 +150,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Runs periodically for the Intake subsystem. */
   @Override
   public void periodic() {
+    applyDeploySoftHoldIfEligible();
     updateDashboards();
   }
   // #endregion Setup
@@ -323,6 +327,7 @@ public class IntakeSubsystem extends SubsystemBase {
     m_intakeCommandedSpeedRpm = 0.0;
     m_deployCommandedPositionRotations = getDeployPositionRotations();
     m_deployManualActive = false;
+    m_deploySoftHoldEnabled = false;
     NCDebug.Debug.debug("Intake: Switch to Coast");
   }
 
@@ -508,6 +513,7 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param rotations Target position in rotations for the deploy motor.
    */
   public void setDeployPositionRotations(double rotations) {
+    m_deploySoftHoldEnabled = false;
     setDeployPositionRotationsInternal(rotations, true);
   }
 
@@ -517,6 +523,7 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param deltaRotations Delta rotations to add to the current commanded deploy position.
    */
   public void adjustDeployPositionRotations(double deltaRotations) {
+    m_deploySoftHoldEnabled = false;
     setDeployPositionRotationsInternal(m_deployCommandedPositionRotations + deltaRotations, false);
   }
 
@@ -541,6 +548,24 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   /**
+   * Applies deploy soft-hold control using slot1 near the OUT setpoint.
+   * If the mechanism is displaced beyond the configured tolerance, slot0 is used
+   * to return to the commanded position more strongly.
+   */
+  private void applyDeploySoftHoldIfEligible() {
+    if (!m_deploySoftHoldEnabled || m_deployManualActive) {
+      return;
+    }
+    double errorRotations = m_deployCommandedPositionRotations - getDeployPositionRotations();
+    if (Math.abs(errorRotations) <= IntakeConstants.Deploy.kSoftHoldEngageToleranceRotations) {
+      m_deployMotor.setControl(m_deploySoftHoldRequest.withPosition(m_deployCommandedPositionRotations));
+    } else {
+      m_deployMotor.setControl(m_deployPositionRequest.withPosition(m_deployCommandedPositionRotations));
+    }
+    m_curDeployState = stateFromSignedValue(errorRotations);
+  }
+
+  /**
    * Creates a command to set the deploy motor position setpoint in rotations.
    *
    * @param rotations Target position in rotations for the deploy motor.
@@ -556,7 +581,8 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param position Named deploy target.
    */
   public void setDeployPosition(DeployPosition position) {
-    setDeployPositionRotations(position.getPosition());
+    m_deploySoftHoldEnabled = position == DeployPosition.OUT;
+    setDeployPositionRotationsInternal(position.getPosition(), true);
   }
 
   /**

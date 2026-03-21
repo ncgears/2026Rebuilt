@@ -40,7 +40,7 @@ public class IntakeConstants {
         //Cancoder
         public static final boolean kUseCANcoder = true;
         public static final int kCANcoderID = ID.CANcoder.deploy_cc;
-        public static final double kMagnetOffset = -0.657324; //Adjust magnet to sensor offset for CANcoder
+        public static final double kMagnetOffset = -0.657324; //Add 0.1 to offset; Adjust magnet to sensor offset for CANcoder
         //Motor
         public static final int kMotorID = ID.TalonFX.deploy;
         public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
@@ -65,6 +65,15 @@ public class IntakeConstants {
         public static final double kP = 14.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
+        //Soft-hold PID gains (slot1)
+        public static final double kSoftHoldS = 0.9;
+        public static final double kSoftHoldV = 0.0;
+        public static final double kSoftHoldA = 0.0;
+        public static final double kSoftHoldP = 4.0;
+        public static final double kSoftHoldI = 0.0;
+        public static final double kSoftHoldD = 0.0;
+        /** Maximum absolute position error to stay in soft-hold mode while deployed out. */
+        public static final double kSoftHoldEngageToleranceRotations = 0.10;
         //Current Limiting
         public static final boolean kCurrentLimitEnable = false; // TODO: Test current limits
         public static final double kCurrentLimitAmps = 30.0;

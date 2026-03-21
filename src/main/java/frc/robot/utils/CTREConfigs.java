@@ -224,6 +224,14 @@ public final class CTREConfigs {
             .withKV(IntakeConstants.Deploy.kV)
             .withKA(IntakeConstants.Deploy.kA);
         deployFXConfig.Slot0 = deploySlot0Configs;
+        Slot1Configs deploySlot1Configs = new Slot1Configs()
+            .withKP(IntakeConstants.Deploy.kSoftHoldP)
+            .withKI(IntakeConstants.Deploy.kSoftHoldI)
+            .withKD(IntakeConstants.Deploy.kSoftHoldD)
+            .withKS(IntakeConstants.Deploy.kSoftHoldS)
+            .withKV(IntakeConstants.Deploy.kSoftHoldV)
+            .withKA(IntakeConstants.Deploy.kSoftHoldA);
+        deployFXConfig.Slot1 = deploySlot1Configs;
         MotionMagicConfigs deployMotionMagicConfigs = new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(IntakeConstants.Deploy.kMotionMagicCruise)
             .withMotionMagicAcceleration(IntakeConstants.Deploy.kMotionMagicAccel)
