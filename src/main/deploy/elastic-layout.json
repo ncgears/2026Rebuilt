@@ -617,7 +617,7 @@
             "title": "robotPose",
             "x": 512.0,
             "y": 512.0,
-            "width": 448.0,
+            "width": 512.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
