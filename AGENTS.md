@@ -6,6 +6,7 @@
 - When asked to commit, add an appropriate commit message for the staged changes, if the user didn't supply one.
 - When appropriate, ask if commits should be split into related, granular commits.
 - `src/main/deploy/elastic-layout.json` must always be committed in its own dedicated commit (never bundled with code changes).
+- In assistant responses, use only VS Code clickable file references in plain `path:line` format (no markdown links).
 
 ## Persistent Global Formatting Rules
 Use this formatting style for all Java files going forward.
