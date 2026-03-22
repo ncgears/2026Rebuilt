@@ -24,6 +24,30 @@ import edu.wpi.first.wpilibj.Filesystem;
 public class VisionConstants {
     public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.DEBUG;
     public static final boolean kUseVisionForPose = true; //enable vision measurements to pose correction
+    /** Enables rejecting vision estimates that use targets above the ambiguity threshold. */
+    public static final boolean kUsePoseAmbiguityFilter = true;
+    /** Maximum allowed per-target pose ambiguity for accepted vision estimates. */
+    public static final double kMaxPoseAmbiguity = 0.20;
+    /** Enables rejecting vision estimates that differ too much from current odometry. */
+    public static final boolean kUsePoseConsistencyFilter = true;
+    /** Apply consistency filtering only to single-tag estimates (most prone to flips). */
+    public static final boolean kConsistencyFilterSingleTagOnly = true;
+    /** Number of accepted frames per camera to bypass consistency filtering after acquisition. */
+    public static final int kConsistencyWarmupBypassFrames = 3;
+    /** Time gap (seconds) after which per-camera warmup bypass is rearmed. */
+    public static final double kConsistencyWarmupResetGapSeconds = 0.75;
+    /** Maximum allowed translation delta (meters) from current odometry to accept vision. */
+    public static final double kMaxPoseTranslationDeltaMeters = 2.50;
+    /** Maximum allowed heading delta (degrees) from current odometry to accept vision. */
+    public static final double kMaxPoseHeadingDeltaDegrees = 100.0;
+    /** Enables rejecting sudden per-camera vision jumps between consecutive accepted estimates. */
+    public static final boolean kUseVisionJumpFilter = true;
+    /** Maximum allowed per-camera translation jump over a short time window (meters). */
+    public static final double kMaxVisionJumpDeltaMeters = 1.25;
+    /** Maximum allowed per-camera heading jump over a short time window (degrees). */
+    public static final double kMaxVisionJumpHeadingDeltaDegrees = 75.0;
+    /** Maximum time window (seconds) used for per-camera jump filtering. */
+    public static final double kMaxVisionJumpDeltaTimeSeconds = 0.35;
     public static final boolean kUseAutoSuppress = false; //enable suppressing vision measurements based on speed
     public static final double kAutosuppressSpeedMetersPerSecond = 2.5; //speed at which to suppress vision addition
     public static final AprilTagFieldLayout kTagLayout = getTagLayout();
@@ -31,8 +55,8 @@ public class VisionConstants {
     // (Fake values. Experiment and determine estimation noise on an actual robot.)
     // public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
     // public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
-    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1.0, 1.0, 2.0);
-    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.25, 0.25, 0.5);
+    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(0.5, 0.5, 1.0);
+    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.15, 0.15, 0.3);
 
     /* AHA!
      * The first argument of kRobotToCam is the translation3d representing the center of the robot

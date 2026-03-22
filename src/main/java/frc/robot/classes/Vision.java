@@ -45,6 +45,22 @@ public class Vision {
   private Pose2d m_visBackPose = Pose2d.kZero;
   private boolean m_frontHasTargets = false;
   private boolean m_backHasTargets = false;
+  private boolean m_frontRejectedAmbiguity = false;
+  private boolean m_backRejectedAmbiguity = false;
+  private boolean m_frontRejectedConsistency = false;
+  private boolean m_backRejectedConsistency = false;
+  private boolean m_frontRejectedJump = false;
+  private boolean m_backRejectedJump = false;
+  private boolean m_frontWarmupBypassActive = false;
+  private boolean m_backWarmupBypassActive = false;
+  private Pose2d m_frontLastAcceptedPose = Pose2d.kZero;
+  private Pose2d m_backLastAcceptedPose = Pose2d.kZero;
+  private double m_frontLastAcceptedTimestampSeconds = Double.NaN;
+  private double m_backLastAcceptedTimestampSeconds = Double.NaN;
+  private boolean m_frontHasAcceptedPose = false;
+  private boolean m_backHasAcceptedPose = false;
+  private int m_frontWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
+  private int m_backWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
 
   // Simulator
   private VisionSystemSim visionSim;
@@ -116,6 +132,14 @@ public class Vision {
     SmartDashboard.putBoolean("Subsystems/Vision/Back/HasTargets", m_backHasTargets);
     SmartDashboard.putBoolean("Subsystems/Vision/Front/Suppressed", frontSuppressed);
     SmartDashboard.putBoolean("Subsystems/Vision/Back/Suppressed", backSuppressed);
+    SmartDashboard.putBoolean("Subsystems/Vision/Front/RejectedAmbiguity", m_frontRejectedAmbiguity);
+    SmartDashboard.putBoolean("Subsystems/Vision/Back/RejectedAmbiguity", m_backRejectedAmbiguity);
+    SmartDashboard.putBoolean("Subsystems/Vision/Front/RejectedConsistency", m_frontRejectedConsistency);
+    SmartDashboard.putBoolean("Subsystems/Vision/Back/RejectedConsistency", m_backRejectedConsistency);
+    SmartDashboard.putBoolean("Subsystems/Vision/Front/RejectedJump", m_frontRejectedJump);
+    SmartDashboard.putBoolean("Subsystems/Vision/Back/RejectedJump", m_backRejectedJump);
+    SmartDashboard.putBoolean("Subsystems/Vision/Front/WarmupBypassActive", m_frontWarmupBypassActive);
+    SmartDashboard.putBoolean("Subsystems/Vision/Back/WarmupBypassActive", m_backWarmupBypassActive);
 
     if (!GlobalConstants.telemetryAtLeast(VisionConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
     // DEBUG level telemetry goes here
@@ -344,6 +368,183 @@ public class Vision {
   }
 
   /**
+   * Returns whether all usable target ambiguities in an estimate are at or below
+   * the configured threshold.
+   * Targets with negative ambiguity are ignored because PhotonVision uses negative
+   * values when ambiguity is unavailable for that target.
+   *
+   * @param estimate Vision estimate to evaluate.
+   * @return True when estimate passes ambiguity filtering.
+   */
+  private boolean passesPoseAmbiguityFilter(EstimatedRobotPose estimate) {
+    if (!VisionConstants.kUsePoseAmbiguityFilter || estimate.targetsUsed == null) {
+      return true;
+    }
+    for (PhotonTrackedTarget target : estimate.targetsUsed) {
+      double ambiguity = target.getPoseAmbiguity();
+      if (ambiguity >= 0.0 && ambiguity > VisionConstants.kMaxPoseAmbiguity) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Returns whether a vision estimate is reasonably close to the current odometry
+   * pose in both translation and heading.
+   *
+   * @param estimate Vision estimate to evaluate.
+   * @return True when estimate passes consistency filtering.
+   */
+  private boolean passesPoseConsistencyFilter(EstimatedRobotPose estimate) {
+    if (!VisionConstants.kUsePoseConsistencyFilter || RobotContainer.drivetrain == null) {
+      return true;
+    }
+    if (VisionConstants.kConsistencyFilterSingleTagOnly && estimate.targetsUsed != null && estimate.targetsUsed.size() > 1) {
+      return true;
+    }
+    Pose2d currentPose = RobotContainer.drivetrain.getBotPose();
+    Pose2d estimatedPose = estimate.estimatedPose.toPose2d();
+    double translationDeltaMeters = currentPose.getTranslation().getDistance(estimatedPose.getTranslation());
+    double headingDeltaDegrees = Math.abs(currentPose.getRotation().minus(estimatedPose.getRotation()).getDegrees());
+    return translationDeltaMeters <= VisionConstants.kMaxPoseTranslationDeltaMeters
+      && headingDeltaDegrees <= VisionConstants.kMaxPoseHeadingDeltaDegrees;
+  }
+
+  /**
+   * Returns whether consistency filtering should be bypassed for this estimate
+   * during a short per-camera warmup window.
+   *
+   * @param fromFrontCamera True when evaluating a front-camera estimate.
+   * @param timestampSeconds Vision estimate timestamp.
+   * @return True when consistency filtering should be bypassed.
+   */
+  private boolean isConsistencyWarmupBypassActive(boolean fromFrontCamera, double timestampSeconds) {
+    if (VisionConstants.kConsistencyWarmupBypassFrames <= 0) {
+      return false;
+    }
+    if (fromFrontCamera) {
+      if (Double.isFinite(m_frontLastAcceptedTimestampSeconds)
+        && timestampSeconds - m_frontLastAcceptedTimestampSeconds > VisionConstants.kConsistencyWarmupResetGapSeconds) {
+        m_frontWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
+      }
+      return m_frontWarmupBypassRemaining > 0;
+    }
+    if (Double.isFinite(m_backLastAcceptedTimestampSeconds)
+      && timestampSeconds - m_backLastAcceptedTimestampSeconds > VisionConstants.kConsistencyWarmupResetGapSeconds) {
+      m_backWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
+    }
+    return m_backWarmupBypassRemaining > 0;
+  }
+
+  /**
+   * Returns whether a vision estimate does not exhibit a sudden per-camera jump
+   * compared to the last accepted pose for that camera.
+   *
+   * @param estimate Vision estimate to evaluate.
+   * @param fromFrontCamera True when evaluating a front-camera estimate.
+   * @return True when the estimate passes jump filtering.
+   */
+  private boolean passesPoseJumpFilter(EstimatedRobotPose estimate, boolean fromFrontCamera) {
+    if (!VisionConstants.kUseVisionJumpFilter) {
+      return true;
+    }
+    Pose2d estimatedPose = estimate.estimatedPose.toPose2d();
+    Pose2d lastAcceptedPose;
+    double lastAcceptedTimestamp;
+    boolean hasAcceptedPose;
+    if (fromFrontCamera) {
+      lastAcceptedPose = m_frontLastAcceptedPose;
+      lastAcceptedTimestamp = m_frontLastAcceptedTimestampSeconds;
+      hasAcceptedPose = m_frontHasAcceptedPose;
+    } else {
+      lastAcceptedPose = m_backLastAcceptedPose;
+      lastAcceptedTimestamp = m_backLastAcceptedTimestampSeconds;
+      hasAcceptedPose = m_backHasAcceptedPose;
+    }
+    if (!hasAcceptedPose || !Double.isFinite(lastAcceptedTimestamp)) {
+      return true;
+    }
+    double deltaTimeSeconds = estimate.timestampSeconds - lastAcceptedTimestamp;
+    if (deltaTimeSeconds <= 0.0 || deltaTimeSeconds > VisionConstants.kMaxVisionJumpDeltaTimeSeconds) {
+      return true;
+    }
+    double translationDeltaMeters = lastAcceptedPose.getTranslation().getDistance(estimatedPose.getTranslation());
+    double headingDeltaDegrees = Math.abs(lastAcceptedPose.getRotation().minus(estimatedPose.getRotation()).getDegrees());
+    return translationDeltaMeters <= VisionConstants.kMaxVisionJumpDeltaMeters
+      && headingDeltaDegrees <= VisionConstants.kMaxVisionJumpHeadingDeltaDegrees;
+  }
+
+  /**
+   * Stores per-camera state after a vision estimate is accepted and fused.
+   *
+   * @param fromFrontCamera True when the accepted estimate came from front camera.
+   * @param acceptedPose Pose that was accepted.
+   * @param timestampSeconds Estimate timestamp.
+   * @param warmupBypassUsed True when consistency filtering was bypassed for this estimate.
+   */
+  private void recordAcceptedVisionMeasurement(
+    boolean fromFrontCamera,
+    Pose2d acceptedPose,
+    double timestampSeconds,
+    boolean warmupBypassUsed
+  ) {
+    if (fromFrontCamera) {
+      m_frontLastAcceptedPose = acceptedPose;
+      m_frontLastAcceptedTimestampSeconds = timestampSeconds;
+      m_frontHasAcceptedPose = true;
+      if (warmupBypassUsed && m_frontWarmupBypassRemaining > 0) {
+        m_frontWarmupBypassRemaining--;
+      }
+    } else {
+      m_backLastAcceptedPose = acceptedPose;
+      m_backLastAcceptedTimestampSeconds = timestampSeconds;
+      m_backHasAcceptedPose = true;
+      if (warmupBypassUsed && m_backWarmupBypassRemaining > 0) {
+        m_backWarmupBypassRemaining--;
+      }
+    }
+  }
+
+  /**
+   * Adds a filtered vision estimate to the drivetrain pose estimator.
+   *
+   * @param estimate Vision estimate from one camera.
+   * @param fromFrontCamera True when the estimate came from the front camera.
+   */
+  private void addFilteredVisionMeasurement(EstimatedRobotPose estimate, boolean fromFrontCamera) {
+    boolean passesAmbiguity = passesPoseAmbiguityFilter(estimate);
+    boolean warmupBypassActive = isConsistencyWarmupBypassActive(fromFrontCamera, estimate.timestampSeconds);
+    boolean passesConsistency = warmupBypassActive || passesPoseConsistencyFilter(estimate);
+    boolean passesJump = passesPoseJumpFilter(estimate, fromFrontCamera);
+    if (fromFrontCamera) {
+      m_frontWarmupBypassActive = warmupBypassActive;
+      m_frontRejectedAmbiguity = !passesAmbiguity;
+      m_frontRejectedConsistency = passesAmbiguity && !passesConsistency;
+      m_frontRejectedJump = passesAmbiguity && passesConsistency && !passesJump;
+    } else {
+      m_backWarmupBypassActive = warmupBypassActive;
+      m_backRejectedAmbiguity = !passesAmbiguity;
+      m_backRejectedConsistency = passesAmbiguity && !passesConsistency;
+      m_backRejectedJump = passesAmbiguity && passesConsistency && !passesJump;
+    }
+    if (!passesAmbiguity || !passesConsistency || !passesJump) {
+      return;
+    }
+    Pose2d estPose = estimate.estimatedPose.toPose2d();
+    Matrix<N3, N1> estStdDevs = fromFrontCamera
+      ? getFrontEstimationStdDevs(estPose)
+      : getBackEstimationStdDevs(estPose);
+    // For CTRE, timestamp must be in correct timebase, use Utils.fpgaToCurrentTime(timestamp).
+    RobotContainer.drivetrain.addVisionMeasurement(
+      estPose,
+      Utils.fpgaToCurrentTime(estimate.timestampSeconds),
+      estStdDevs
+    );
+    recordAcceptedVisionMeasurement(fromFrontCamera, estPose, estimate.timestampSeconds, warmupBypassActive);
+  }
+
+  /**
    * addVisionMeasurement fuses the Pose2d from the vision system into the robot pose
    * @param visionMeasurement
    * @param timestampSeconds
@@ -367,28 +568,44 @@ public class Vision {
 	 */
   @SuppressWarnings({"unused"})
 	public void correctPoseWithVision() {
-		if(VisionConstants.kUseVisionForPose && VisionConstants.Front.kUseForPose) {
-			var visionEstFront = RobotContainer.vision.getFrontEstimatedGlobalPose();
-			visionEstFront.ifPresent(
-				est -> {
-					var estPose = est.estimatedPose.toPose2d();
-					var estStdDevs = RobotContainer.vision.getFrontEstimationStdDevs(estPose);
-          //For CTR, timestamp must be in correct timebase, use Utils.fpgaToCurrentTime(timestamp) to correct
-					RobotContainer.drivetrain.addVisionMeasurement(estPose, Utils.fpgaToCurrentTime(est.timestampSeconds), estStdDevs);
-				}
-			);
-		}
-		if(VisionConstants.kUseVisionForPose && VisionConstants.Back.kUseForPose) {
-			var visionEstBack = RobotContainer.vision.getBackEstimatedGlobalPose();
-			visionEstBack.ifPresent(
-				est -> {
-					var estPose = est.estimatedPose.toPose2d();
-					var estStdDevs = RobotContainer.vision.getBackEstimationStdDevs(estPose);
-          //For CTR, timestamp must be in correct timebase, use Utils.fpgaToCurrentTime(timestamp) to correct
-					RobotContainer.drivetrain.addVisionMeasurement(estPose, Utils.fpgaToCurrentTime(est.timestampSeconds), estStdDevs);
-				}
-			);
-		}
+    correctFrontPoseWithVision();
+    correctBackPoseWithVision();
 	}
+
+  /**
+   * Corrects pose using only front-camera vision.
+   */
+  public void correctFrontPoseWithVision() {
+    if (VisionConstants.kUseVisionForPose && VisionConstants.Front.kUseForPose) {
+      var visionEstFront = RobotContainer.vision.getFrontEstimatedGlobalPose();
+      visionEstFront.ifPresentOrElse(
+        est -> addFilteredVisionMeasurement(est, true),
+        () -> {
+          m_frontWarmupBypassActive = false;
+          m_frontRejectedAmbiguity = false;
+          m_frontRejectedConsistency = false;
+          m_frontRejectedJump = false;
+        }
+      );
+    }
+  }
+
+  /**
+   * Corrects pose using only back-camera vision.
+   */
+  public void correctBackPoseWithVision() {
+    if (VisionConstants.kUseVisionForPose && VisionConstants.Back.kUseForPose) {
+      var visionEstBack = RobotContainer.vision.getBackEstimatedGlobalPose();
+      visionEstBack.ifPresentOrElse(
+        est -> addFilteredVisionMeasurement(est, false),
+        () -> {
+          m_backWarmupBypassActive = false;
+          m_backRejectedAmbiguity = false;
+          m_backRejectedConsistency = false;
+          m_backRejectedJump = false;
+        }
+      );
+    }
+  }
 
 }
