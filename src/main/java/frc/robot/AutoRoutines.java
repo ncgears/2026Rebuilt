@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.classes.Lighting;
+import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -81,7 +82,9 @@ public class AutoRoutines {
       seedPose(path1);
       routine.active().onTrue(
           path1.resetOdometry()
-            .andThen(runPath(path1))
+          .andThen(DeployIntake())
+          .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
+          .andThen(runPath(path1))
       );
       return routine;
     }
@@ -98,13 +101,14 @@ public class AutoRoutines {
 
       path1.recentlyDone().onTrue(
         noop()
-        .andThen(wait(0.2))
         .andThen(runPath(path2))
       );
 
       seedPose(path1);
       routine.active().onTrue(
           path1.resetOdometry()
+          .andThen(DeployIntake())
+          .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
           .andThen(runPath(path1))
       );
 
@@ -134,10 +138,7 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command DeployIntake() {
-      return noop();
-      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L2)
-      //   // .until(RobotContainer.elevator.atTarget)
-      // .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
+      return RobotContainer.intake.setDeployOutC();
     }
 
     /**
@@ -146,11 +147,25 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command StartShooter() {
-      return noop();
-      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L3)
-      //   // .until(RobotContainer.elevator.atTarget)
-      // .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
-    }
+      return Commands.sequence(
+                RobotContainer.targeting.setTrackingHubC(),
+                Commands.deadline(
+                    wait(ShooterConstants.kSpinupDelaySeconds),
+                    Commands.run(
+                        () -> RobotContainer.shooter.startShooter(RobotContainer.targeting.getDistanceOfTarget(RobotContainer.targeting.getTrackingTarget())),
+                        RobotContainer.shooter
+                    )
+                ),
+                Commands.run(
+                    () -> {
+                        RobotContainer.shooter.startShooter(RobotContainer.targeting.getDistanceOfTarget(RobotContainer.targeting.getTrackingTarget()));
+                        RobotContainer.indexer.startIndexer();
+                    },
+                    RobotContainer.shooter,
+                    RobotContainer.indexer
+                )
+            );
+      }
 
     /**
      * Creates a command to stop the shooter.
@@ -158,10 +173,10 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command StopShooter() {
-      return noop();
-      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L4)
-      //   // .until(RobotContainer.elevator.atTarget)
-      // .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
+      return Commands.parallel(
+                RobotContainer.shooter.neutralCommand(),
+                RobotContainer.indexer.neutralCommand()
+            );
     }
 
         /**
@@ -170,10 +185,7 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command StartIntake() {
-      return noop();
-      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L3)
-      //   // .until(RobotContainer.elevator.atTarget)
-      // .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
+      return RobotContainer.intake.setIntakeForwardAdaptiveC(RobotContainer.shooter::isShooting);
     }
 
     /**
@@ -182,10 +194,7 @@ public class AutoRoutines {
      * @return Command sequence.
      */
     private Command StopIntake() {
-      return noop();
-      // return RobotContainer.elevator.ElevatorPositionC(ElevatorSubsystem.Position.L4)
-      //   // .until(RobotContainer.elevator.atTarget)
-      // .andThen(RobotContainer.coral.CoralPositionC(CoralSubsystem.Position.OUT));
+      return RobotContainer.intake.setIntakeStopC();
     }
     
     /**

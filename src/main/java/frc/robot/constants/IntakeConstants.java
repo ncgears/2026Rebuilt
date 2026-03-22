@@ -73,7 +73,7 @@ public class IntakeConstants {
         public static final double kSoftHoldI = 0.0;
         public static final double kSoftHoldD = 0.0;
         /** Maximum absolute position error to stay in soft-hold mode while deployed out. */
-        public static final double kSoftHoldEngageToleranceRotations = 0.10;
+        public static final double kSoftHoldEngageToleranceRotations = 0.20;
         //Current Limiting
         public static final boolean kCurrentLimitEnable = false; // TODO: Test current limits
         public static final double kCurrentLimitAmps = 30.0;
@@ -85,9 +85,9 @@ public class IntakeConstants {
         public static final double kSoftLimitLow = 0.7;   // CANcoder 0.10 * 7.0
         public static final double kSoftLimitHigh = 4.378; // CANcoder 0.625 * 7.0
         //Motion Magic profile (mechanism rotations)
-        public static final double kMotionMagicCruise = 2.25;
-        public static final double kMotionMagicAccel = 7.5;
-        public static final double kMotionMagicJerk = 80.0;
+        public static final double kMotionMagicCruise = 2.5;
+        public static final double kMotionMagicAccel = 9.0;
+        public static final double kMotionMagicJerk = 200.0;
         /** Manual deploy duty-cycle cap for operator stick control (0.0 to 1.0). */
         public static final double kManualDutyCycleMax = 1.0;
         /** During tuning, initialize deploy setpoint to unjam on subsystem init. */
@@ -95,6 +95,7 @@ public class IntakeConstants {
 
         public class Positions {
             public static final double kStow = 0.7;   // CANcoder 0.10 * 7.0
+            public static final double kDeployedSafe = 3.6; //Safe to go under truss
             public static final double kOut = 4.378;  // CANcoder 0.625 * 7.0
             public static final double kUnjam = 2.8;  // CANcoder 0.40 * 7.0
             public static final double kProtect = kStow;
