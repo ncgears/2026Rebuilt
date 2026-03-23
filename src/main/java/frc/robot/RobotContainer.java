@@ -313,10 +313,11 @@ public class RobotContainer {
             // .alongWith(elevator.ElevatorStopC().ignoringDisable(true)).ignoringDisable(true)
             .alongWith(new InstantCommand(() -> {m_targetLock = false;})).ignoringDisable(true)
         );
-        // bind to the autonomous() and teleop() trigger which happens any time the robot is enabled in either of those modes
-        RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(
+        // bind to autonomous(), teleop(), and test() so this runs any time the robot is enabled
+        RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).or(RobotModeTriggers.test()).onTrue(
             new InstantCommand(orchestra::stop).ignoringDisable(true)
             .andThen(lighting.setColorCommand(Colors.OFF)).ignoringDisable(true)
+            .andThen(new InstantCommand(intake::setDeployOut))
             // .andThen(coral.CoralPositionC(CoralSubsystem.Position.SCORE))
             // .andThen(new InstantCommand(() -> elevator.gotoTargetPosition()))
         );

@@ -53,7 +53,7 @@ public class IntakeConstants {
          * 15t pulley on gearbox, 18t on shaft
          * 7:1 stage in gearbox
         */
-        public static final double kRotorToMechanismRatio = (18.0 / 15.0) * 7.0 / 1;
+        public static final double kRotorToMechanismRatio = (18.0 / 18.0) * 7.0 / 1;
         /** Sensor rotations per mechanism rotation (7:1 reduction from mechanism). */
         public static final double kSensorToMechanismRatio = 1.0  / 7.0;
         public static final double kRotorToSensorRatio = kRotorToMechanismRatio / kSensorToMechanismRatio;
@@ -85,8 +85,8 @@ public class IntakeConstants {
         public static final double kSoftLimitLow = 0.7;   // CANcoder 0.10 * 7.0
         public static final double kSoftLimitHigh = 4.378; // CANcoder 0.625 * 7.0
         //Motion Magic profile (mechanism rotations)
-        public static final double kMotionMagicCruise = 2.5;
-        public static final double kMotionMagicAccel = 9.0;
+        public static final double kMotionMagicCruise = 3.5; //2.5
+        public static final double kMotionMagicAccel = 13.0; //9.0
         public static final double kMotionMagicJerk = 200.0;
         /** Manual deploy duty-cycle cap for operator stick control (0.0 to 1.0). */
         public static final double kManualDutyCycleMax = 1.0;
