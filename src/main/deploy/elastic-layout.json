@@ -7,93 +7,11 @@
       "grid_layout": {
         "layouts": [
           {
-            "title": "Gyro",
-            "x": 1216.0,
-            "y": 320.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Widget",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 256.0,
-                "type": "Gyro",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Gyro/Widget",
-                  "period": 0.06,
-                  "counter_clockwise_positive": false
-                }
-              },
-              {
-                "title": "PitchDegrees",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Gyro/PitchDegrees",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "RollDegrees",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Gyro/RollDegrees",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "YawDegrees",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Gyro/YawDegrees",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "YawOffsetDegrees",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Gyro/YawOffsetDegrees",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              }
-            ]
-          },
-          {
             "title": "Vision",
             "x": 1216.0,
             "y": 0.0,
             "width": 256.0,
-            "height": 320.0,
+            "height": 384.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -581,10 +499,23 @@
         ],
         "containers": [
           {
-            "title": "FMSInfo",
-            "x": 832.0,
+            "title": "Autonomous Chooser",
+            "x": 512.0,
             "y": 384.0,
-            "width": 384.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Autonomous Chooser",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "FMSInfo",
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 448.0,
             "height": 128.0,
             "type": "FMSInfo",
             "properties": {
@@ -614,20 +545,6 @@
             }
           },
           {
-            "title": "robotPose",
-            "x": 512.0,
-            "y": 512.0,
-            "width": 512.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Pose/robotPose",
-              "period": 0.06,
-              "data_type": "double[]",
-              "show_submit_button": false
-            }
-          },
-          {
             "title": "Lighting",
             "x": 512.0,
             "y": 768.0,
@@ -638,19 +555,6 @@
               "topic": "/SmartDashboard/Subsystems/Lighting/ColorHex",
               "period": 0.06,
               "data_type": "string"
-            }
-          },
-          {
-            "title": "Autonomous Chooser",
-            "x": 512.0,
-            "y": 384.0,
-            "width": 320.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/Shuffleboard/Auton/Autonomous Chooser",
-              "period": 0.06,
-              "sort_options": false
             }
           }
         ]
