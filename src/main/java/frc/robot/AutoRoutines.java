@@ -35,7 +35,7 @@ public class AutoRoutines {
      *
      * @return Auto routine instance.
      */
-    public AutoRoutine sTLDirect1Pass() {
+    public AutoRoutine sTLDirect1Pass() { //101
       final AutoRoutine routine = m_factory.newRoutine("sTLDirect1Pass");
       final AutoTrajectory path1 = routine.trajectory("LeftFirstPass");
     
@@ -55,15 +55,77 @@ public class AutoRoutines {
       return routine;
     }
 
-        /**
+    /**
      * Creates the truss left direct to fuel intake and score 1 pass.
      *
      * @return Auto routine instance.
      */
-    public AutoRoutine sTLDirect2Pass() {
+    public AutoRoutine sTLDirect2Pass() { //102
       final AutoRoutine routine = m_factory.newRoutine("sTLDirect2Pass");
       final AutoTrajectory path1 = routine.trajectory("LeftFirstPass");
       final AutoTrajectory path2 = routine.trajectory("LeftSecondPass");
+    
+      path1.recentlyDone().onTrue(
+        noop()
+        .andThen(StartShooter())
+        .andThen(Commands.idle().withTimeout(4.25))
+        .andThen(StopShooter())
+        .andThen(runPath(path2))
+      );
+
+      path2.done().onTrue(
+        noop()
+        .andThen(StartShooter())
+        .andThen(Commands.idle().withTimeout(4.25))
+        .andThen(StopShooter())
+        .andThen(StopIntake())
+        .andThen(log("Routine Complete!"))
+      );
+
+      seedPose(path1);
+      routine.active().onTrue(
+          path1.resetOdometry()
+          .andThen(DeployIntake())
+          .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
+          .andThen(runPath(path1))
+      );
+      return routine;
+    }
+
+    /**
+     * Creates the truss right direct to fuel intake and score 1 pass.
+     *
+     * @return Auto routine instance.
+     */
+    public AutoRoutine sTRDirect1Pass() {  //202
+      final AutoRoutine routine = m_factory.newRoutine("sTRDirect1Pass");
+      final AutoTrajectory path1 = routine.trajectory("RightFirstPass");
+    
+      path1.done().onTrue(log("Routine Complete!"));
+
+      seedPose(path1);
+      routine.active().onTrue(
+          path1.resetOdometry()
+          .andThen(DeployIntake())
+          .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
+          .andThen(runPath(path1))
+          .andThen(StartShooter())
+          .andThen(Commands.idle().withTimeout(4.25))
+          .andThen(StopShooter())
+          .andThen(StopIntake())
+      );
+      return routine;
+    }
+
+        /**
+     * Creates the truss right direct to fuel intake and score 2 pass.
+     *
+     * @return Auto routine instance.
+     */
+    public AutoRoutine sTRDirect2Pass() { //102
+      final AutoRoutine routine = m_factory.newRoutine("sTRDirect2Pass");
+      final AutoTrajectory path1 = routine.trajectory("RightFirstPass");
+      final AutoTrajectory path2 = routine.trajectory("RightSecondPass");
     
       path1.recentlyDone().onTrue(
         noop()
