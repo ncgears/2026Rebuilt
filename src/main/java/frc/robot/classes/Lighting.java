@@ -21,8 +21,8 @@ import frc.robot.utils.NCDebug;
 @SuppressWarnings("unused")
 public class Lighting {
 	private static Lighting instance;
-  private final CANdle m_candle1 = new CANdle(LightingConstants.kCandle1ID, LightingConstants.canBus);
-  private final CANdle m_candle2 = new CANdle(LightingConstants.kCandle2ID, LightingConstants.canBus);
+  private final CANdle m_candle1;
+  private final CANdle m_candle2;
   private Colors m_currentColor, m_oldColor = Colors.OFF;
   private boolean m_blinking, m_oldBlinking = false;
   private int m_intensity, m_oldIntensity = 100;
@@ -82,6 +82,14 @@ public class Lighting {
   
   /** Creates the lighting subsystem and initializes state. */
   public Lighting() {
+    if (LightingConstants.isDisabled) {
+      m_candle1 = null;
+      m_candle2 = null;
+      NCDebug.Debug.debug("Lighting: Disabled - CANdle hardware not initialized");
+    } else {
+      m_candle1 = new CANdle(LightingConstants.kCandle1ID, LightingConstants.canBus);
+      m_candle2 = new CANdle(LightingConstants.kCandle2ID, LightingConstants.canBus);
+    }
     //initialize values for private and public variables, etc.
     init();
     updateDashboards();
@@ -105,6 +113,7 @@ public class Lighting {
     // INFO level telemetry goes here
     SmartDashboard.putString("Subsystems/Lighting/ColorHex", getColor());
     SmartDashboard.putString("Subsystems/Lighting/ColorName", (m_currentColor == null ? Colors.OFF : m_currentColor).toString());
+    SmartDashboard.putBoolean("Subsystems/Lighting/Disabled", LightingConstants.isDisabled);
 
     if (!GlobalConstants.telemetryAtLeast(LightingConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
     // DEBUG level telemetry goes here
@@ -128,8 +137,11 @@ public class Lighting {
    * @param color Color to set.
    */
   public void setColor(Colors color) {
-    if(color != m_currentColor) {
+    if (color != m_currentColor) {
       m_currentColor = color;
+      if (LightingConstants.isDisabled || m_candle1 == null || m_candle2 == null) {
+        return;
+      }
       
       // Phoenix 6 CANdle uses setControl() with SolidColor control requests
       // 0-7 are onboard LEDs

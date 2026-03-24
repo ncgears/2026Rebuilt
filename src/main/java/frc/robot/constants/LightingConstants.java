@@ -9,6 +9,7 @@ import com.ctre.phoenix6.CANBus;
  */
 @SuppressWarnings("unused") //We silence the "unused variables" warnings in VSCode
 public class LightingConstants {
+    public static final boolean isDisabled = true; //disable lighting subsystem when CANdles are not installed
     public static final CANBus canBus = new CANBus("rio");
     public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.INFO;
     public static final int kCandle1ID = ID.CANdle.candle1;
