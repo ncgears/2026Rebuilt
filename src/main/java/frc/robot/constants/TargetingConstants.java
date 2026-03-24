@@ -12,6 +12,8 @@ public class TargetingConstants {
     public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.INFO;
     /** Heading error tolerance for READY state transition during target tracking. */
     public static final double kReadyToleranceDegrees = 1.5;
+    /** Heading tolerance used for deciding when the robot is on target. */
+    public static final double kOnTargetToleranceDegrees = kReadyToleranceDegrees;
     /** Minimum absolute turn rate command while targeting in degrees per second. */
     public static final double kMinTurnRateDegreesPerSecond = 37.24;
     /** Minimum heading error required before enforcing min turn rate in degrees. */
