@@ -30,9 +30,9 @@ public class Targeting {
 	private static final double m_fieldWidth = VisionConstants.kTagLayout.getFieldWidth();
 
 	public enum Targets { //based on blue origin 0,0 (blue driver station, right corner)
-		HUB(4.62, 4.03, 2.25, 0),
-		POCKET_LEFT(3.0, 6.2, 0.0, 0),
-		POCKET_RIGHT(3.0, 2.2, 0.0, 0),
+		HUB(4.62, 4.23, 2.25, 0), //y+.2
+		POCKET_LEFT(3.7, 6.2, 0.0, 0), //x+.7
+		POCKET_RIGHT(3.7, 2.2, 0.0, 0), //x+.7
 		TOWER_LEFT(1.05, 4.27, 0.0, 180),
 		TOWER_RIGHT(1.05, 3.22, 0.0, 0);
 
@@ -148,6 +148,9 @@ public class Targeting {
 	public final Trigger isReady = new Trigger(() -> {
 		return (m_trackingState == State.READY);
 	});
+	public final Trigger isOnTarget = new Trigger(() -> {
+		return getOnTarget();
+	});
 
 	/** Creates the targeting helper and initializes pose state. */
 	public Targeting() {
@@ -261,6 +264,7 @@ public class Targeting {
 		SmartDashboard.putString("Subsystems/Targeting/Target", getTrackingTargetName());
 		SmartDashboard.putNumber("Subsystems/Targeting/Bearing", getTrackingTargetBearing());
 		SmartDashboard.putNumber("Subsystems/Targeting/Distance", getTrackingTargetDistance());
+		SmartDashboard.putBoolean("Subsystems/Targeting/OnTarget", getOnTarget());
 
 		if (!GlobalConstants.telemetryAtLeast(TargetingConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
 		// DEBUG level telemetry goes here
@@ -339,6 +343,20 @@ public class Targeting {
 		Rotation2d perspective = (RobotContainer.isAllianceRed()) ? Rotation2d.k180deg : Rotation2d.kZero;
 		Rotation2d desiredHeading = targetBearing.minus(perspective);
 		return desiredHeading.minus(RobotContainer.drivetrain.getBotHeading()).getDegrees();
+	}
+
+	/**
+	 * Returns whether the robot heading is within on-target tolerance of the
+	 * tracked target heading while tracking is active.
+	 *
+	 * @return True when heading error is within
+	 * {@link TargetingConstants#kOnTargetToleranceDegrees}.
+	 */
+	public boolean getOnTarget() {
+		if (!getTracking()) {
+			return false;
+		}
+		return Math.abs(getTrackingHeadingErrorDegrees()) <= TargetingConstants.kOnTargetToleranceDegrees;
 	}
 
 	/** Enables target tracking */

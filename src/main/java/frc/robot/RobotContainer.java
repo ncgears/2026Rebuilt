@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -90,6 +91,10 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors    
+    private final SwerveRequest.FieldCentric targetingDrive = new SwerveRequest.FieldCentric()
+        .withDeadband(MaxSpeed * 0.035)
+        .withRotationalDeadband(0.0)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     private final SwerveRequest.RobotCentric robotdrive = new SwerveRequest.RobotCentric()
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.FieldCentricFacingAngle snapDrive = new SwerveRequest.FieldCentricFacingAngle()
@@ -172,7 +177,7 @@ public class RobotContainer {
                         requestedVY *= scale;
                     }
                 }
-                if(targetingActive) {
+                if (targetingActive) {
                     Rotation2d targetBearing = Rotation2d.fromDegrees(targeting.getBearingOfTarget(targeting.getTrackingTarget()));
                     Rotation2d perspective = (isAllianceRed()) ? Rotation2d.k180deg : Rotation2d.kZero;
                     m_targetDirection = targetBearing.minus(perspective);
@@ -189,11 +194,29 @@ public class RobotContainer {
                         }
                     }
                 }
-                if(m_targetLock || targeting.getTracking()) { //specific facing angle
+                if (targetingActive) {
+                    double currentHeadingRadians = drivetrain.getBotHeading().getRadians();
+                    double targetHeadingRadians = m_targetDirection.getRadians();
+                    double headingErrorRadians = MathUtil.angleModulus(targetHeadingRadians - currentHeadingRadians);
+                    double commandedOmega = snapDrive.HeadingController.calculate(
+                        currentHeadingRadians,
+                        targetHeadingRadians,
+                        Utils.getCurrentTimeSeconds()
+                    );
+                    double minTurnRate = Math.toRadians(TargetingConstants.kMinTurnRateDegreesPerSecond);
+                    double minTurnErrorRadians = Math.toRadians(TargetingConstants.kMinTurnRateErrorDegrees);
+                    if (Math.abs(headingErrorRadians) > minTurnErrorRadians && Math.abs(commandedOmega) < minTurnRate) {
+                        commandedOmega = Math.copySign(minTurnRate, headingErrorRadians);
+                    }
+                    commandedOmega = MathUtil.clamp(commandedOmega, -MaxAngularRate, MaxAngularRate);
+                    return targetingDrive.withVelocityX(requestedVX) // Drive forward with negative Y (forward)
+                        .withVelocityY(requestedVY) // Drive left with negative X (left)
+                        .withRotationalRate(commandedOmega);
+                } else if (m_targetLock || targeting.getTracking()) { //specific facing angle
                     // NCDebug.Debug.debug("drive with facing angle");
                     return snapDrive.withVelocityX(requestedVX) // Drive forward with negative Y (forward)
-                    .withVelocityY(requestedVY) // Drive left with negative X (left)
-                    .withTargetDirection(m_targetDirection);
+                        .withVelocityY(requestedVY) // Drive left with negative X (left)
+                        .withTargetDirection(m_targetDirection);
                 } else {
                     // NCDebug.Debug.debug("drive with unlocked");
                     return drive.withVelocityX(requestedVX) // Drive forward with negative Y (forward)
@@ -290,10 +313,11 @@ public class RobotContainer {
             // .alongWith(elevator.ElevatorStopC().ignoringDisable(true)).ignoringDisable(true)
             .alongWith(new InstantCommand(() -> {m_targetLock = false;})).ignoringDisable(true)
         );
-        // bind to the autonomous() and teleop() trigger which happens any time the robot is enabled in either of those modes
-        RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(
+        // bind to autonomous(), teleop(), and test() so this runs any time the robot is enabled
+        RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).or(RobotModeTriggers.test()).onTrue(
             new InstantCommand(orchestra::stop).ignoringDisable(true)
             .andThen(lighting.setColorCommand(Colors.OFF)).ignoringDisable(true)
+            .andThen(new InstantCommand(intake::setDeployOut))
             // .andThen(coral.CoralPositionC(CoralSubsystem.Position.SCORE))
             // .andThen(new InstantCommand(() -> elevator.gotoTargetPosition()))
         );

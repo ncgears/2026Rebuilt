@@ -31,44 +31,6 @@ public class AutoRoutines {
     }
 
     /**
-     * Creates the center move-off-line routine.
-     *
-     * @return Auto routine instance.
-     */
-    public AutoRoutine sCmoveOffLine() {
-      final AutoRoutine routine = m_factory.newRoutine("sCMoveOffLine");
-      final AutoTrajectory path1 = routine.trajectory("sC-MoveOffLine");
-
-      path1.done().onTrue(log("Routine Complete!"));
-
-      seedPose(path1);
-      routine.active().onTrue(
-          path1.resetOdometry()
-            .andThen(runPath(path1))
-      );
-      return routine;
-    }
-
-    /**
-     * Creates a center score-algae routine.
-     *
-     * @return Auto routine instance.
-     */
-    public AutoRoutine sCScoreAlgae() {
-      final AutoRoutine routine = m_factory.newRoutine("sCScoreAlgae");
-      final AutoTrajectory path1 = routine.trajectory("sC-rBC");
-
-      path1.done().onTrue(log("Routine Complete!"));
-
-      seedPose(path1);
-      routine.active().onTrue(
-          path1.resetOdometry()
-            .andThen(runPath(path1))
-      );
-      return routine;
-    }
-
-    /**
      * Creates the truss left direct to fuel intake and score 1 pass.
      *
      * @return Auto routine instance.
