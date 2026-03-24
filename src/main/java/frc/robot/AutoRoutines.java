@@ -47,11 +47,50 @@ public class AutoRoutines {
           .andThen(DeployIntake())
           .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
           .andThen(runPath(path1))
+          .andThen(StartShooter())
+          .andThen(wait(5.0))
+          .andThen(StopShooter())
       );
       return routine;
     }
 
         /**
+     * Creates the truss left direct to fuel intake and score 1 pass.
+     *
+     * @return Auto routine instance.
+     */
+    public AutoRoutine sTLDirect2Pass() {
+      final AutoRoutine routine = m_factory.newRoutine("sTLDirect2Pass");
+      final AutoTrajectory path1 = routine.trajectory("LeftFirstPass");
+      final AutoTrajectory path2 = routine.trajectory("LeftSecondPass");
+    
+      path1.recentlyDone().onTrue(
+        noop()
+        .andThen(StartShooter())
+        .andThen(wait(5.0))
+        .andThen(StopShooter())
+        .andThen(runPath(path2))
+      );
+
+      path2.done().onTrue(
+        noop()
+        .andThen(StartShooter())
+        .andThen(wait(5.0))
+        .andThen(StopShooter())
+        .andThen(log("Routine Complete!"))
+      );
+
+      seedPose(path1);
+      routine.active().onTrue(
+          path1.resetOdometry()
+          .andThen(DeployIntake())
+          .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
+          .andThen(runPath(path1))
+      );
+      return routine;
+    }
+
+    /**
      * Creates a test routine for quick path validation.
      *
      * @return Auto routine instance.
@@ -77,6 +116,7 @@ public class AutoRoutines {
       return routine;
     }
 
+    
     //#region Global Bindings
     /** This method binds event names to their commands */
     private void ConfigureGlobalBindings() {
