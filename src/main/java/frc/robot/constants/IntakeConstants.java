@@ -32,7 +32,7 @@ public class IntakeConstants {
         public static final double kCurrentLimitThresholdAmps = 30.0;
         public static final double kCurrentLimitThresholdSecs = 0.3;
         //Commanded speeds
-        public static final double kForwardRPM = 4000.0;
+        public static final double kForwardRPM = 5500.0; // Changed from 4000 to 5500 because of gearbox change-Simon
         public static final double kSlowForwardRPM = 500.0;
         public static final double kReverseRPM = 3500.0;
     }

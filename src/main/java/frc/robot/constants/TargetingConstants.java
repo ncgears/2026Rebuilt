@@ -17,5 +17,5 @@ public class TargetingConstants {
     /** Minimum absolute turn rate command while targeting in degrees per second. */
     public static final double kMinTurnRateDegreesPerSecond = 37.24;
     /** Minimum heading error required before enforcing min turn rate in degrees. */
-    public static final double kMinTurnRateErrorDegrees = 1.6;
+    public static final double kMinTurnRateErrorDegrees = .78;
 }
