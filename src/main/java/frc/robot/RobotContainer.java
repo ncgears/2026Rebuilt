@@ -599,6 +599,7 @@ public class RobotContainer {
                 autoFactory = drivetrain.createAutoFactory();
                 autoRoutines = new AutoRoutines(autoFactory);
                 autoChooser.addRoutine("001: sTL-Direct-1Pass", autoRoutines::sTLDirect1Pass);
+                autoChooser.addRoutine("002: sTL-Direct-2Pass", autoRoutines::sTLDirect2Pass);
                 autoChooser.addRoutine("999: Test Run", autoRoutines::testRun);
 
                 ShuffleboardTab systemTab = Shuffleboard.getTab("Auton");
