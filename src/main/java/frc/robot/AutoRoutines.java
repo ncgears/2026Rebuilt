@@ -50,6 +50,7 @@ public class AutoRoutines {
           .andThen(StartShooter())
           .andThen(wait(5.0))
           .andThen(StopShooter())
+          .andThen(StopIntake())
       );
       return routine;
     }
@@ -77,6 +78,7 @@ public class AutoRoutines {
         .andThen(StartShooter())
         .andThen(wait(5.0))
         .andThen(StopShooter())
+        .andThen(StopIntake())
         .andThen(log("Routine Complete!"))
       );
 

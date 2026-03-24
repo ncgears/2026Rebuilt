@@ -341,6 +341,5 @@
  },
  "events":[
    {"name":"StartIntake", "from":{"target":1, "targetTimestamp":1.64206, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"StopIntake", "from":{"target":5, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"StartShooter", "from":{"target":7, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
+   {"name":"StartShooter", "from":{"target":7, "targetTimestamp":9.89215, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
 }
