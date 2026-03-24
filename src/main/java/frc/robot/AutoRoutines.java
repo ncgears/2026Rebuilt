@@ -48,7 +48,7 @@ public class AutoRoutines {
           .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
           .andThen(runPath(path1))
           .andThen(StartShooter())
-          .andThen(wait(5.0))
+          .andThen(Commands.idle().withTimeout(4.25))
           .andThen(StopShooter())
           .andThen(StopIntake())
       );
@@ -68,7 +68,7 @@ public class AutoRoutines {
       path1.recentlyDone().onTrue(
         noop()
         .andThen(StartShooter())
-        .andThen(wait(5.0))
+        .andThen(Commands.idle().withTimeout(4.25))
         .andThen(StopShooter())
         .andThen(runPath(path2))
       );
@@ -76,7 +76,7 @@ public class AutoRoutines {
       path2.done().onTrue(
         noop()
         .andThen(StartShooter())
-        .andThen(wait(5.0))
+        .andThen(Commands.idle().withTimeout(4.25))
         .andThen(StopShooter())
         .andThen(StopIntake())
         .andThen(log("Routine Complete!"))
