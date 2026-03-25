@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.classes.Lighting;
+import frc.robot.constants.AutonConstants;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -39,7 +40,13 @@ public class AutoRoutines {
       final AutoRoutine routine = m_factory.newRoutine("sTLDirect1Pass");
       final AutoTrajectory path1 = routine.trajectory("LeftFirstPass");
     
-      path1.done().onTrue(log("Routine Complete!"));
+      path1.done().onTrue(
+        noop()
+        .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+        .andThen(StopShooter())
+        .andThen(StopIntake())
+        .andThen(log("Routine Complete!"))
+      );
 
       seedPose(path1);
       routine.active().onTrue(
@@ -47,10 +54,6 @@ public class AutoRoutines {
           .andThen(DeployIntake())
           .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
           .andThen(runPath(path1))
-          .andThen(StartShooter())
-          .andThen(Commands.idle().withTimeout(4.25))
-          .andThen(StopShooter())
-          .andThen(StopIntake())
       );
       return routine;
     }
@@ -67,16 +70,14 @@ public class AutoRoutines {
     
       path1.recentlyDone().onTrue(
         noop()
-        .andThen(StartShooter())
-        .andThen(Commands.idle().withTimeout(4.25))
+        .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
         .andThen(StopShooter())
         .andThen(runPath(path2))
       );
 
       path2.done().onTrue(
         noop()
-        .andThen(StartShooter())
-        .andThen(Commands.idle().withTimeout(4.25))
+        .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
         .andThen(StopShooter())
         .andThen(StopIntake())
         .andThen(log("Routine Complete!"))
@@ -97,11 +98,17 @@ public class AutoRoutines {
      *
      * @return Auto routine instance.
      */
-    public AutoRoutine sTRDirect1Pass() {  //202
+    public AutoRoutine sTRDirect1Pass() { //201
       final AutoRoutine routine = m_factory.newRoutine("sTRDirect1Pass");
       final AutoTrajectory path1 = routine.trajectory("RightFirstPass");
     
-      path1.done().onTrue(log("Routine Complete!"));
+      path1.done().onTrue(
+          noop()
+          .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+          .andThen(StopShooter())
+          .andThen(StopIntake())
+          .andThen(log("Routine Complete!"))
+      );
 
       seedPose(path1);
       routine.active().onTrue(
@@ -109,10 +116,6 @@ public class AutoRoutines {
           .andThen(DeployIntake())
           .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
           .andThen(runPath(path1))
-          .andThen(StartShooter())
-          .andThen(Commands.idle().withTimeout(4.25))
-          .andThen(StopShooter())
-          .andThen(StopIntake())
       );
       return routine;
     }
@@ -122,26 +125,24 @@ public class AutoRoutines {
      *
      * @return Auto routine instance.
      */
-    public AutoRoutine sTRDirect2Pass() { //102
+    public AutoRoutine sTRDirect2Pass() { //202
       final AutoRoutine routine = m_factory.newRoutine("sTRDirect2Pass");
       final AutoTrajectory path1 = routine.trajectory("RightFirstPass");
       final AutoTrajectory path2 = routine.trajectory("RightSecondPass");
     
       path1.recentlyDone().onTrue(
-        noop()
-        .andThen(StartShooter())
-        .andThen(Commands.idle().withTimeout(4.25))
-        .andThen(StopShooter())
-        .andThen(runPath(path2))
+          noop()
+          .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+          .andThen(StopShooter())
+          .andThen(runPath(path2))
       );
 
       path2.done().onTrue(
-        noop()
-        .andThen(StartShooter())
-        .andThen(Commands.idle().withTimeout(4.25))
-        .andThen(StopShooter())
-        .andThen(StopIntake())
-        .andThen(log("Routine Complete!"))
+          noop()
+          .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+          .andThen(StopShooter())
+          .andThen(StopIntake())
+          .andThen(log("Routine Complete!"))
       );
 
       seedPose(path1);
