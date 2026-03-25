@@ -32,7 +32,7 @@ public class IntakeConstants {
         public static final double kCurrentLimitThresholdAmps = 30.0;
         public static final double kCurrentLimitThresholdSecs = 0.3;
         //Commanded speeds
-        public static final double kForwardRPM = 5500.0; // Changed from 4000 to 5500 because of gearbox change-Simon
+        public static final double kForwardRPM = 6000.0; // Changed from 4000 to 6000 because of gearbox change-Simon
         public static final double kSlowForwardRPM = 500.0;
         public static final double kReverseRPM = 3500.0;
     }
@@ -95,7 +95,7 @@ public class IntakeConstants {
 
         public class Positions {
             public static final double kStow = 0.7;   // CANcoder 0.10 * 7.0
-            public static final double kDeployedSafe = 3.6; //Safe to go under truss
+            public static final double kDeployedSafe = 0.7; //Safe to go under truss - Changed from 3.6 for imidiate go
             public static final double kOut = 4.378;  // CANcoder 0.625 * 7.0
             public static final double kUnjam = 2.8;  // CANcoder 0.40 * 7.0
             public static final double kProtect = kStow;

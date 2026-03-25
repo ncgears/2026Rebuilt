@@ -30,7 +30,7 @@ public class Targeting {
 	private static final double m_fieldWidth = VisionConstants.kTagLayout.getFieldWidth();
 
 	public enum Targets { //based on blue origin 0,0 (blue driver station, right corner)
-		HUB(4.62, 4.23, 2.25, 0), //y+.2
+		HUB(4.62, 4.03, 2.25, 0), //y+.2 - Removed 3/25
 		POCKET_LEFT(3.7, 6.2, 0.0, 0), //x+.7
 		POCKET_RIGHT(3.7, 2.2, 0.0, 0), //x+.7
 		TOWER_LEFT(1.05, 4.27, 0.0, 180),
@@ -165,8 +165,8 @@ public class Targeting {
 		m_trackingTarget = Targets.HUB;
 		resetPose(
 			(RobotContainer.isAllianceRed()) //more realistic starting position, center on black line
-				? new Pose2d(m_fieldLength - 3.478, m_fieldWidth - 7.4279, Rotation2d.k180deg)
-				: new Pose2d(3.478, 7.4279, Rotation2d.kZero)
+				? new Pose2d(m_fieldLength - 4.372, m_fieldWidth - 7.4279, Rotation2d.k180deg)
+				: new Pose2d(4.372, 7.4279, Rotation2d.kZero)
 		);
 		NCDebug.Debug.debug("Targeting: Initialized");
 	}
