@@ -216,6 +216,7 @@ public class AutoRoutines {
     private Command StartShooter() {
       return Commands.sequence(
                 RobotContainer.targeting.setTrackingHubC(),
+                RobotContainer.targeting.trackingStartC(),
                 Commands.deadline(
                     wait(ShooterConstants.kSpinupDelaySeconds),
                     Commands.run(
@@ -241,6 +242,7 @@ public class AutoRoutines {
      */
     private Command StopShooter() {
       return Commands.parallel(
+                RobotContainer.targeting.trackingStopC(),
                 RobotContainer.shooter.neutralCommand(),
                 RobotContainer.indexer.neutralCommand()
             );
