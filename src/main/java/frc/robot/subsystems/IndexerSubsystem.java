@@ -28,6 +28,7 @@ import frc.robot.constants.DashboardConstants;
 import frc.robot.constants.GlobalConstants;
 import frc.robot.constants.IndexerConstants;
 import frc.robot.constants.ShooterConstants;
+import frc.robot.subsystems.IntakeSubsystem.DeployPosition;
 import frc.robot.utils.Helpers;
 import frc.robot.utils.NCDebug;
 
@@ -585,6 +586,24 @@ public class IndexerSubsystem extends SubsystemBase {
   // #endregion Getters
 
   // #region Setters
+    /**
+   * Sets deploy to the configured unjam position.
+   */
+  public void setIndexerUnjam() {
+    NCDebug.Debug.debug("Intake: Indexer -> UNJAM");
+    setIndexerSpeedC(-IndexerConstants.Indexer.kReverseRPM);
+    liveBottomReverse();
+  }
+
+  /**
+   * Creates a command to set deploy to the configured unjam position.
+   *
+   * @return Command that sets deploy to unjam.
+   */
+  public Command setIndexerUnjamC() {
+    return runOnce(this::setIndexerUnjam);
+  }
+
   // Methods for setting data for subsystem
   // #endregion Setters
 

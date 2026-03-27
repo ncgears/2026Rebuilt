@@ -391,6 +391,19 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-dj.getLeftY(),-dj.getLeftX()))
         ));
 
+        // dj.rightTrigger().whileTrue(drivetrain.applyRequest(() -> {
+        //         double fieldX = m_fieldX.getAsDouble();
+        //         double fieldY = m_fieldY.getAsDouble();
+        //         double rot = m_rotate.getAsDouble();
+        //         boolean targetingActive = targeting.getTracking() && !m_trackingOverride;
+        //         boolean requestingTranslation = Math.abs(fieldX) > 0.0 || Math.abs(fieldY) > 0.0;
+        //         double requestedVX = fieldX * MaxSpeed;
+        //         double requestedVY = fieldY * MaxSpeed;
+        //         robotdrive.withVelocityX(requestedVX).withVelocityY(requestedVY)
+        //             .withRotationalRate(rot * MaxAngularRate); // Drive counterclockwise with negative X (left)
+        //         })
+        // );
+
         // Right Trigger bindings for testing with a single controller
         // dj.rightTrigger().onTrue(
         //     targeting.setTrackingHubC()
@@ -399,35 +412,35 @@ public class RobotContainer {
         //     targeting.trackingStopC()
         // );
 
-        dj.rightTrigger().whileTrue(
-            Commands.sequence(
-                targeting.setTrackingHubC(),
-                targeting.trackingStartC(),
-                Commands.deadline(
-                    wait(ShooterConstants.kSpinupDelaySeconds),
-                    Commands.run(
-                        () -> shooter.startShooter(targeting.getDistanceOfTarget(targeting.getTrackingTarget())),
-                        shooter
-                    )
-                ),
-                Commands.run(
-                    () -> {
-                        shooter.startShooter(targeting.getDistanceOfTarget(targeting.getTrackingTarget()));
-                        indexer.startIndexer();
-                    },
-                    shooter,
-                    indexer
-                )
-            )
-        ).onFalse(
-            targeting.trackingStopC()
-            .andThen(
-                Commands.parallel(
-                    shooter.neutralCommand(),
-                    indexer.neutralCommand()
-                )
-            )
-        );
+        // dj.rightTrigger().whileTrue(
+        //     Commands.sequence(
+        //         targeting.setTrackingHubC(),
+        //         targeting.trackingStartC(),
+        //         Commands.deadline(
+        //             wait(ShooterConstants.kSpinupDelaySeconds),
+        //             Commands.run(
+        //                 () -> shooter.startShooter(targeting.getDistanceOfTarget(targeting.getTrackingTarget())),
+        //                 shooter
+        //             )
+        //         ),
+        //         Commands.run(
+        //             () -> {
+        //                 shooter.startShooter(targeting.getDistanceOfTarget(targeting.getTrackingTarget()));
+        //                 indexer.startIndexer();
+        //             },
+        //             shooter,
+        //             indexer
+        //         )
+        //     )
+        // ).onFalse(
+        //     targeting.trackingStopC()
+        //     .andThen(
+        //         Commands.parallel(
+        //             shooter.neutralCommand(),
+        //             indexer.neutralCommand()
+        //         )
+        //     )
+        // );
 
 
         // reset the field-centric heading on hamburger button press
@@ -543,6 +556,13 @@ public class RobotContainer {
             intake.setDeployUnjamC()
         ).onFalse(
             intake.setDeployOutC()
+        );
+
+        /** OJ X (while held) - Indexer UNJAM in reverse, then stop on release. */
+        oj.x().onTrue(
+            indexer.setIndexerUnjamC()
+        ).onFalse(
+            indexer.neutralCommand()
         );
         //#endregion Operator Joystick
 

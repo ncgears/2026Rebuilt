@@ -23,6 +23,7 @@ public class IndexerConstants {
         public static final int kMotorID = ID.TalonFX.indexer;
         public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive;
         public static final NeutralModeValue kNeutralMode = NeutralModeValue.Brake;
+        public static final double kReverseRPM = 1500.0;
         //FF gains
         public static final double kV = 0.11862;
         public static final double kA = 0.0066756;
