@@ -1,2 +1,6 @@
 TODO:
-- Update PhotonLib when release comes out
+- Robot Centric drive on dj right trigger
+- X while held to reverse indexer and live bottom
+
+NOTES:
+- Added multi-tag pose estimator - This is vision.java getEstimatedGlobalPose, the old one is getEstimatedGlobalPoseOld
