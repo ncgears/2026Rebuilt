@@ -204,14 +204,69 @@ public class Vision {
    */
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(PhotonPoseEstimator estimator, PhotonCamera camera, Matrix<N3, N1> stdDevs) {
       Optional<EstimatedRobotPose> visionEst = Optional.empty();
-      for (var change: camera.getAllUnreadResults()) {
-        if (camera == front_camera) {
-          m_frontHasTargets = change.hasTargets();
-        } else if (camera == back_camera) {
-          m_backHasTargets = change.hasTargets();
+      var results = camera.getAllUnreadResults();
+      for (var result: results) {
+        var multiTagResult = result.getMultiTagResult();
+        if(multiTagResult.isPresent()) {
+          if (camera == front_camera) {
+            m_frontHasTargets = result.hasTargets();
+          } else if (camera == back_camera) {
+            m_backHasTargets = result.hasTargets();
+          }
+          // var fieldToCamera = multiTagResult.get().estimatedPose.best;
         }
-        visionEst = estimator.update(change);
-        updateEstimationStdDevs(visionEst, change.getTargets(), estimator, stdDevs);
+        visionEst = estimator.estimateCoprocMultiTagPose(result);
+        if (visionEst.isEmpty()) {
+            visionEst = estimator.estimateLowestAmbiguityPose(result);
+        }
+
+
+        //  visionEst = estimator.update(result);
+        updateEstimationStdDevs(visionEst, result.getTargets(), estimator, stdDevs);
+        if (Robot.isSimulation()) {
+          visionEst.ifPresentOrElse(
+            est ->
+              getSimDebugField()
+                .getObject("VisionEstimation")
+                .setPose(est.estimatedPose.toPose2d()),
+            () -> {
+              getSimDebugField().getObject("VisionEstimation").setPoses();
+            }
+          );
+        }
+
+        if (visionEst.isPresent()) {
+          Pose2d estimatedPose = visionEst.get().estimatedPose.toPose2d();
+          if (camera == front_camera) {
+            m_visFrontPose = estimatedPose;
+            lastEstTimestampFront = visionEst.get().timestampSeconds;
+          } else if (camera == back_camera) {
+            m_visBackPose = estimatedPose;
+            lastEstTimestampBack = visionEst.get().timestampSeconds;
+          }
+        }
+      }
+      return visionEst;
+  }
+
+    /**
+   * The latest estimated robot pose on the field from vision data. This may be empty. This should
+   * only be called once per loop.
+   *
+   * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets
+   *     used for estimation.
+   */
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPoseOld(PhotonPoseEstimator estimator, PhotonCamera camera, Matrix<N3, N1> stdDevs) {
+      Optional<EstimatedRobotPose> visionEst = Optional.empty();
+      var results = camera.getAllUnreadResults();
+      for (var result: results) {
+        if (camera == front_camera) {
+          m_frontHasTargets = result.hasTargets();
+        } else if (camera == back_camera) {
+          m_backHasTargets = result.hasTargets();
+        }
+        visionEst = estimator.update(result);
+        updateEstimationStdDevs(visionEst, result.getTargets(), estimator, stdDevs);
         if (visionEst.isPresent()) {
           Pose2d estimatedPose = visionEst.get().estimatedPose.toPose2d();
           if (camera == front_camera) {
