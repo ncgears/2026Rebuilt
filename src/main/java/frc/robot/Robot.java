@@ -64,12 +64,13 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousExit() {}
 
-  /** Cancels autonomous when teleop starts. */
+  /** Cancels autonomous and neutralizes shooter/indexer when teleop starts. */
   @Override
   public void teleopInit() {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.neutralShooterAndIndexer();
   }
 
   /** Runs periodically during teleop. */
