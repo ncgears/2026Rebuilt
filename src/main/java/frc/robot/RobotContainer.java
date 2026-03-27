@@ -193,6 +193,7 @@ public class RobotContainer {
                             m_targetLock = true;
                         }
                     }
+                    m_targetLock = false; //disable!
                 }
                 if (targetingActive) {
                     double currentHeadingRadians = drivetrain.getBotHeading().getRadians();

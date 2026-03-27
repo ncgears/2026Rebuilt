@@ -29,9 +29,9 @@ public class VisionConstants {
     /** Maximum allowed per-target pose ambiguity for accepted vision estimates. */
     public static final double kMaxPoseAmbiguity = 0.20;
     /** Enables rejecting vision estimates that differ too much from current odometry. */
-    public static final boolean kUsePoseConsistencyFilter = true;
+    public static final boolean kUsePoseConsistencyFilter = false;  //true
     /** Apply consistency filtering only to single-tag estimates (most prone to flips). */
-    public static final boolean kConsistencyFilterSingleTagOnly = true;
+    public static final boolean kConsistencyFilterSingleTagOnly = false; //true
     /** Number of accepted frames per camera to bypass consistency filtering after acquisition. */
     public static final int kConsistencyWarmupBypassFrames = 3;
     /** Time gap (seconds) after which per-camera warmup bypass is rearmed. */

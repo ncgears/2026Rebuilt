@@ -207,9 +207,12 @@ public class Targeting {
 	 * @return Bearing in degrees.
 	 */
 	public double getBearingOfTarget(Targets target) {
+		boolean red = RobotContainer.isAllianceRed();
+		Rotation2d perspective = (red) ? Rotation2d.k180deg : Rotation2d.kZero;
 		Pose2d robotPose = getPose().get();
-		Pose2d targetPose = (RobotContainer.isAllianceRed()) ? target.getRotatedPose().toPose2d() : target.getPose().toPose2d();
+		Pose2d targetPose = (red) ? target.getRotatedPose().toPose2d() : target.getPose().toPose2d();
 		Translation2d targetVector = targetPose.getTranslation().minus(robotPose.getTranslation());
+		targetVector = (red) ? targetVector.unaryMinus() : targetVector;
 		if (targetVector.getNorm() < 1e-6) {
 			return robotPose.getRotation().getDegrees();
 		}
@@ -237,7 +240,8 @@ public class Targeting {
 	public Rotation2d getAngleOfTarget(Targets target) {
 		boolean red = RobotContainer.isAllianceRed();
 		Rotation2d perspective = (red) ? Rotation2d.k180deg : Rotation2d.kZero;
-		return (red) ? target.getAngle(red).minus(perspective) : target.getMirrorAngle(red).unaryMinus().minus(perspective);
+		return (red) ? target.getMirrorAngle(red).minus(perspective) : target.getAngle(red);
+		// return (red) ? target.getAngle(red).minus(perspective) : target.getMirrorAngle(red);//.unaryMinus().minus(perspective);
 		// return target.getRawAngle();
 	}
 
