@@ -275,9 +275,22 @@ public class RobotContainer {
     /** Sets subsystems to a safe neutral state while disabled. */
     public void neutralRobot() {
         // climber.neutralCommand().ignoringDisable(true);
-        intake.neutralCommand().ignoringDisable(true);
-        indexer.neutralCommand().ignoringDisable(true);
-        shooter.neutralCommand().ignoringDisable(true);
+        Commands.parallel(
+            intake.neutralCommand(),
+            indexer.neutralCommand(),
+            shooter.neutralCommand()
+        ).ignoringDisable(true).schedule();
+    }
+
+    /**
+     * Neutralizes shooter and indexer outputs.
+     * This is used at teleop start to clear any lingering autonomous outputs.
+     */
+    public void neutralShooterAndIndexer() {
+        Commands.parallel(
+            shooter.neutralCommand(),
+            indexer.neutralCommand()
+        ).ignoringDisable(true).schedule();
     }
 
     /**
@@ -456,11 +469,11 @@ public class RobotContainer {
            * rt - fire
            * lb - shift modifier
            * rb - intake
-           * a - momentary undeploy
+           * a - fixed shot
            * x - reverse indexer+knuckle
            * y - deploy
            * lb+y - stow intake
-           * b - 
+           * b - trench shot
            * start - climber up  
            * back - shooter reverse
            * left y - manual deploy duty
@@ -515,6 +528,32 @@ public class RobotContainer {
             )
         );
 
+        /** OJ B - Trench-shot scoring sequence (fixed RPM, no targeting/adaptive speed), then feed after spinup. */
+        oj.b().whileTrue(
+            Commands.sequence(
+                Commands.deadline(
+                    wait(ShooterConstants.kSpinupDelaySeconds),
+                    Commands.run(
+                        shooter::startTrenchShot,
+                        shooter
+                    )
+                ),
+                Commands.run(
+                    () -> {
+                        shooter.startTrenchShot();
+                        indexer.startIndexer();
+                    },
+                    shooter,
+                    indexer
+                )
+            )
+        ).onFalse(
+            Commands.parallel(
+                shooter.neutralCommand(),
+                indexer.neutralCommand()
+            )
+        );
+
         /** OJ Ellipses (while held) - Run shooter in reverse for unjam/clear. */
         oj.back().whileTrue(
             shooter.setShooterSpeedC(-ShooterConstants.kReverseRPM)
@@ -552,11 +591,30 @@ public class RobotContainer {
             intake.setDeployStowC()
         );
 
-        /** OJ A (while held) - Set deploy to UNJAM, then return to OUT on release. */
-        oj.a().onTrue(
-            intake.setDeployUnjamC()
+        /** OJ A - Fixed-shot scoring sequence (fixed RPM, no targeting/adaptive speed), then feed after spinup. */
+        oj.a().whileTrue(
+            Commands.sequence(
+                Commands.deadline(
+                    wait(ShooterConstants.kSpinupDelaySeconds),
+                    Commands.run(
+                        shooter::startFixedShot,
+                        shooter
+                    )
+                ),
+                Commands.run(
+                    () -> {
+                        shooter.startFixedShot();
+                        indexer.startIndexer();
+                    },
+                    shooter,
+                    indexer
+                )
+            )
         ).onFalse(
-            intake.setDeployOutC()
+            Commands.parallel(
+                shooter.neutralCommand(),
+                indexer.neutralCommand()
+            )
         );
 
         /** OJ X (while held) - Indexer UNJAM in reverse, then stop on release. */

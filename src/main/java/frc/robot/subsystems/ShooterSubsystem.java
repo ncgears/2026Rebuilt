@@ -210,6 +210,28 @@ public class ShooterSubsystem extends SubsystemBase {
     return runOnce(() -> startShooter(distanceMeters));
   }
 
+  /**
+   * Creates a command to start shooter spin-up for the fixed shot preset.
+   * Back RPM uses {@link ShooterConstants#kFixedShotBackRPM}, and front RPM is
+   * derived from the back-wheel master RPM multiplier.
+   *
+   * @return Command that starts fixed-shot shooter spin-up.
+   */
+  public Command startFixedShotC() {
+    return runOnce(this::startFixedShot);
+  }
+
+  /**
+   * Creates a command to start shooter spin-up for the trench shot preset.
+   * Back RPM uses {@link ShooterConstants#kTrenchShotBackRPM}, and front RPM is
+   * derived from the back-wheel master RPM multiplier.
+   *
+   * @return Command that starts trench-shot shooter spin-up.
+   */
+  public Command startTrenchShotC() {
+    return runOnce(this::startTrenchShot);
+  }
+
   // #region Dashboard
   // Methods for creating and updating dashboards
   public void updateDashboards() {
@@ -499,6 +521,26 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void startShooter(double distanceMeters) {
     double backRpm = calculateBackShooterRPM(distanceMeters);
+    double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm);
+    setShooterSpeedRPM(frontRpm, backRpm);
+  }
+
+  /**
+   * Starts shooter spin-up using the fixed shot back RPM preset.
+   * Front RPM is derived from the back-wheel master RPM multiplier.
+   */
+  public void startFixedShot() {
+    double backRpm = ShooterConstants.kFixedShotBackRPM;
+    double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm);
+    setShooterSpeedRPM(frontRpm, backRpm);
+  }
+
+  /**
+   * Starts shooter spin-up using the trench shot back RPM preset.
+   * Front RPM is derived from the back-wheel master RPM multiplier.
+   */
+  public void startTrenchShot() {
+    double backRpm = ShooterConstants.kTrenchShotBackRPM;
     double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm);
     setShooterSpeedRPM(frontRpm, backRpm);
   }

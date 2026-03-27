@@ -30,6 +30,8 @@ public class ShooterConstants {
     public static final double kDefaultRPM = 2400.0; //CHANGE THIS
     public static final double kDefaultFrontRPM = kDefaultRPM;
     public static final double kDefaultBackRPM = kDefaultRPM;
+    public static final double kFixedShotBackRPM = 2400.0;
+    public static final double kTrenchShotBackRPM = 3400.0;
     public static final double kReverseRPM = 1500.0;
 
     public static final double kIdleRPM = 0.0; //RPM when idle, to prevent ramp up spike
