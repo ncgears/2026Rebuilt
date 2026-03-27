@@ -36,31 +36,47 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * It is responsible for getting target data, selecting appropriate targets, and passing information to other subsystems.
  */
 public class Vision {
+  private enum VisionCameraRole {
+    FRONT,
+    SHOOTER,
+    BACK
+  }
+
 	private static Vision instance;
-  public final PhotonCamera front_camera, back_camera;
-  private final PhotonPoseEstimator photonEstimatorFront, photonEstimatorBack;
-  private Matrix<N3, N1> curStdDevsFront, curStdDevsBack;
-  private double lastEstTimestampFront, lastEstTimestampBack = 0;
+  public final PhotonCamera front_camera, shooter_camera, back_camera;
+  private final PhotonPoseEstimator photonEstimatorFront, photonEstimatorShooter, photonEstimatorBack;
+  private Matrix<N3, N1> curStdDevsFront, curStdDevsShooter, curStdDevsBack;
+  private double lastEstTimestampFront, lastEstTimestampShooter, lastEstTimestampBack = 0;
   private Pose2d m_visFrontPose = Pose2d.kZero;
+  private Pose2d m_visShooterPose = Pose2d.kZero;
   private Pose2d m_visBackPose = Pose2d.kZero;
   private boolean m_frontHasTargets = false;
   private boolean m_backHasTargets = false;
+  private boolean m_shooterHasTargets = false;
   private boolean m_frontRejectedAmbiguity = false;
   private boolean m_backRejectedAmbiguity = false;
+  private boolean m_shooterRejectedAmbiguity = false;
   private boolean m_frontRejectedConsistency = false;
   private boolean m_backRejectedConsistency = false;
+  private boolean m_shooterRejectedConsistency = false;
   private boolean m_frontRejectedJump = false;
   private boolean m_backRejectedJump = false;
+  private boolean m_shooterRejectedJump = false;
   private boolean m_frontWarmupBypassActive = false;
   private boolean m_backWarmupBypassActive = false;
+  private boolean m_shooterWarmupBypassActive = false;
   private Pose2d m_frontLastAcceptedPose = Pose2d.kZero;
   private Pose2d m_backLastAcceptedPose = Pose2d.kZero;
+  private Pose2d m_shooterLastAcceptedPose = Pose2d.kZero;
   private double m_frontLastAcceptedTimestampSeconds = Double.NaN;
   private double m_backLastAcceptedTimestampSeconds = Double.NaN;
+  private double m_shooterLastAcceptedTimestampSeconds = Double.NaN;
   private boolean m_frontHasAcceptedPose = false;
   private boolean m_backHasAcceptedPose = false;
+  private boolean m_shooterHasAcceptedPose = false;
   private int m_frontWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
   private int m_backWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
+  private int m_shooterWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
 
   // Simulator
   private VisionSystemSim visionSim;
@@ -83,6 +99,11 @@ public class Vision {
     photonEstimatorFront.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     Matrix<N3, N1> front_curStdDevs;
 
+    shooter_camera = new PhotonCamera(VisionConstants.Shooter.kCameraName);
+    photonEstimatorShooter = new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.Shooter.kRobotToCam);
+    photonEstimatorShooter.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    Matrix<N3, N1> shooter_curStdDevs;
+
     back_camera = new PhotonCamera(VisionConstants.Back.kCameraName);
     photonEstimatorBack = new PhotonPoseEstimator(VisionConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.Back.kRobotToCam);
     photonEstimatorBack.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
@@ -104,10 +125,12 @@ public class Vision {
         // Create a PhotonCameraSim which will update the linked PhotonCamera's values with visible
         // targets.
         PhotonCameraSim front_cameraSim = new PhotonCameraSim(front_camera, cameraProp);
+        PhotonCameraSim shooter_cameraSim = new PhotonCameraSim(shooter_camera, cameraProp);
         PhotonCameraSim back_cameraSim = new PhotonCameraSim(back_camera, cameraProp);
         // Add the simulated camera to view the targets on this simulated field.
         visionSim.addCamera(front_cameraSim, VisionConstants.Front.kRobotToCam);
-        visionSim.addCamera(back_cameraSim,VisionConstants.Back.kRobotToCam);
+        visionSim.addCamera(shooter_cameraSim, VisionConstants.Shooter.kRobotToCam);
+        visionSim.addCamera(back_cameraSim, VisionConstants.Back.kRobotToCam);
     }
   }
 
@@ -122,47 +145,61 @@ public class Vision {
     // INFO level telemetry goes here
 
     boolean frontSuppressed = false;
+    boolean shooterSuppressed = false;
     boolean backSuppressed = false;
     if (RobotContainer.drivetrain != null) {
       frontSuppressed = RobotContainer.drivetrain.isFrontVisionSuppressed();
+      shooterSuppressed = RobotContainer.drivetrain.isShooterVisionSuppressed();
       backSuppressed = RobotContainer.drivetrain.isBackVisionSuppressed();
     }
 
     SmartDashboard.putBoolean("Subsystems/Vision/Front/HasTargets", m_frontHasTargets);
     SmartDashboard.putBoolean("Subsystems/Vision/Back/HasTargets", m_backHasTargets);
+    SmartDashboard.putBoolean("Subsystems/Vision/Shooter/HasTargets", m_shooterHasTargets);
     SmartDashboard.putBoolean("Subsystems/Vision/Front/Suppressed", frontSuppressed);
     SmartDashboard.putBoolean("Subsystems/Vision/Back/Suppressed", backSuppressed);
+    SmartDashboard.putBoolean("Subsystems/Vision/Shooter/Suppressed", shooterSuppressed);
     SmartDashboard.putBoolean("Subsystems/Vision/Front/RejectedAmbiguity", m_frontRejectedAmbiguity);
     SmartDashboard.putBoolean("Subsystems/Vision/Back/RejectedAmbiguity", m_backRejectedAmbiguity);
+    SmartDashboard.putBoolean("Subsystems/Vision/Shooter/RejectedAmbiguity", m_shooterRejectedAmbiguity);
     SmartDashboard.putBoolean("Subsystems/Vision/Front/RejectedConsistency", m_frontRejectedConsistency);
     SmartDashboard.putBoolean("Subsystems/Vision/Back/RejectedConsistency", m_backRejectedConsistency);
+    SmartDashboard.putBoolean("Subsystems/Vision/Shooter/RejectedConsistency", m_shooterRejectedConsistency);
     SmartDashboard.putBoolean("Subsystems/Vision/Front/RejectedJump", m_frontRejectedJump);
     SmartDashboard.putBoolean("Subsystems/Vision/Back/RejectedJump", m_backRejectedJump);
+    SmartDashboard.putBoolean("Subsystems/Vision/Shooter/RejectedJump", m_shooterRejectedJump);
     SmartDashboard.putBoolean("Subsystems/Vision/Front/WarmupBypassActive", m_frontWarmupBypassActive);
     SmartDashboard.putBoolean("Subsystems/Vision/Back/WarmupBypassActive", m_backWarmupBypassActive);
+    SmartDashboard.putBoolean("Subsystems/Vision/Shooter/WarmupBypassActive", m_shooterWarmupBypassActive);
 
     if (!GlobalConstants.telemetryAtLeast(VisionConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.DEBUG)) return;
     // DEBUG level telemetry goes here
 
     SmartDashboard.putNumber("Subsystems/Vision/Front/PoseX", m_visFrontPose.getX());
     SmartDashboard.putNumber("Subsystems/Vision/Front/PoseY", m_visFrontPose.getY());
+    SmartDashboard.putNumber("Subsystems/Vision/Shooter/PoseX", m_visShooterPose.getX());
+    SmartDashboard.putNumber("Subsystems/Vision/Shooter/PoseY", m_visShooterPose.getY());
     SmartDashboard.putNumber("Subsystems/Vision/Back/PoseX", m_visBackPose.getX());
     SmartDashboard.putNumber("Subsystems/Vision/Back/PoseY", m_visBackPose.getY());
     SmartDashboard.putNumber("Subsystems/Vision/Robot/PoseX", RobotContainer.drivetrain.getBotPose().getX());
     SmartDashboard.putNumber("Subsystems/Vision/Robot/PoseY", RobotContainer.drivetrain.getBotPose().getY());
     SmartDashboard.putNumber("Subsystems/Vision/Front/LastTimestamp", lastEstTimestampFront);
+    SmartDashboard.putNumber("Subsystems/Vision/Shooter/LastTimestamp", lastEstTimestampShooter);
     SmartDashboard.putNumber("Subsystems/Vision/Back/LastTimestamp", lastEstTimestampBack);
   }
 
   /**
    * Gets the last cached vision pose for the requested camera.
    *
-   * @param cam Camera name ("front" or "back").
+   * @param cam Camera name ("front" or "shooter" or "back").
    * @return Estimated pose for the camera.
    */
   public Pose2d getVisionPose(String cam) {
     if ("front".equalsIgnoreCase(cam)) {
       return m_visFrontPose;
+    }
+    if ("shooter".equalsIgnoreCase(cam)) {
+      return m_visShooterPose;
     }
     return m_visBackPose;
   }
@@ -187,6 +224,14 @@ public class Vision {
     return getEstimatedGlobalPose(photonEstimatorFront, front_camera, curStdDevsFront); 
   }
   /**
+   * Returns the latest estimated global pose from the front camera.
+   *
+   * @return Optional estimated pose.
+   */
+  public Optional<EstimatedRobotPose> getShooterEstimatedGlobalPose() {
+    return getEstimatedGlobalPose(photonEstimatorShooter, shooter_camera, curStdDevsShooter); 
+  }
+  /**
    * Returns the latest estimated global pose from the back camera.
    *
    * @return Optional estimated pose.
@@ -206,13 +251,9 @@ public class Vision {
       Optional<EstimatedRobotPose> visionEst = Optional.empty();
       var results = camera.getAllUnreadResults();
       for (var result: results) {
+        setCameraHasTargets(camera, result.hasTargets());
         var multiTagResult = result.getMultiTagResult();
         if(multiTagResult.isPresent()) {
-          if (camera == front_camera) {
-            m_frontHasTargets = result.hasTargets();
-          } else if (camera == back_camera) {
-            m_backHasTargets = result.hasTargets();
-          }
           // var fieldToCamera = multiTagResult.get().estimatedPose.best;
         }
         visionEst = estimator.estimateCoprocMultiTagPose(result);
@@ -237,13 +278,7 @@ public class Vision {
 
         if (visionEst.isPresent()) {
           Pose2d estimatedPose = visionEst.get().estimatedPose.toPose2d();
-          if (camera == front_camera) {
-            m_visFrontPose = estimatedPose;
-            lastEstTimestampFront = visionEst.get().timestampSeconds;
-          } else if (camera == back_camera) {
-            m_visBackPose = estimatedPose;
-            lastEstTimestampBack = visionEst.get().timestampSeconds;
-          }
+          setCameraEstimatedPose(camera, estimatedPose, visionEst.get().timestampSeconds);
         }
       }
       return visionEst;
@@ -260,22 +295,12 @@ public class Vision {
       Optional<EstimatedRobotPose> visionEst = Optional.empty();
       var results = camera.getAllUnreadResults();
       for (var result: results) {
-        if (camera == front_camera) {
-          m_frontHasTargets = result.hasTargets();
-        } else if (camera == back_camera) {
-          m_backHasTargets = result.hasTargets();
-        }
+        setCameraHasTargets(camera, result.hasTargets());
         visionEst = estimator.update(result);
         updateEstimationStdDevs(visionEst, result.getTargets(), estimator, stdDevs);
         if (visionEst.isPresent()) {
           Pose2d estimatedPose = visionEst.get().estimatedPose.toPose2d();
-          if (camera == front_camera) {
-            m_visFrontPose = estimatedPose;
-            lastEstTimestampFront = visionEst.get().timestampSeconds;
-          } else if (camera == back_camera) {
-            m_visBackPose = estimatedPose;
-            lastEstTimestampBack = visionEst.get().timestampSeconds;
-          }
+          setCameraEstimatedPose(camera, estimatedPose, visionEst.get().timestampSeconds);
         }
         if (Robot.isSimulation()) {
           visionEst.ifPresentOrElse(
@@ -349,6 +374,15 @@ public class Vision {
    */
   public Matrix<N3, N1> getFrontEstimationStdDevs(Pose2d pose) {
     return getEstimationStdDevs(pose, photonEstimatorFront, front_camera);
+  }
+  /**
+   * Gets standard deviations for a shooter-camera pose estimate.
+   *
+   * @param pose Pose to evaluate.
+   * @return Standard deviation matrix.
+   */
+  public Matrix<N3, N1> getShooterEstimationStdDevs(Pose2d pose) {
+    return getEstimationStdDevs(pose, photonEstimatorShooter, shooter_camera);
   }
   /**
    * Gets standard deviations for a back-camera pose estimate.
@@ -467,29 +501,106 @@ public class Vision {
   }
 
   /**
+   * Returns the configured role for a camera instance used by vision filtering.
+   *
+   * @param camera Camera to classify.
+   * @return Camera role used by per-camera state tracking.
+   */
+  private VisionCameraRole getCameraRole(PhotonCamera camera) {
+    if (camera == front_camera) {
+      return VisionCameraRole.FRONT;
+    }
+    if (camera == shooter_camera) {
+      return VisionCameraRole.SHOOTER;
+    }
+    if (camera == back_camera) {
+      return VisionCameraRole.BACK;
+    }
+    throw new IllegalArgumentException("Unknown camera passed to Vision: " + ((camera != null) ? camera.getName() : "null"));
+  }
+
+  /**
+   * Updates the has-targets status for a specific camera.
+   *
+   * @param camera Camera that produced a pipeline result.
+   * @param hasTargets True when the camera currently reports targets.
+   */
+  private void setCameraHasTargets(PhotonCamera camera, boolean hasTargets) {
+    switch (getCameraRole(camera)) {
+      case FRONT:
+        m_frontHasTargets = hasTargets;
+        return;
+      case SHOOTER:
+        m_shooterHasTargets = hasTargets;
+        return;
+      case BACK:
+        m_backHasTargets = hasTargets;
+        return;
+      default:
+        return;
+    }
+  }
+
+  /**
+   * Stores the latest estimated pose and timestamp for a specific camera.
+   *
+   * @param camera Camera associated with the estimate.
+   * @param estimatedPose Estimated robot pose from that camera.
+   * @param timestampSeconds Estimate timestamp in seconds.
+   */
+  private void setCameraEstimatedPose(PhotonCamera camera, Pose2d estimatedPose, double timestampSeconds) {
+    switch (getCameraRole(camera)) {
+      case FRONT:
+        m_visFrontPose = estimatedPose;
+        lastEstTimestampFront = timestampSeconds;
+        return;
+      case SHOOTER:
+        m_visShooterPose = estimatedPose;
+        lastEstTimestampShooter = timestampSeconds;
+        return;
+      case BACK:
+        m_visBackPose = estimatedPose;
+        lastEstTimestampBack = timestampSeconds;
+        return;
+      default:
+        return;
+    }
+  }
+
+  /**
    * Returns whether consistency filtering should be bypassed for this estimate
    * during a short per-camera warmup window.
    *
-   * @param fromFrontCamera True when evaluating a front-camera estimate.
+   * @param camera Camera associated with this estimate.
    * @param timestampSeconds Vision estimate timestamp.
    * @return True when consistency filtering should be bypassed.
    */
-  private boolean isConsistencyWarmupBypassActive(boolean fromFrontCamera, double timestampSeconds) {
+  private boolean isConsistencyWarmupBypassActive(PhotonCamera camera, double timestampSeconds) {
     if (VisionConstants.kConsistencyWarmupBypassFrames <= 0) {
       return false;
     }
-    if (fromFrontCamera) {
-      if (Double.isFinite(m_frontLastAcceptedTimestampSeconds)
-        && timestampSeconds - m_frontLastAcceptedTimestampSeconds > VisionConstants.kConsistencyWarmupResetGapSeconds) {
-        m_frontWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
-      }
-      return m_frontWarmupBypassRemaining > 0;
+    switch (getCameraRole(camera)) {
+      case FRONT:
+        if (Double.isFinite(m_frontLastAcceptedTimestampSeconds)
+          && timestampSeconds - m_frontLastAcceptedTimestampSeconds > VisionConstants.kConsistencyWarmupResetGapSeconds) {
+          m_frontWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
+        }
+        return m_frontWarmupBypassRemaining > 0;
+      case SHOOTER:
+        if (Double.isFinite(m_shooterLastAcceptedTimestampSeconds)
+          && timestampSeconds - m_shooterLastAcceptedTimestampSeconds > VisionConstants.kConsistencyWarmupResetGapSeconds) {
+          m_shooterWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
+        }
+        return m_shooterWarmupBypassRemaining > 0;
+      case BACK:
+        if (Double.isFinite(m_backLastAcceptedTimestampSeconds)
+          && timestampSeconds - m_backLastAcceptedTimestampSeconds > VisionConstants.kConsistencyWarmupResetGapSeconds) {
+          m_backWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
+        }
+        return m_backWarmupBypassRemaining > 0;
+      default:
+        return false;
     }
-    if (Double.isFinite(m_backLastAcceptedTimestampSeconds)
-      && timestampSeconds - m_backLastAcceptedTimestampSeconds > VisionConstants.kConsistencyWarmupResetGapSeconds) {
-      m_backWarmupBypassRemaining = VisionConstants.kConsistencyWarmupBypassFrames;
-    }
-    return m_backWarmupBypassRemaining > 0;
   }
 
   /**
@@ -497,10 +608,10 @@ public class Vision {
    * compared to the last accepted pose for that camera.
    *
    * @param estimate Vision estimate to evaluate.
-   * @param fromFrontCamera True when evaluating a front-camera estimate.
+   * @param camera Camera associated with this estimate.
    * @return True when the estimate passes jump filtering.
    */
-  private boolean passesPoseJumpFilter(EstimatedRobotPose estimate, boolean fromFrontCamera) {
+  private boolean passesPoseJumpFilter(EstimatedRobotPose estimate, PhotonCamera camera) {
     if (!VisionConstants.kUseVisionJumpFilter) {
       return true;
     }
@@ -508,14 +619,24 @@ public class Vision {
     Pose2d lastAcceptedPose;
     double lastAcceptedTimestamp;
     boolean hasAcceptedPose;
-    if (fromFrontCamera) {
-      lastAcceptedPose = m_frontLastAcceptedPose;
-      lastAcceptedTimestamp = m_frontLastAcceptedTimestampSeconds;
-      hasAcceptedPose = m_frontHasAcceptedPose;
-    } else {
-      lastAcceptedPose = m_backLastAcceptedPose;
-      lastAcceptedTimestamp = m_backLastAcceptedTimestampSeconds;
-      hasAcceptedPose = m_backHasAcceptedPose;
+    switch (getCameraRole(camera)) {
+      case FRONT:
+        lastAcceptedPose = m_frontLastAcceptedPose;
+        lastAcceptedTimestamp = m_frontLastAcceptedTimestampSeconds;
+        hasAcceptedPose = m_frontHasAcceptedPose;
+        break;
+      case SHOOTER:
+        lastAcceptedPose = m_shooterLastAcceptedPose;
+        lastAcceptedTimestamp = m_shooterLastAcceptedTimestampSeconds;
+        hasAcceptedPose = m_shooterHasAcceptedPose;
+        break;
+      case BACK:
+        lastAcceptedPose = m_backLastAcceptedPose;
+        lastAcceptedTimestamp = m_backLastAcceptedTimestampSeconds;
+        hasAcceptedPose = m_backHasAcceptedPose;
+        break;
+      default:
+        return true;
     }
     if (!hasAcceptedPose || !Double.isFinite(lastAcceptedTimestamp)) {
       return true;
@@ -533,31 +654,134 @@ public class Vision {
   /**
    * Stores per-camera state after a vision estimate is accepted and fused.
    *
-   * @param fromFrontCamera True when the accepted estimate came from front camera.
+   * @param camera Camera that produced the accepted estimate.
    * @param acceptedPose Pose that was accepted.
    * @param timestampSeconds Estimate timestamp.
    * @param warmupBypassUsed True when consistency filtering was bypassed for this estimate.
    */
   private void recordAcceptedVisionMeasurement(
-    boolean fromFrontCamera,
+    PhotonCamera camera,
     Pose2d acceptedPose,
     double timestampSeconds,
     boolean warmupBypassUsed
   ) {
-    if (fromFrontCamera) {
-      m_frontLastAcceptedPose = acceptedPose;
-      m_frontLastAcceptedTimestampSeconds = timestampSeconds;
-      m_frontHasAcceptedPose = true;
-      if (warmupBypassUsed && m_frontWarmupBypassRemaining > 0) {
-        m_frontWarmupBypassRemaining--;
-      }
-    } else {
-      m_backLastAcceptedPose = acceptedPose;
-      m_backLastAcceptedTimestampSeconds = timestampSeconds;
-      m_backHasAcceptedPose = true;
-      if (warmupBypassUsed && m_backWarmupBypassRemaining > 0) {
-        m_backWarmupBypassRemaining--;
-      }
+    switch (getCameraRole(camera)) {
+      case FRONT:
+        m_frontLastAcceptedPose = acceptedPose;
+        m_frontLastAcceptedTimestampSeconds = timestampSeconds;
+        m_frontHasAcceptedPose = true;
+        if (warmupBypassUsed && m_frontWarmupBypassRemaining > 0) {
+          m_frontWarmupBypassRemaining--;
+        }
+        return;
+      case SHOOTER:
+        m_shooterLastAcceptedPose = acceptedPose;
+        m_shooterLastAcceptedTimestampSeconds = timestampSeconds;
+        m_shooterHasAcceptedPose = true;
+        if (warmupBypassUsed && m_shooterWarmupBypassRemaining > 0) {
+          m_shooterWarmupBypassRemaining--;
+        }
+        return;
+      case BACK:
+        m_backLastAcceptedPose = acceptedPose;
+        m_backLastAcceptedTimestampSeconds = timestampSeconds;
+        m_backHasAcceptedPose = true;
+        if (warmupBypassUsed && m_backWarmupBypassRemaining > 0) {
+          m_backWarmupBypassRemaining--;
+        }
+        return;
+      default:
+        return;
+    }
+  }
+
+  /**
+   * Updates per-camera dashboard filter status flags for the current estimate.
+   *
+   * @param camera Camera that produced the estimate.
+   * @param warmupBypassActive True when consistency warmup bypass is active.
+   * @param passesAmbiguity True when ambiguity filtering passes.
+   * @param passesConsistency True when consistency filtering passes.
+   * @param passesJump True when jump filtering passes.
+   */
+  private void setFilterFlagsForCamera(
+    PhotonCamera camera,
+    boolean warmupBypassActive,
+    boolean passesAmbiguity,
+    boolean passesConsistency,
+    boolean passesJump
+  ) {
+    switch (getCameraRole(camera)) {
+      case FRONT:
+        m_frontWarmupBypassActive = warmupBypassActive;
+        m_frontRejectedAmbiguity = !passesAmbiguity;
+        m_frontRejectedConsistency = passesAmbiguity && !passesConsistency;
+        m_frontRejectedJump = passesAmbiguity && passesConsistency && !passesJump;
+        return;
+      case SHOOTER:
+        m_shooterWarmupBypassActive = warmupBypassActive;
+        m_shooterRejectedAmbiguity = !passesAmbiguity;
+        m_shooterRejectedConsistency = passesAmbiguity && !passesConsistency;
+        m_shooterRejectedJump = passesAmbiguity && passesConsistency && !passesJump;
+        return;
+      case BACK:
+        m_backWarmupBypassActive = warmupBypassActive;
+        m_backRejectedAmbiguity = !passesAmbiguity;
+        m_backRejectedConsistency = passesAmbiguity && !passesConsistency;
+        m_backRejectedJump = passesAmbiguity && passesConsistency && !passesJump;
+        return;
+      default:
+        return;
+    }
+  }
+
+  /**
+   * Resets per-camera dashboard filter status flags when no estimate is available.
+   *
+   * @param camera Camera whose status flags should be reset.
+   */
+  private void resetFilterFlagsForCamera(PhotonCamera camera) {
+    switch (getCameraRole(camera)) {
+      case FRONT:
+        m_frontWarmupBypassActive = false;
+        m_frontRejectedAmbiguity = false;
+        m_frontRejectedConsistency = false;
+        m_frontRejectedJump = false;
+        return;
+      case SHOOTER:
+        m_shooterWarmupBypassActive = false;
+        m_shooterRejectedAmbiguity = false;
+        m_shooterRejectedConsistency = false;
+        m_shooterRejectedJump = false;
+        return;
+      case BACK:
+        m_backWarmupBypassActive = false;
+        m_backRejectedAmbiguity = false;
+        m_backRejectedConsistency = false;
+        m_backRejectedJump = false;
+        return;
+      default:
+        return;
+    }
+  }
+
+  /**
+   * Returns the standard-deviation matrix for an estimate from a specific camera.
+   *
+   * @param camera Camera that produced the estimate.
+   * @param estimatedPose Estimated pose from that camera.
+   * @return Standard deviation matrix for that camera estimate.
+   */
+  private Matrix<N3, N1> getEstimationStdDevsForCamera(PhotonCamera camera, Pose2d estimatedPose) {
+    switch (getCameraRole(camera)) {
+      case FRONT:
+        return getFrontEstimationStdDevs(estimatedPose);
+      case SHOOTER:
+        return getShooterEstimationStdDevs(estimatedPose);
+      case BACK:
+        return getBackEstimationStdDevs(estimatedPose);
+      default:
+        return VisionConstants.kSingleTagStdDevs;
     }
   }
 
@@ -565,38 +789,26 @@ public class Vision {
    * Adds a filtered vision estimate to the drivetrain pose estimator.
    *
    * @param estimate Vision estimate from one camera.
-   * @param fromFrontCamera True when the estimate came from the front camera.
+   * @param camera Camera that produced the estimate.
    */
-  private void addFilteredVisionMeasurement(EstimatedRobotPose estimate, boolean fromFrontCamera) {
+  private void addFilteredVisionMeasurement(EstimatedRobotPose estimate, PhotonCamera camera) {
     boolean passesAmbiguity = passesPoseAmbiguityFilter(estimate);
-    boolean warmupBypassActive = isConsistencyWarmupBypassActive(fromFrontCamera, estimate.timestampSeconds);
+    boolean warmupBypassActive = isConsistencyWarmupBypassActive(camera, estimate.timestampSeconds);
     boolean passesConsistency = warmupBypassActive || passesPoseConsistencyFilter(estimate);
-    boolean passesJump = passesPoseJumpFilter(estimate, fromFrontCamera);
-    if (fromFrontCamera) {
-      m_frontWarmupBypassActive = warmupBypassActive;
-      m_frontRejectedAmbiguity = !passesAmbiguity;
-      m_frontRejectedConsistency = passesAmbiguity && !passesConsistency;
-      m_frontRejectedJump = passesAmbiguity && passesConsistency && !passesJump;
-    } else {
-      m_backWarmupBypassActive = warmupBypassActive;
-      m_backRejectedAmbiguity = !passesAmbiguity;
-      m_backRejectedConsistency = passesAmbiguity && !passesConsistency;
-      m_backRejectedJump = passesAmbiguity && passesConsistency && !passesJump;
-    }
+    boolean passesJump = passesPoseJumpFilter(estimate, camera);
+    setFilterFlagsForCamera(camera, warmupBypassActive, passesAmbiguity, passesConsistency, passesJump);
     if (!passesAmbiguity || !passesConsistency || !passesJump) {
       return;
     }
     Pose2d estPose = estimate.estimatedPose.toPose2d();
-    Matrix<N3, N1> estStdDevs = fromFrontCamera
-      ? getFrontEstimationStdDevs(estPose)
-      : getBackEstimationStdDevs(estPose);
+    Matrix<N3, N1> estStdDevs = getEstimationStdDevsForCamera(camera, estPose);
     // For CTRE, timestamp must be in correct timebase, use Utils.fpgaToCurrentTime(timestamp).
     RobotContainer.drivetrain.addVisionMeasurement(
       estPose,
       Utils.fpgaToCurrentTime(estimate.timestampSeconds),
       estStdDevs
     );
-    recordAcceptedVisionMeasurement(fromFrontCamera, estPose, estimate.timestampSeconds, warmupBypassActive);
+    recordAcceptedVisionMeasurement(camera, estPose, estimate.timestampSeconds, warmupBypassActive);
   }
 
   /**
@@ -624,6 +836,7 @@ public class Vision {
   @SuppressWarnings({"unused"})
 	public void correctPoseWithVision() {
     correctFrontPoseWithVision();
+    correctShooterPoseWithVision();
     correctBackPoseWithVision();
 	}
 
@@ -634,13 +847,21 @@ public class Vision {
     if (VisionConstants.kUseVisionForPose && VisionConstants.Front.kUseForPose) {
       var visionEstFront = RobotContainer.vision.getFrontEstimatedGlobalPose();
       visionEstFront.ifPresentOrElse(
-        est -> addFilteredVisionMeasurement(est, true),
-        () -> {
-          m_frontWarmupBypassActive = false;
-          m_frontRejectedAmbiguity = false;
-          m_frontRejectedConsistency = false;
-          m_frontRejectedJump = false;
-        }
+        est -> addFilteredVisionMeasurement(est, front_camera),
+        () -> resetFilterFlagsForCamera(front_camera)
+      );
+    }
+  }
+
+  /**
+   * Corrects pose using only shooter-camera vision.
+   */
+  public void correctShooterPoseWithVision() {
+    if (VisionConstants.kUseVisionForPose && VisionConstants.Shooter.kUseForPose) {
+      var visionEstShooter = RobotContainer.vision.getShooterEstimatedGlobalPose();
+      visionEstShooter.ifPresentOrElse(
+        est -> addFilteredVisionMeasurement(est, shooter_camera),
+        () -> resetFilterFlagsForCamera(shooter_camera)
       );
     }
   }
@@ -652,13 +873,8 @@ public class Vision {
     if (VisionConstants.kUseVisionForPose && VisionConstants.Back.kUseForPose) {
       var visionEstBack = RobotContainer.vision.getBackEstimatedGlobalPose();
       visionEstBack.ifPresentOrElse(
-        est -> addFilteredVisionMeasurement(est, false),
-        () -> {
-          m_backWarmupBypassActive = false;
-          m_backRejectedAmbiguity = false;
-          m_backRejectedConsistency = false;
-          m_backRejectedJump = false;
-        }
+        est -> addFilteredVisionMeasurement(est, back_camera),
+        () -> resetFilterFlagsForCamera(back_camera)
       );
     }
   }

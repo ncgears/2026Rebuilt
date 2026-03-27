@@ -63,6 +63,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Field2d field = new Field2d();
     
     private boolean m_suppressFrontVision = false;
+    private boolean m_suppressShooterVision = false;
     private boolean m_suppressBackVision = false;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
@@ -249,6 +250,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putBoolean("Subsystems/Drivetrain/HeadingLock", getHeadingLocked());
         SmartDashboard.putString("Subsystems/Drivetrain/HeadingLockColor", getHeadingLockedColor());
         SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/FrontSuppressed", isFrontVisionSuppressed());
+        SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/ShooterSuppressed", isShooterVisionSuppressed());
         SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/BackSuppressed", isBackVisionSuppressed());
         SmartDashboard.putNumber("Subsystems/Drivetrain/TargetHeading", NCDebug.General.roundDouble(getTargetHeading(), 4));
         SmartDashboard.putNumber("Subsystems/Drivetrain/CurrentHeading", NCDebug.General.roundDouble(getBotHeading().getDegrees(), 4));
@@ -317,6 +319,34 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
+     * Sets whether shooter-camera vision corrections are suppressed.
+     *
+     * @param suppress True to suppress shooter vision.
+     */
+    public void setSuppressShooterVision(boolean suppress) {
+        m_suppressShooterVision = suppress;
+        NCDebug.Debug.debug((m_suppressShooterVision) ? "Drive: Shooter Vision Suppressed" : "Drive: Shooter Vision Unsuppressed");
+    }
+
+    /**
+     * Creates a command to suppress shooter vision.
+     *
+     * @return Command that suppresses shooter vision.
+     */
+    public Command suppressShooterVisionC() {
+        return runOnce(() -> setSuppressShooterVision(true));
+    }
+
+    /**
+     * Creates a command to unsuppress shooter vision.
+     *
+     * @return Command that unsuppresses shooter vision.
+     */
+    public Command unsuppressShooterVisionC() {
+        return runOnce(() -> setSuppressShooterVision(false));
+    }
+
+    /**
      * Sets whether back-camera vision corrections are suppressed.
      *
      * @param suppress True to suppress back vision.
@@ -363,6 +393,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return True when suppressed.
      */
     public boolean isFrontVisionSuppressed() { return m_suppressFrontVision; }
+
+    /**
+     * Returns whether shooter vision is suppressed.
+     *
+     * @return True when suppressed.
+     */
+    public boolean isShooterVisionSuppressed() { return m_suppressShooterVision; }
 
     /**
      * Returns whether back vision is suppressed.
@@ -583,6 +620,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
         if (!m_suppressFrontVision) {
             RobotContainer.vision.correctFrontPoseWithVision();
+        }
+        if (!m_suppressShooterVision) {
+            RobotContainer.vision.correctShooterPoseWithVision();
         }
         if (!m_suppressBackVision) {
             RobotContainer.vision.correctBackPoseWithVision();
