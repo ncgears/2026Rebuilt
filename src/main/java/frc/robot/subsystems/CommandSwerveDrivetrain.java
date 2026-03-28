@@ -7,7 +7,9 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -24,6 +26,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -152,6 +155,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    private final SwerveRequest.SwerveDriveBrake m_defensiveLockRequest = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.Idle m_idleRequest = new SwerveRequest.Idle();
+    private final SwerveModule.ModuleRequest m_restoreModuleRequest = new SwerveModule.ModuleRequest()
+        .withDriveRequest(SwerveModule.DriveRequestType.OpenLoopVoltage)
+        .withSteerRequest(SwerveModule.SteerRequestType.Position);
+    private Rotation2d[] m_defensiveLockPreviousModuleAngles = new Rotation2d[0];
+    private NeutralModeValue[] m_defensiveLockPreviousDriveNeutralModes = new NeutralModeValue[0];
+    private boolean m_defensiveLockActive = false;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -537,6 +548,78 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
+    }
+
+    /**
+     * Creates a command that engages defensive lock while held.
+     * <p>
+     * When active, this switches drive motors to brake and applies the drivetrain X-lock.
+     * On release, it restores each drive motor neutral mode and module azimuth angle.
+     *
+     * @return Command that enables defensive lock while scheduled.
+     */
+    public Command defensiveLockC() {
+        return startEnd(this::enableDefensiveLock, this::disableDefensiveLock);
+    }
+
+    /**
+     * Ensures defensive-lock restoration caches match the drivetrain module count.
+     *
+     * @param moduleCount Number of modules currently in the drivetrain.
+     */
+    private void ensureDefensiveLockCacheSize(int moduleCount) {
+        if (m_defensiveLockPreviousModuleAngles.length != moduleCount) {
+            m_defensiveLockPreviousModuleAngles = new Rotation2d[moduleCount];
+        }
+        if (m_defensiveLockPreviousDriveNeutralModes.length != moduleCount) {
+            m_defensiveLockPreviousDriveNeutralModes = new NeutralModeValue[moduleCount];
+        }
+    }
+
+    /**
+     * Enables defensive lock and caches module state for restoration on release.
+     */
+    private void enableDefensiveLock() {
+        var modules = getModules();
+        ensureDefensiveLockCacheSize(modules.length);
+        for (int i = 0; i < modules.length; i++) {
+            var module = modules[i];
+            m_defensiveLockPreviousModuleAngles[i] = module.getCurrentState().angle;
+            MotorOutputConfigs driveMotorOutputConfigs = new MotorOutputConfigs();
+            module.getDriveMotor().getConfigurator().refresh(driveMotorOutputConfigs);
+            m_defensiveLockPreviousDriveNeutralModes[i] = driveMotorOutputConfigs.NeutralMode;
+            module.getDriveMotor().setNeutralMode(NeutralModeValue.Brake);
+        }
+        setControl(m_defensiveLockRequest);
+        m_defensiveLockActive = true;
+        NCDebug.Debug.debug("Drive: Defensive lock enabled");
+    }
+
+    /**
+     * Disables defensive lock and restores prior drive neutral mode and module azimuth.
+     */
+    private void disableDefensiveLock() {
+        if (!m_defensiveLockActive) {
+            return;
+        }
+        var modules = getModules();
+        setControl(m_idleRequest);
+        int moduleCount = Math.min(modules.length, m_defensiveLockPreviousModuleAngles.length);
+        for (int i = 0; i < moduleCount; i++) {
+            var module = modules[i];
+            if (m_defensiveLockPreviousDriveNeutralModes[i] != null) {
+                module.getDriveMotor().setNeutralMode(m_defensiveLockPreviousDriveNeutralModes[i]);
+            }
+            if (m_defensiveLockPreviousModuleAngles[i] != null) {
+                module.apply(
+                    m_restoreModuleRequest.withState(
+                        new SwerveModuleState(0.0, m_defensiveLockPreviousModuleAngles[i])
+                    )
+                );
+            }
+        }
+        m_defensiveLockActive = false;
+        NCDebug.Debug.debug("Drive: Defensive lock disabled");
     }
 
     /**

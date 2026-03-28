@@ -396,7 +396,7 @@ public class RobotContainer {
             );
 
         dj.start().onTrue(drivetrain.resetGyroC());
-        // dj.back().onTrue(drivetrain.addFakeVisionReadingC());
+        dj.rightTrigger().whileTrue(drivetrain.defensiveLockC());
 
         //hold A to apply brake
         dj.a().whileTrue(drivetrain.applyRequest(() -> brake));
@@ -404,19 +404,6 @@ public class RobotContainer {
         dj.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-dj.getLeftY(),-dj.getLeftX()))
         ));
-
-        // dj.rightTrigger().whileTrue(drivetrain.applyRequest(() -> {
-        //         double fieldX = m_fieldX.getAsDouble();
-        //         double fieldY = m_fieldY.getAsDouble();
-        //         double rot = m_rotate.getAsDouble();
-        //         boolean targetingActive = targeting.getTracking() && !m_trackingOverride;
-        //         boolean requestingTranslation = Math.abs(fieldX) > 0.0 || Math.abs(fieldY) > 0.0;
-        //         double requestedVX = fieldX * MaxSpeed;
-        //         double requestedVY = fieldY * MaxSpeed;
-        //         robotdrive.withVelocityX(requestedVX).withVelocityY(requestedVY)
-        //             .withRotationalRate(rot * MaxAngularRate); // Drive counterclockwise with negative X (left)
-        //         })
-        // );
 
         // Right Trigger bindings for testing with a single controller
         // dj.rightTrigger().onTrue(
