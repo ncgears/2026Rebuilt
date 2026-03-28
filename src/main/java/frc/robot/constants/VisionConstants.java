@@ -25,7 +25,7 @@ public class VisionConstants {
     public static final GlobalConstants.TelemetryLevel kTelemetryLevel = GlobalConstants.TelemetryLevel.DEBUG;
     public static final boolean kUseVisionForPose = true; //enable vision measurements to pose correction
     /** Enables rejecting vision estimates that use targets above the ambiguity threshold. */
-    public static final boolean kUsePoseAmbiguityFilter = true;
+    public static final boolean kUsePoseAmbiguityFilter = false;
     /** Maximum allowed per-target pose ambiguity for accepted vision estimates. */
     public static final double kMaxPoseAmbiguity = 0.20;
     /** Enables rejecting vision estimates that differ too much from current odometry. */
@@ -79,7 +79,7 @@ public class VisionConstants {
 
     public static final class Front { //Right facing camera 2026 *****
         public static final String kCameraName = "frontcam";
-        public static final boolean kUseForPose = false;
+        public static final boolean kUseForPose = true;
         //+x left from center, +y forward from center, +z up from ground
         public static final Transform3d kRobotToCam = new Transform3d(
           // new Translation3d(0.290,0.250,0.280), //x,y,z location of camera on robot in meters
