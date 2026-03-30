@@ -713,6 +713,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         updateTrackedTargetFieldObject();
         field.setRobotPose(this.getState().Pose);
         updateDashboards();
+
+        //3539 periodic to update pose to NT4
+        // ** SEE https://github.com/BytingBulldogs3539/2025-Turretbot/blob/main/src/main/java/frc/robot/subsystems/DriveSubsystem.java
+        // if (follower.getLastState() != null) {
+		// 	VisionSubsystem.publishPose2d("/DriveTrain/PoseRequested",
+		// 			follower.getLastState().getPathState().getPose2d());
+		// } else {
+		// 	VisionSubsystem.publishPose2d("/DriveTrain/PoseRequested", new Pose2d());
+		// }
     }
 
     /**
