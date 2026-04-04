@@ -79,7 +79,7 @@ public class VisionConstants {
 
     public static final class Front { //Right facing camera 2026 *****
         public static final String kCameraName = "frontcam";
-        public static final boolean kUseForPose = true;
+        public static final boolean kUseForPose = false;
         //+x left from center, +y forward from center, +z up from ground
         public static final Transform3d kRobotToCam = new Transform3d(
           // new Translation3d(0.290,0.250,0.280), //x,y,z location of camera on robot in meters
@@ -88,22 +88,32 @@ public class VisionConstants {
           new Rotation3d(0,0,Math.toRadians(270)) //yaw,pitch/roll of camera on robot in radians
         );
     }
-    public static final class Shooter { //Shooter mounted camera 2026 *****
-        public static final String kCameraName = "shootercam";
-        public static final boolean kUseForPose = false;
-        //+x left from center, +y forward from center, +z up from ground
-        public static final Transform3d kRobotToCam = new Transform3d(
-          //TODO: Calculate actual location from CAD model
-          new Translation3d(-0.0864,-0.3637,0.51), //x,y,z location of camera on robot in meters
-          new Rotation3d(0,0,Math.toRadians(0)) //yaw,pitch/roll of camera on robot in radians
-        );
-    }
-    public static final class Back { //backwards facing camera
+    public static final class Back { //Back facing camera 2026 *****
         public static final String kCameraName = "rearcam";
-        public static final boolean kUseForPose = false;
+        public static final boolean kUseForPose = true;
         public static final Transform3d kRobotToCam = new Transform3d(
           new Translation3d(-0.3076,0.2094,0.359), //x,y,z location of camera on robot in meters
           new Rotation3d(0,0,Math.toRadians(180)) //yaw,pitch/roll of camera on robot in radians
+        );
+    }
+    public static final class Left { //Left facing camera 2026 *****
+        public static final String kCameraName = "leftcam";
+        public static final boolean kUseForPose = false;
+        //+x left from center, +y forward from center, +z up from ground
+        public static final Transform3d kRobotToCam = new Transform3d(
+          new Translation3d(-0.0864,-0.3637,0.51), //x,y,z location of camera on robot in meters
+          //Rotation3d.kZero //yaw,pitch/roll of camera on robot in radians
+          new Rotation3d(0,0,Math.toRadians(270)) //yaw,pitch/roll of camera on robot in radians
+        );
+    }
+    public static final class Right { //Right facing camera 2026 *****
+        public static final String kCameraName = "rightcam";
+        public static final boolean kUseForPose = true;
+        //+x left from center, +y forward from center, +z up from ground
+        public static final Transform3d kRobotToCam = new Transform3d(
+          new Translation3d(-0.0864,-0.3637,0.51), //x,y,z location of camera on robot in meters
+          //Rotation3d.kZero //yaw,pitch/roll of camera on robot in radians
+          new Rotation3d(0,0,Math.toRadians(270)) //yaw,pitch/roll of camera on robot in radians
         );
     }
 

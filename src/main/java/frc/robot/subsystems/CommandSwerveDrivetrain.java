@@ -66,8 +66,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Field2d field = new Field2d();
     
     private boolean m_suppressFrontVision = false;
-    private boolean m_suppressShooterVision = false;
     private boolean m_suppressBackVision = false;
+    private boolean m_suppressLeftVision = false;
+    private boolean m_suppressRightVision = false;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -261,8 +262,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putBoolean("Subsystems/Drivetrain/HeadingLock", getHeadingLocked());
         SmartDashboard.putString("Subsystems/Drivetrain/HeadingLockColor", getHeadingLockedColor());
         SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/FrontSuppressed", isFrontVisionSuppressed());
-        SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/ShooterSuppressed", isShooterVisionSuppressed());
         SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/BackSuppressed", isBackVisionSuppressed());
+        SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/LeftSuppressed", isLeftVisionSuppressed());
+        SmartDashboard.putBoolean("Subsystems/Drivetrain/Vision/RightSuppressed", isRightVisionSuppressed());
         SmartDashboard.putNumber("Subsystems/Drivetrain/TargetHeading", NCDebug.General.roundDouble(getTargetHeading(), 4));
         SmartDashboard.putNumber("Subsystems/Drivetrain/CurrentHeading", NCDebug.General.roundDouble(getBotHeading().getDegrees(), 4));
         SmartDashboard.putNumber("Subsystems/Drivetrain/HeadingError", NCDebug.General.roundDouble(getHeadingError().getDegrees(), 4));
@@ -330,34 +332,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
-     * Sets whether shooter-camera vision corrections are suppressed.
-     *
-     * @param suppress True to suppress shooter vision.
-     */
-    public void setSuppressShooterVision(boolean suppress) {
-        m_suppressShooterVision = suppress;
-        NCDebug.Debug.debug((m_suppressShooterVision) ? "Drive: Shooter Vision Suppressed" : "Drive: Shooter Vision Unsuppressed");
-    }
-
-    /**
-     * Creates a command to suppress shooter vision.
-     *
-     * @return Command that suppresses shooter vision.
-     */
-    public Command suppressShooterVisionC() {
-        return runOnce(() -> setSuppressShooterVision(true));
-    }
-
-    /**
-     * Creates a command to unsuppress shooter vision.
-     *
-     * @return Command that unsuppresses shooter vision.
-     */
-    public Command unsuppressShooterVisionC() {
-        return runOnce(() -> setSuppressShooterVision(false));
-    }
-
-    /**
      * Sets whether back-camera vision corrections are suppressed.
      *
      * @param suppress True to suppress back vision.
@@ -385,6 +359,62 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return runOnce(() -> setSuppressBackVision(false));
     }
 
+    /**
+     * Sets whether left-camera vision corrections are suppressed.
+     *
+     * @param suppress True to suppress left vision.
+     */
+    public void setSuppressLeftVision(boolean suppress) {
+        m_suppressLeftVision = suppress;
+        NCDebug.Debug.debug((m_suppressLeftVision) ? "Drive: Left Vision Suppressed" : "Drive: Left Vision Unsuppressed");
+    }
+
+    /**
+     * Creates a command to suppress left vision.
+     *
+     * @return Command that suppresses left vision.
+     */
+    public Command suppressLeftVisionC() {
+        return runOnce(() -> setSuppressLeftVision(true));
+    }
+
+    /**
+     * Creates a command to unsuppress left vision.
+     *
+     * @return Command that unsuppresses left vision.
+     */
+    public Command unsuppressLeftVisionC() {
+        return runOnce(() -> setSuppressLeftVision(false));
+    }
+
+    /**
+     * Sets whether right-camera vision corrections are suppressed.
+     *
+     * @param suppress True to suppress right vision.
+     */
+    public void setSuppressRightVision(boolean suppress) {
+        m_suppressRightVision = suppress;
+        NCDebug.Debug.debug((m_suppressRightVision) ? "Drive: Right Vision Suppressed" : "Drive: Right Vision Unsuppressed");
+    }
+
+    /**
+     * Creates a command to suppress right vision.
+     *
+     * @return Command that suppresses right vision.
+     */
+    public Command suppressRightVisionC() {
+        return runOnce(() -> setSuppressRightVision(true));
+    }
+
+    /**
+     * Creates a command to unsuppress right vision.
+     *
+     * @return Command that unsuppresses right vision.
+     */
+    public Command unsuppressRightVisionC() {
+        return runOnce(() -> setSuppressRightVision(false));
+    }
+
     /** Automatically suppresses vision based on robot speed if enabled. */
     public void autoSuppressVision() {
         if(VisionConstants.kUseAutoSuppress) {
@@ -406,18 +436,25 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public boolean isFrontVisionSuppressed() { return m_suppressFrontVision; }
 
     /**
-     * Returns whether shooter vision is suppressed.
-     *
-     * @return True when suppressed.
-     */
-    public boolean isShooterVisionSuppressed() { return m_suppressShooterVision; }
-
-    /**
      * Returns whether back vision is suppressed.
      *
      * @return True when suppressed.
      */
     public boolean isBackVisionSuppressed() { return m_suppressBackVision; }
+
+    /**
+     * Returns whether left vision is suppressed.
+     *
+     * @return True when suppressed.
+     */
+    public boolean isLeftVisionSuppressed() { return m_suppressLeftVision; }
+
+    /**
+     * Returns whether left vision is suppressed.
+     *
+     * @return True when suppressed.
+     */
+    public boolean isRightVisionSuppressed() { return m_suppressRightVision; }
 
     /**
      * Returns whether heading lock is active.
@@ -700,15 +737,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 );
                 m_hasAppliedOperatorPerspective = true;
             });
-        }
-        if (!m_suppressFrontVision) {
-            RobotContainer.vision.correctFrontPoseWithVision();
-        }
-        if (!m_suppressShooterVision) {
-            RobotContainer.vision.correctShooterPoseWithVision();
-        }
-        if (!m_suppressBackVision) {
-            RobotContainer.vision.correctBackPoseWithVision();
         }
         updateTrackedTargetFieldObject();
         field.setRobotPose(this.getState().Pose);

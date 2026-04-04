@@ -154,6 +154,7 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory);
         
         initOrchestra();
+        vision.start(); //start vision processing as early as possible to warm up cameras and avoid latency on first vision request
         configureBindings();
         buildDashboards();
 
