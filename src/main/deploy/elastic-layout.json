@@ -7,11 +7,93 @@
       "grid_layout": {
         "layouts": [
           {
+            "title": "Gyro",
+            "x": 1216.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Widget",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 256.0,
+                "type": "Gyro",
+                "properties": {
+                  "topic": "/SmartDashboard/Subsystems/Gyro/Widget",
+                  "period": 0.06,
+                  "counter_clockwise_positive": false
+                }
+              },
+              {
+                "title": "PitchDegrees",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Subsystems/Gyro/PitchDegrees",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "RollDegrees",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Subsystems/Gyro/RollDegrees",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "YawDegrees",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Subsystems/Gyro/YawDegrees",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "YawOffsetDegrees",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Subsystems/Gyro/YawOffsetDegrees",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
             "title": "Vision",
             "x": 1216.0,
             "y": 0.0,
             "width": 256.0,
-            "height": 384.0,
+            "height": 320.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -502,7 +584,7 @@
             "title": "Autonomous Chooser",
             "x": 512.0,
             "y": 384.0,
-            "width": 512.0,
+            "width": 320.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -513,9 +595,9 @@
           },
           {
             "title": "FMSInfo",
-            "x": 1024.0,
+            "x": 832.0,
             "y": 384.0,
-            "width": 448.0,
+            "width": 384.0,
             "height": 128.0,
             "type": "FMSInfo",
             "properties": {
@@ -542,6 +624,20 @@
               "robot_color": 4294198070,
               "trajectory_color": 4289266943,
               "show_robot_outside_widget": false
+            }
+          },
+          {
+            "title": "robotPose",
+            "x": 512.0,
+            "y": 512.0,
+            "width": 448.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Pose/robotPose",
+              "period": 0.06,
+              "data_type": "double[]",
+              "show_submit_button": false
             }
           },
           {
@@ -1593,10 +1689,10 @@
         "layouts": [
           {
             "title": "rearcam",
-            "x": 1152.0,
+            "x": 768.0,
             "y": 0.0,
-            "width": 320.0,
-            "height": 640.0,
+            "width": 256.0,
+            "height": 704.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -1894,11 +1990,11 @@
             ]
           },
           {
-            "title": "frontcam",
-            "x": 832.0,
+            "title": "rightcam",
+            "x": 1280.0,
             "y": 0.0,
-            "width": 320.0,
-            "height": 640.0,
+            "width": 256.0,
+            "height": 704.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -1912,7 +2008,7 @@
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/photonvision/frontcam/cameraDistortion",
+                  "topic": "/photonvision/rightcam/cameraDistortion",
                   "period": 0.06,
                   "data_type": "double[]",
                   "show_submit_button": false
@@ -1926,7 +2022,7 @@
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/photonvision/frontcam/cameraIntrinsics",
+                  "topic": "/photonvision/rightcam/cameraIntrinsics",
                   "period": 0.06,
                   "data_type": "double[]",
                   "show_submit_button": false
@@ -1940,7 +2036,7 @@
                 "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
-                  "topic": "/photonvision/frontcam/driverMode",
+                  "topic": "/photonvision/rightcam/driverMode",
                   "period": 0.06,
                   "data_type": "boolean",
                   "true_color": 4283215696,
@@ -1949,6 +2045,425 @@
                   "false_icon": "None"
                 }
               },
+              {
+                "title": "driverModeRequest",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/photonvision/rightcam/driverModeRequest",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "fps",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/fps",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "fpsLimit",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/fpsLimit",
+                  "period": 0.06,
+                  "data_type": "int",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "fpsLimitRequest",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/fpsLimitRequest",
+                  "period": 0.06,
+                  "data_type": "int",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "hasTarget",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/photonvision/rightcam/hasTarget",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "heartbeat",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/heartbeat",
+                  "period": 0.06,
+                  "data_type": "int",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "inputSaveImgCmd",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/inputSaveImgCmd",
+                  "period": 0.06,
+                  "data_type": "int",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "latencyMillis",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/latencyMillis",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "outputSaveImgCmd",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/outputSaveImgCmd",
+                  "period": 0.06,
+                  "data_type": "int",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "pipelineIndexRequest",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/pipelineIndexRequest",
+                  "period": 0.06,
+                  "data_type": "int",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "pipelineIndexState",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/pipelineIndexState",
+                  "period": 0.06,
+                  "data_type": "int",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "targetArea",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/targetArea",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "targetPitch",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/targetPitch",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "targetPixelsX",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/targetPixelsX",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "targetPixelsY",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/targetPixelsY",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "targetSkew",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/targetSkew",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "targetYaw",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/photonvision/rightcam/targetYaw",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "Camera Connected",
+            "x": 0.0,
+            "y": 448.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Front",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard//Vision/Front/Connected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Back",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard//Vision/Back/Connected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Left",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard//Vision/Left/Connected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Right",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard//Vision/Right/Connected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Multitag",
+            "x": 256.0,
+            "y": 448.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Front",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard//Vision/Front/MultiTag",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Back",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard//Vision/Back/MultiTag",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Left",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard//Vision/Left/MultiTag",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Right",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard//Vision/Right/MultiTag",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              }
+            ]
+          },
+          {
+            "title": "frontcam",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 704.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
               {
                 "title": "driverModeRequest",
                 "x": 0.0,
@@ -1967,34 +2482,6 @@
                 }
               },
               {
-                "title": "fps",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/fps",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "fpsLimit",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/fpsLimit",
-                  "period": 0.06,
-                  "data_type": "int",
-                  "show_submit_button": false
-                }
-              },
-              {
                 "title": "fpsLimitRequest",
                 "x": 0.0,
                 "y": 0.0,
@@ -2003,79 +2490,6 @@
                 "type": "Text Display",
                 "properties": {
                   "topic": "/photonvision/frontcam/fpsLimitRequest",
-                  "period": 0.06,
-                  "data_type": "int",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "hasTarget",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/photonvision/frontcam/hasTarget",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "heartbeat",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/heartbeat",
-                  "period": 0.06,
-                  "data_type": "int",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "inputSaveImgCmd",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/inputSaveImgCmd",
-                  "period": 0.06,
-                  "data_type": "int",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "latencyMillis",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/latencyMillis",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "outputSaveImgCmd",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/outputSaveImgCmd",
                   "period": 0.06,
                   "data_type": "int",
                   "show_submit_button": false
@@ -2094,239 +2508,62 @@
                   "data_type": "int",
                   "show_submit_button": false
                 }
+              }
+            ]
+          },
+          {
+            "title": "leftcam",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 704.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "driverModeRequest",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/photonvision/leftcam/driverModeRequest",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
               },
               {
-                "title": "pipelineIndexState",
+                "title": "fpsLimitRequest",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/photonvision/frontcam/pipelineIndexState",
+                  "topic": "/photonvision/leftcam/fpsLimitRequest",
                   "period": 0.06,
                   "data_type": "int",
                   "show_submit_button": false
                 }
               },
               {
-                "title": "targetArea",
+                "title": "pipelineIndexRequest",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/photonvision/frontcam/targetArea",
+                  "topic": "/photonvision/leftcam/pipelineIndexRequest",
                   "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "targetPitch",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/targetPitch",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "targetPixelsX",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/targetPixelsX",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "targetPixelsY",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/targetPixelsY",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "targetSkew",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/targetSkew",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "targetYaw",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/photonvision/frontcam/targetYaw",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              }
-            ]
-          },
-          {
-            "title": "Vision",
-            "x": 576.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 384.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Front HasTargets",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Vision/Front/HasTargets",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Front Suppressed",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Vision/Front/Suppressed",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Front X",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Vision/Front/PoseX",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Front Y",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Vision/Front/PoseY",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Back HasTargets",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Vision/Back/HasTargets",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Back Suppressed",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Vision/Back/Suppressed",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Back X",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Vision/Back/PoseX",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Back Y",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/Subsystems/Vision/Back/PoseY",
-                  "period": 0.06,
-                  "data_type": "double",
+                  "data_type": "int",
                   "show_submit_button": false
                 }
               }
@@ -2338,7 +2575,7 @@
             "title": "Robot",
             "x": 0.0,
             "y": 320.0,
-            "width": 576.0,
+            "width": 512.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -2352,7 +2589,7 @@
             "title": "Field",
             "x": 0.0,
             "y": 0.0,
-            "width": 576.0,
+            "width": 512.0,
             "height": 320.0,
             "type": "Field",
             "properties": {
@@ -2367,6 +2604,35 @@
               "robot_color": 4294198070,
               "trajectory_color": 4289989370,
               "show_robot_outside_widget": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "I AM FIELD",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Field",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1472.0,
+            "height": 704.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/SmartDashboard/Subsystems/Drivetrain/Field",
+              "period": 0.06,
+              "field_game": "Rebuilt",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 0.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
             }
           }
         ]

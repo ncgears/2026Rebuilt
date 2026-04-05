@@ -39,6 +39,7 @@ public class Vision extends Thread {
 	AprilTagFieldLayout aprilTagFieldLayout;
 
 	public static PhotonCamera frontCam, backCam, leftCam, rightCam;
+	public static boolean frontMultitag, backMultitag, leftMultitag, rightMultitag = false;
 
 	PhotonPoseEstimator frontPhotonPoseEstimator;
 	PhotonPoseEstimator backPhotonPoseEstimator;
@@ -75,22 +76,22 @@ public class Vision extends Thread {
 		frontCam = new PhotonCamera(VisionConstants.Front.kCameraName);
 		frontPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
 				PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.Front.kRobotToCam);
-		frontPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+		// frontPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
 		backCam = new PhotonCamera(VisionConstants.Back.kCameraName);
 		backPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
 				PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.Back.kRobotToCam);
-		backPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+		// backPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
 		leftCam = new PhotonCamera(VisionConstants.Left.kCameraName);
 		leftPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
 				PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.Left.kRobotToCam);
-		leftPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+		// leftPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
 		rightCam = new PhotonCamera(VisionConstants.Right.kCameraName);
 		rightPhotonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout,
 				PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.Right.kRobotToCam);
-		rightPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+		// rightPhotonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
 		setVisionWeights(.2, .2, 10);
 
@@ -105,13 +106,13 @@ public class Vision extends Thread {
 	 * The purpose of this is to only create an instance if one does not already exist.
 	 * @return instance of this class
 	 */
-  public static Vision getInstance() {
+  	public static Vision getInstance() {
 		if (instance == null)
 			instance = new Vision();
 		return instance;
 	}
 
-	  public void updateDashboards() {
+	public void updateDashboards() {
     if (!GlobalConstants.telemetryAtLeast(VisionConstants.kTelemetryLevel, GlobalConstants.TelemetryLevel.INFO)) return;
     // INFO level telemetry goes here
 
@@ -127,9 +128,16 @@ public class Vision extends Thread {
     }
 
 	SmartDashboard.putBoolean("/Vision/Front/Connected", frontCam.isConnected());
+	SmartDashboard.putBoolean("/Vision/Front/MultiTag", isFrontMultitag());
+
 	SmartDashboard.putBoolean("/Vision/Back/Connected", backCam.isConnected());
+	SmartDashboard.putBoolean("/Vision/Back/MultiTag", isBackMultitag());
+
 	SmartDashboard.putBoolean("/Vision/Left/Connected", leftCam.isConnected());
+	SmartDashboard.putBoolean("/Vision/Left/MultiTag", isLeftMultitag());
+
 	SmartDashboard.putBoolean("/Vision/Right/Connected", rightCam.isConnected());
+	SmartDashboard.putBoolean("/Vision/Right/MultiTag", isRightMultitag());
 
     // SmartDashboard.putBoolean("Subsystems/Vision/Front/HasTargets", m_frontHasTargets);
     // SmartDashboard.putBoolean("Subsystems/Vision/Back/HasTargets", m_backHasTargets);
@@ -172,6 +180,7 @@ public class Vision extends Thread {
 	public Optional<EstimatedRobotPose> getEstimatedFrontGlobalPose() {
 		Optional<EstimatedRobotPose> visEst = Optional.empty();
 		for (var change : frontCam.getAllUnreadResults()) {
+			frontMultitag = change.getMultiTagResult().isPresent();
 			visEst = frontPhotonPoseEstimator.update(change);
 		}
 		return visEst;
@@ -180,6 +189,7 @@ public class Vision extends Thread {
 	public Optional<EstimatedRobotPose> getEstimatedBackGlobalPose() {
 		Optional<EstimatedRobotPose> visEst = Optional.empty();
 		for (var change : backCam.getAllUnreadResults()) {
+			backMultitag = change.getMultiTagResult().isPresent();
 			visEst = backPhotonPoseEstimator.update(change);
 		}
 		return visEst;
@@ -188,6 +198,7 @@ public class Vision extends Thread {
 	public Optional<EstimatedRobotPose> getEstimatedLeftGlobalPose() {
 		Optional<EstimatedRobotPose> visEst = Optional.empty();
 		for (var change : leftCam.getAllUnreadResults()) {
+			leftMultitag = change.getMultiTagResult().isPresent();
 			visEst = leftPhotonPoseEstimator.update(change);
 		}
 		return visEst;
@@ -196,6 +207,7 @@ public class Vision extends Thread {
 	public Optional<EstimatedRobotPose> getEstimatedRightGlobalPose() {
 		Optional<EstimatedRobotPose> visEst = Optional.empty();
 		for (var change : rightCam.getAllUnreadResults()) {
+			rightMultitag = change.getMultiTagResult().isPresent();
 			visEst = rightPhotonPoseEstimator.update(change);
 		}
 		return visEst;
@@ -204,6 +216,11 @@ public class Vision extends Thread {
 	public void useVision(boolean useVision) {
 		this.useVision = useVision;
 	}
+
+	public boolean isFrontMultitag() { return frontMultitag; }
+	public boolean isBackMultitag() { return backMultitag; }
+	public boolean isLeftMultitag() { return leftMultitag; }
+	public boolean isRightMultitag() { return rightMultitag; }
 
 	public void setVisionWeights(double visionX, double visionY, double visionDeg) {
 		// RobotContainer.driveSubsystem
@@ -223,22 +240,24 @@ public class Vision extends Thread {
 		// weights);
 	}
 
-	public Matrix<N3, N1> getVisionWeights(double distanceRatio, int numTargets) {
-		double targetMultiplier = 0.75;
+	public Matrix<N3, N1> getVisionWeights(double distanceAverage, int numTargets) {
+		double targetMultiplier = 0.5;
 		double visionCutOffDistance = 4;
-		distanceRatio = 0.1466 * Math.pow(1.6903, distanceRatio);
+		double distanceRatio = 0.1466 * Math.pow(1.6903, distanceAverage);
 		if (numTargets == 1) {
 			if (distanceRatio > visionCutOffDistance) {
 				return new Matrix<N3, N1>(new SimpleMatrix(new double[] { 99999, 99999, 99999 }));
 			}
-			targetMultiplier = 3;
+			targetMultiplier = 5;
 		}
-		Matrix<N3, N1> weights = new Matrix<N3, N1>(new SimpleMatrix(new double[] { distanceRatio * targetMultiplier,
-				distanceRatio * targetMultiplier, 3 + 15 * distanceRatio * targetMultiplier }));
+		double dev = distanceRatio * targetMultiplier;
+		Matrix<N3, N1> weights = new Matrix<N3, N1>(new SimpleMatrix(new double[] { dev,
+				dev, dev * 2 }));
 		return weights;
 	}
 
 	@Override
+	@SuppressWarnings("unused")
 	public void run() {
 		/* Run as fast as possible, our signals will control the timing */
 		while (true) {
@@ -286,8 +305,8 @@ public class Vision extends Thread {
 						sum += resultFront.get().estimatedPose.toPose2d().getTranslation().getDistance(tagPosition);
 					}
 					sum /= camPoseFront.targetsUsed.size();
-					double distanceRatio = sum;
-					Matrix<N3, N1> weights = getVisionWeights(distanceRatio, camPoseFront.targetsUsed.size());
+					double distanceAverage = sum;
+					Matrix<N3, N1> weights = getVisionWeights(distanceAverage, camPoseFront.targetsUsed.size());
 
 					if (frontTimeStamp != frontLastTimeStamp) {
 						publishPose2d("/DriveTrain/FrontCamPose", camPoseFront.estimatedPose.toPose2d());
@@ -314,8 +333,8 @@ public class Vision extends Thread {
 						sum += resultBack.get().estimatedPose.toPose2d().getTranslation().getDistance(tagPosition);
 					}
 					sum /= camPoseBack.targetsUsed.size();
-					double distanceRatio = sum;
-					Matrix<N3, N1> weights = getVisionWeights(distanceRatio, camPoseBack.targetsUsed.size());
+					double distanceAverage = sum;
+					Matrix<N3, N1> weights = getVisionWeights(distanceAverage, camPoseBack.targetsUsed.size());
 
 					if (backTimestamp != backLastTimeStamp) {
 						publishPose2d("/DriveTrain/BackCamPose", camPoseBack.estimatedPose.toPose2d());
@@ -343,8 +362,8 @@ public class Vision extends Thread {
 						sum += resultLeft.get().estimatedPose.toPose2d().getTranslation().getDistance(tagPosition);
 					}
 					sum /= camPoseLeft.targetsUsed.size();
-					double distanceRatio = sum;
-					Matrix<N3, N1> weights = getVisionWeights(distanceRatio, camPoseLeft.targetsUsed.size());
+					double distanceAverage = sum;
+					Matrix<N3, N1> weights = getVisionWeights(distanceAverage, camPoseLeft.targetsUsed.size());
 
 					if (leftTimeStamp != leftLastTimeStamp) {
 						publishPose2d("/DriveTrain/LeftCamPose", camPoseLeft.estimatedPose.toPose2d());
@@ -369,11 +388,11 @@ public class Vision extends Thread {
 					for (PhotonTrackedTarget target : camPoseRight.targetsUsed) {
 						Translation2d tagPosition = aprilTagFieldLayout.getTagPose(target.getFiducialId()).get()
 								.getTranslation().toTranslation2d();
-						sum += resultBack.get().estimatedPose.toPose2d().getTranslation().getDistance(tagPosition);
+						sum += resultRight.get().estimatedPose.toPose2d().getTranslation().getDistance(tagPosition);
 					}
 					sum /= camPoseRight.targetsUsed.size();
-					double distanceRatio = sum;
-					Matrix<N3, N1> weights = getVisionWeights(distanceRatio, camPoseRight.targetsUsed.size());
+					double distanceAverage = sum;
+					Matrix<N3, N1> weights = getVisionWeights(distanceAverage, camPoseRight.targetsUsed.size());
 
 					if (rightTimeStamp != rightLastTimeStamp) {
 						publishPose2d("/DriveTrain/RightCamPose", camPoseRight.estimatedPose.toPose2d());
@@ -383,7 +402,7 @@ public class Vision extends Thread {
 								camPoseRight.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(rightTimeStamp),
 								weights);
 					}
-					backLastTimeStamp = rightTimeStamp;
+					rightLastTimeStamp = rightTimeStamp;
 				}
 
 			}

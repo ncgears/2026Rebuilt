@@ -51,12 +51,6 @@ public class VisionConstants {
     public static final boolean kUseAutoSuppress = false; //enable suppressing vision measurements based on speed
     public static final double kAutosuppressSpeedMetersPerSecond = 2.5; //speed at which to suppress vision addition
     public static final AprilTagFieldLayout kTagLayout = getTagLayout();
-    // The standard deviations of our vision estimated poses, which affect correction rate
-    // (Fake values. Experiment and determine estimation noise on an actual robot.)
-    // public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
-    // public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
-    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(0.5, 0.5, 1.0);
-    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.15, 0.15, 0.3);
 
     /* AHA!
      * The first argument of kRobotToCam is the translation3d representing the center of the robot
@@ -82,17 +76,16 @@ public class VisionConstants {
         public static final boolean kUseForPose = false;
         //+x left from center, +y forward from center, +z up from ground
         public static final Transform3d kRobotToCam = new Transform3d(
-          // new Translation3d(0.290,0.250,0.280), //x,y,z location of camera on robot in meters
-          new Translation3d(-0.0864,-0.3637,0.51), //x,y,z location of camera on robot in meters
+          new Translation3d(-0.0864,0.295,0.51), //x,y,z location of camera on robot in meters
           //Rotation3d.kZero //yaw,pitch/roll of camera on robot in radians
-          new Rotation3d(0,0,Math.toRadians(270)) //yaw,pitch/roll of camera on robot in radians
+          new Rotation3d(0,0,Math.toRadians(0)) //yaw,pitch/roll of camera on robot in radians
         );
     }
     public static final class Back { //Back facing camera 2026 *****
         public static final String kCameraName = "rearcam";
         public static final boolean kUseForPose = true;
         public static final Transform3d kRobotToCam = new Transform3d(
-          new Translation3d(-0.3076,0.2094,0.359), //x,y,z location of camera on robot in meters
+          new Translation3d(-0.3076,0.296,0.359), //x,y,z location of camera on robot in meters
           new Rotation3d(0,0,Math.toRadians(180)) //yaw,pitch/roll of camera on robot in radians
         );
     }
@@ -101,14 +94,14 @@ public class VisionConstants {
         public static final boolean kUseForPose = false;
         //+x left from center, +y forward from center, +z up from ground
         public static final Transform3d kRobotToCam = new Transform3d(
-          new Translation3d(-0.0864,-0.3637,0.51), //x,y,z location of camera on robot in meters
+          new Translation3d(-0.0864,0.295,0.51), //x,y,z location of camera on robot in meters
           //Rotation3d.kZero //yaw,pitch/roll of camera on robot in radians
-          new Rotation3d(0,0,Math.toRadians(270)) //yaw,pitch/roll of camera on robot in radians
+          new Rotation3d(0,0,Math.toRadians(90)) //yaw,pitch/roll of camera on robot in radians
         );
     }
     public static final class Right { //Right facing camera 2026 *****
         public static final String kCameraName = "rightcam";
-        public static final boolean kUseForPose = true;
+        public static final boolean kUseForPose = false;
         //+x left from center, +y forward from center, +z up from ground
         public static final Transform3d kRobotToCam = new Transform3d(
           new Translation3d(-0.0864,-0.3637,0.51), //x,y,z location of camera on robot in meters
