@@ -10,9 +10,15 @@ package frc.robot.constants;
 //     public static final double kD = 0.2;
 //     public static final double kToleranceDegrees = 1.5;
 // }
+// public class SnapDriveConstants {
+//     public static final double kP = 7.4;
+//     public static final double kI = 0.0;
+//     public static final double kD = 0.1;
+//     public static final double kToleranceDegrees = 0.75;
+
 public class SnapDriveConstants {
     public static final double kP = 7.4;
     public static final double kI = 0.0;
     public static final double kD = 0.1;
-    public static final double kToleranceDegrees = 0.75;
+    public static final double kToleranceDegrees = 1.0;
 }

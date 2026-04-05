@@ -101,7 +101,7 @@ public class VisionConstants {
     }
     public static final class Right { //Right facing camera 2026 *****
         public static final String kCameraName = "rightcam";
-        public static final boolean kUseForPose = false;
+        public static final boolean kUseForPose = true;
         //+x left from center, +y forward from center, +z up from ground
         public static final Transform3d kRobotToCam = new Transform3d(
           new Translation3d(-0.0864,-0.3637,0.51), //x,y,z location of camera on robot in meters

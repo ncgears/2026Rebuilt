@@ -15,7 +15,7 @@ public class TargetingConstants {
     /** Heading tolerance used for deciding when the robot is on target. */
     public static final double kOnTargetToleranceDegrees = kReadyToleranceDegrees;
     /** Minimum absolute turn rate command while targeting in degrees per second. */
-    public static final double kMinTurnRateDegreesPerSecond = 37.24;
+    public static final double kMinTurnRateDegreesPerSecond = 0;
     /** Minimum heading error required before enforcing min turn rate in degrees. */
     public static final double kMinTurnRateErrorDegrees = .78;
 }

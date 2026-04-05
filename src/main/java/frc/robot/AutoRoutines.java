@@ -77,6 +77,7 @@ public class AutoRoutines {
 
       path2.done().onTrue(
         noop()
+
         .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
         .andThen(StopShooter())
         .andThen(StopIntake())
@@ -194,6 +195,7 @@ public class AutoRoutines {
         .bind("SeekFuel",log("EVENT(SeekFule)").andThen(SeekingFuel()))
         .bind("SeekTarget",log("EVENT(SeekTarget)").andThen(SeekingTarget()))
         .bind("SeekNone",log("EVENT(SeekNone)").andThen(SeekingNone()))
+        .bind("StartTracking",log("EVENT(Tracking)").andThen(StartTracking()))
         ;
     }
     //#endregion Global Bindings
@@ -233,6 +235,20 @@ public class AutoRoutines {
                     RobotContainer.indexer
                 )
             );
+      }
+
+      private Command StartTracking() {
+      return Commands.sequence(
+                RobotContainer.targeting.setTrackingHubC(),
+                RobotContainer.targeting.trackingStartC(),
+                Commands.deadline(
+                    wait(ShooterConstants.kSpinupDelaySeconds),
+                    Commands.run(
+                        () -> RobotContainer.shooter.startShooter(RobotContainer.targeting.getDistanceOfTarget(RobotContainer.targeting.getTrackingTarget())),
+                        RobotContainer.shooter
+                    )
+                )
+              );
       }
 
     /**
