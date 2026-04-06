@@ -195,7 +195,7 @@ public class AutoRoutines {
         .bind("SeekFuel",log("EVENT(SeekFule)").andThen(SeekingFuel()))
         .bind("SeekTarget",log("EVENT(SeekTarget)").andThen(SeekingTarget()))
         .bind("SeekNone",log("EVENT(SeekNone)").andThen(SeekingNone()))
-        .bind("StartTracking",log("EVENT(Tracking)").andThen(StartTracking()))
+        .bind("StartTracking",log("EVENT(StartTracking)").andThen(StartTracking()))
         ;
     }
     //#endregion Global Bindings
