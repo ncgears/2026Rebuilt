@@ -48,7 +48,7 @@ public class SwerveConstants {
             public static final int kDriveMotorId = ID.TalonFX.swerve_fl_drive;
             public static final int kSteerMotorId = ID.TalonFX.swerve_fl_turn;
             public static final int kEncoderId = ID.CANcoder.swerve_fl_cc;
-            public static final Angle kEncoderOffset = Rotations.of(-0.472412);
+            public static final Angle kEncoderOffset = Rotations.of(-0.488525);
             public static final boolean kSteerMotorInverted = true;
             public static final boolean kEncoderInverted = true;
             public static final Distance kXPos = Inches.of(10.0); //forward+ from center
