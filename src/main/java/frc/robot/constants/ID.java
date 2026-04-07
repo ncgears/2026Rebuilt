@@ -57,6 +57,7 @@ public class ID {
         public static int swerve_br_turn = 2;
         //intake
         public static int intake = 10;
+        public static int intake_dos = 19;
         public static int deploy = 18;
         //indexer
         public static int indexer = 11;
@@ -66,7 +67,7 @@ public class ID {
         public static int shooter_front = 15;
         public static int shooter_back = 17;
         //climber
-        public static int climber = 19;
+        public static int climber = 20;
     }
 
     /**

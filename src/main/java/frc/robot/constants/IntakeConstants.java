@@ -15,8 +15,17 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 public class IntakeConstants {
 
     public class Intake {
-        public static final int kMotorID = ID.TalonFX.intake;
-        public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
+        public class Motor1 {
+            //IntakeMotor1
+            public static final int kMotorID = ID.TalonFX.intake;
+            public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
+        }
+        public class Motor2 {
+            //IntakeMotor2
+            public static final int kMotorID = ID.TalonFX.intake_dos;
+            public static final InvertedValue kInverted = InvertedValue.Clockwise_Positive; //this should be opposite motor1
+        }
+        //General
         public static final NeutralModeValue kNeutralMode = NeutralModeValue.Coast;
         //FF gains
         public static final double kV = 0.11862;

@@ -80,7 +80,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   private CANcoder m_deployEncoder;
-  private TalonFX m_deployMotor, m_intakeMotor;
+  private TalonFX m_deployMotor, m_intakeMotor, m_intakeMotor2;
   private final VelocityVoltage m_intakeVelocityRequest = new VelocityVoltage(0.0);
   private final DutyCycleOut m_deployDutyRequest = new DutyCycleOut(0.0);
   private final MotionMagicVoltage m_deployPositionRequest = new MotionMagicVoltage(0.0).withSlot(0);
@@ -126,9 +126,12 @@ public class IntakeSubsystem extends SubsystemBase {
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_deployMotor.getConfigurator().apply(RobotContainer.ctreConfigs.deployFXConfig));
 
-    m_intakeMotor = new TalonFX(IntakeConstants.Intake.kMotorID, IntakeConstants.canBus);
+    m_intakeMotor = new TalonFX(IntakeConstants.Intake.Motor1.kMotorID, IntakeConstants.canBus);
     RobotContainer.ctreConfigs
       .retryConfigApply(() -> m_intakeMotor.getConfigurator().apply(RobotContainer.ctreConfigs.intakeFXConfig));
+    m_intakeMotor2 = new TalonFX(IntakeConstants.Intake.Motor2.kMotorID, IntakeConstants.canBus);
+    RobotContainer.ctreConfigs
+      .retryConfigApply(() -> m_intakeMotor2.getConfigurator().apply(RobotContainer.ctreConfigs.intake2FXConfig));
 
     init();
   }
@@ -329,8 +332,6 @@ public class IntakeSubsystem extends SubsystemBase {
    * Sets intake and deploy motors to coast neutral mode and resets state tracking.
    */
   public void intakeNeutral() {
-    m_intakeMotor.setNeutralMode(NeutralModeValue.Coast);
-    m_deployMotor.setNeutralMode(NeutralModeValue.Coast);
     m_curIntakeState = State.STOP;
     m_curDeployState = State.STOP;
     m_intakeCommandedSpeedRpm = 0.0;
@@ -357,6 +358,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public void setIntakeSpeedRPM(double rpm) {
     double rps = Helpers.RPMtoRPS(rpm);
     m_intakeMotor.setControl(m_intakeVelocityRequest.withVelocity(rps));
+    m_intakeMotor2.setControl(m_intakeVelocityRequest.withVelocity(rps));
     m_intakeCommandedSpeedRpm = rpm;
     m_curIntakeState = stateFromSignedValue(rpm);
   }

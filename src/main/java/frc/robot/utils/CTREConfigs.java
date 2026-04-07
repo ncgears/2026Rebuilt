@@ -57,6 +57,8 @@ public final class CTREConfigs {
         public final TalonFXConfiguration liveBottomFXConfig = new TalonFXConfiguration();
         /** Intake roller TalonFX configuration. */
         public final TalonFXConfiguration intakeFXConfig = new TalonFXConfiguration();
+        /** Intake roller 2 TalonFX configuration. */
+        public final TalonFXConfiguration intake2FXConfig = new TalonFXConfiguration();
     //CANcoder
         /** Intake deploy CANcoder configuration. */
         public final CANcoderConfiguration deployCCConfig = new CANcoderConfiguration();
@@ -195,6 +197,7 @@ public final class CTREConfigs {
             .withKV(IntakeConstants.Intake.kV)
             .withKA(IntakeConstants.Intake.kA);
         intakeFXConfig.Slot0 = intakeSlot0Configs;
+        intake2FXConfig.Slot0 = intakeSlot0Configs; //2nd motor
 
         //Current Limits
         CurrentLimitsConfigs intakeCurrentLimitsConfigs = new CurrentLimitsConfigs()
@@ -203,11 +206,15 @@ public final class CTREConfigs {
             // .withSupplyCurrentLowerTime(IntakeConstants.Intake.kCurrentLimitThresholdSecs)
             .withSupplyCurrentLimitEnable(IntakeConstants.Intake.kCurrentLimitEnable);
         intakeFXConfig.CurrentLimits = intakeCurrentLimitsConfigs;
+        intake2FXConfig.CurrentLimits = intakeCurrentLimitsConfigs; //2nd motor
         //Neutral and Direction
         intakeFXConfig.MotorOutput.NeutralMode = IntakeConstants.Intake.kNeutralMode;
-        intakeFXConfig.MotorOutput.Inverted = IntakeConstants.Intake.kInverted;
+        intakeFXConfig.MotorOutput.Inverted = IntakeConstants.Intake.Motor1.kInverted;
+        intake2FXConfig.MotorOutput.NeutralMode = IntakeConstants.Intake.kNeutralMode; //2nd motor
+        intake2FXConfig.MotorOutput.Inverted = IntakeConstants.Intake.Motor2.kInverted; //2nd motor (opposes motor1)
         //Audio
         intakeFXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
+        intake2FXConfig.Audio = new AudioConfigs().withAllowMusicDurDisable(true);
         //#endregion
 
         //#region Deploy
