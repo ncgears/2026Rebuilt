@@ -30,7 +30,7 @@ public class Targeting {
 	private static final double m_fieldWidth = VisionConstants.kTagLayout.getFieldWidth();
 
 	public enum Targets { //based on blue origin 0,0 (blue driver station, right corner)
-		HUB(4.62, 4.28, 2.25, 0), //y+.25
+		HUB(4.62, 4.13, 2.25, 0), //y+.25
 		POCKET_LEFT(3.7, 6.2, 0.0, 0), //x+.7
 		POCKET_RIGHT(3.7, 2.2, 0.0, 0), //x+.7
 		TOWER_LEFT(1.05, 4.27, 0.0, 180),

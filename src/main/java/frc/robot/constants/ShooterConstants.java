@@ -44,10 +44,10 @@ public class ShooterConstants {
          * 1.5367 m -> 2350 RPM, 3.0734 m -> 3100 RPM, 3.8227 m -> 3450 RPM.
          * Formula: backRpm = kBackRpmPerMeter * distanceMeters + kBackRpmIntercept.
          */
-        public static final double kBackRpmPerMeter = 482.2098239;
-        public static final double kBackRpmIntercept = 1611.206999;
-        public static final double kBackRpmMin = 2400.0;
-        public static final double kBackRpmMax = 3500.0;
+        public static final double kBackRpmPerMeter = 475.2098239; //482
+        public static final double kBackRpmIntercept = 1600.206999; //1611
+        public static final double kBackRpmMin = 2200.0;
+        public static final double kBackRpmMax = 3700.0;
     }
 
     /** Multipliers derived from the back shooter RPM (master). */
