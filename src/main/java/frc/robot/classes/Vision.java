@@ -285,10 +285,10 @@ public class Vision extends Thread {
 			leftPhotonPoseEstimator.setFieldTags(aprilTagFieldLayout);
 			rightPhotonPoseEstimator.setFieldTags(aprilTagFieldLayout);
 
-			this.resultFront = getEstimatedLeftGlobalPose();
-			this.resultBack = getEstimatedRightGlobalPose();
-			this.resultLeft = getEstimatedFrontGlobalPose();
-			this.resultRight = getEstimatedBackGlobalPose();
+			this.resultFront = getEstimatedFrontGlobalPose();
+			this.resultBack = getEstimatedBackGlobalPose();
+			this.resultLeft = getEstimatedLeftGlobalPose();
+			this.resultRight = getEstimatedRightGlobalPose();
 
 			if (useVision) {
 				if (VisionConstants.Front.kUseForPose && resultFront.isPresent()) {
