@@ -30,7 +30,7 @@ public class SwerveConstants {
         // public static final double kS = 0.34135;
         // public static final double kV = 1.004;
         // public static final double kA = 1.2282;
-        public static final int kStatorCurrentLimit = 60;
+        public static final int kStatorCurrentLimit = 60;  //This is old, now kSlipCurrent
         public static final double kGearRatio = 10.3846154; //Final gear ratio from rotor to mechanism (sensor)
     }
     public class drive {
@@ -40,7 +40,7 @@ public class SwerveConstants {
         public static final double kS = 0.099689; //0.2
         public static final double kV = 0.12558; //0.12
         // public static final double kA = 0.0022959;
-        public static final int kSlipCurrent = 120; //Current at which the wheels begin to slip
+        public static final int kSlipCurrent = 90; //Current at which the wheels begin to slip
         public static final double kGearRatio = 6.0; //Final gear ratio from rotor to mechanism (wheel)
     }
     public class modules {
@@ -48,7 +48,7 @@ public class SwerveConstants {
             public static final int kDriveMotorId = ID.TalonFX.swerve_fl_drive;
             public static final int kSteerMotorId = ID.TalonFX.swerve_fl_turn;
             public static final int kEncoderId = ID.CANcoder.swerve_fl_cc;
-            public static final Angle kEncoderOffset = Rotations.of(-0.488525);
+            public static final Angle kEncoderOffset = Rotations.of(-0.285156);
             public static final boolean kSteerMotorInverted = true;
             public static final boolean kEncoderInverted = true;
             public static final Distance kXPos = Inches.of(10.0); //forward+ from center
