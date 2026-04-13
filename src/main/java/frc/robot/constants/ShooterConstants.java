@@ -32,6 +32,7 @@ public class ShooterConstants {
     public static final double kDefaultBackRPM = kDefaultRPM;
     public static final double kFixedShotBackRPM = 2400.0;
     public static final double kTrenchShotBackRPM = 3400.0;
+    public static final double kNeutralZoneDumpBackRPM = 1200.0;
     public static final double kReverseRPM = 1500.0;
 
     public static final double kIdleRPM = 0.0; //RPM when idle, to prevent ramp up spike
@@ -53,6 +54,7 @@ public class ShooterConstants {
     /** Multipliers derived from the back shooter RPM (master). */
     public class Multipliers {
         public static final double kFrontFromBack = 1.0; //DONT CHANGE
+        public static final double kNeutralZoneDumpFrontFromBack = 0.85;
         public static final double kIndexerFromBack = 0.6666666667; //DONT CHANGE
         public static final double kKnuckleFromBack = 0.8888888889; //DONT CHANGE
     }

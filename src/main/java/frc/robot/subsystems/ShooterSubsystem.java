@@ -232,6 +232,52 @@ public class ShooterSubsystem extends SubsystemBase {
     return runOnce(this::startTrenchShot);
   }
 
+  /**
+   * Creates a command to start shooter spin-up with an explicit back-RPM master
+   * and front-from-back multiplier.
+   *
+   * @param backRpm Back shooter RPM (master).
+   * @param frontFromBackMultiplier Multiplier applied to back RPM to compute front RPM.
+   * @return Command that starts shooter spin-up.
+   */
+  public Command startShooterWithSpinC(double backRpm, double frontFromBackMultiplier) {
+    return runOnce(() -> startShooterWithSpin(backRpm, frontFromBackMultiplier));
+  }
+
+  /**
+   * Creates a command to start a backspin shot.
+   * Typical backspin uses a multiplier greater than 1.0.
+   *
+   * @param backRpm Back shooter RPM (master).
+   * @param frontFromBackMultiplier Multiplier applied to back RPM to compute front RPM.
+   * @return Command that starts a backspin shot.
+   */
+  public Command startBackspinShotC(double backRpm, double frontFromBackMultiplier) {
+    return runOnce(() -> startBackspinShot(backRpm, frontFromBackMultiplier));
+  }
+
+  /**
+   * Creates a command to start a frontspin shot.
+   * Typical frontspin uses a multiplier less than 1.0.
+   *
+   * @param backRpm Back shooter RPM (master).
+   * @param frontFromBackMultiplier Multiplier applied to back RPM to compute front RPM.
+   * @return Command that starts a frontspin shot.
+   */
+  public Command startFrontspinShotC(double backRpm, double frontFromBackMultiplier) {
+    return runOnce(() -> startFrontspinShot(backRpm, frontFromBackMultiplier));
+  }
+
+  /**
+   * Creates a command to start the configured fixed frontspin shot preset.
+   * Back RPM and multiplier are sourced from {@link ShooterConstants}.
+   *
+   * @return Command that starts the configured fixed frontspin shot preset.
+   */
+  public Command startFixedFrontspinShotC() {
+    return runOnce(this::startFixedFrontspinShot);
+  }
+
   // #region Dashboard
   // Methods for creating and updating dashboards
   public void updateDashboards() {
@@ -418,7 +464,19 @@ public class ShooterSubsystem extends SubsystemBase {
    * @return Front shooter RPM.
    */
   public double calculateFrontShooterRPMFromBackRPM(double backShooterRpm) {
-    return backShooterRpm * ShooterConstants.Multipliers.kFrontFromBack;
+    return calculateFrontShooterRPMFromBackRPM(backShooterRpm, ShooterConstants.Multipliers.kFrontFromBack);
+  }
+
+  /**
+   * Calculates front shooter RPM derived from back shooter RPM using an explicit
+   * multiplier.
+   *
+   * @param backShooterRpm Back shooter RPM (master).
+   * @param frontFromBackMultiplier Multiplier applied to back RPM to compute front RPM.
+   * @return Front shooter RPM.
+   */
+  public double calculateFrontShooterRPMFromBackRPM(double backShooterRpm, double frontFromBackMultiplier) {
+    return backShooterRpm * frontFromBackMultiplier;
   }
 
   /**
@@ -507,9 +565,7 @@ public class ShooterSubsystem extends SubsystemBase {
    * Front RPM is derived from the back-wheel master RPM multiplier.
    */
   public void startShooter() {
-    double backRpm = ShooterConstants.kDefaultBackRPM;
-    double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm);
-    setShooterSpeedRPM(frontRpm, backRpm);
+    startShooterWithSpin(ShooterConstants.kDefaultBackRPM, ShooterConstants.Multipliers.kFrontFromBack);
   }
 
   /**
@@ -521,8 +577,7 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void startShooter(double distanceMeters) {
     double backRpm = calculateBackShooterRPM(distanceMeters);
-    double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm);
-    setShooterSpeedRPM(frontRpm, backRpm);
+    startShooterWithSpin(backRpm, ShooterConstants.Multipliers.kFrontFromBack);
   }
 
   /**
@@ -530,9 +585,7 @@ public class ShooterSubsystem extends SubsystemBase {
    * Front RPM is derived from the back-wheel master RPM multiplier.
    */
   public void startFixedShot() {
-    double backRpm = ShooterConstants.kFixedShotBackRPM;
-    double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm);
-    setShooterSpeedRPM(frontRpm, backRpm);
+    startShooterWithSpin(ShooterConstants.kFixedShotBackRPM, ShooterConstants.Multipliers.kFrontFromBack);
   }
 
   /**
@@ -540,9 +593,52 @@ public class ShooterSubsystem extends SubsystemBase {
    * Front RPM is derived from the back-wheel master RPM multiplier.
    */
   public void startTrenchShot() {
-    double backRpm = ShooterConstants.kTrenchShotBackRPM;
-    double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm);
+    startShooterWithSpin(ShooterConstants.kTrenchShotBackRPM, ShooterConstants.Multipliers.kFrontFromBack);
+  }
+
+  /**
+   * Starts shooter spin-up with an explicit back-RPM master and front-from-back
+   * multiplier.
+   *
+   * @param backRpm Back shooter RPM (master).
+   * @param frontFromBackMultiplier Multiplier applied to back RPM to compute front RPM.
+   */
+  public void startShooterWithSpin(double backRpm, double frontFromBackMultiplier) {
+    double frontRpm = calculateFrontShooterRPMFromBackRPM(backRpm, frontFromBackMultiplier);
     setShooterSpeedRPM(frontRpm, backRpm);
+  }
+
+  /**
+   * Starts a backspin shot.
+   * Typical backspin uses a multiplier greater than 1.0.
+   *
+   * @param backRpm Back shooter RPM (master).
+   * @param frontFromBackMultiplier Multiplier applied to back RPM to compute front RPM.
+   */
+  public void startBackspinShot(double backRpm, double frontFromBackMultiplier) {
+    startShooterWithSpin(backRpm, frontFromBackMultiplier);
+  }
+
+  /**
+   * Starts a frontspin shot.
+   * Typical frontspin uses a multiplier less than 1.0.
+   *
+   * @param backRpm Back shooter RPM (master).
+   * @param frontFromBackMultiplier Multiplier applied to back RPM to compute front RPM.
+   */
+  public void startFrontspinShot(double backRpm, double frontFromBackMultiplier) {
+    startShooterWithSpin(backRpm, frontFromBackMultiplier);
+  }
+
+  /**
+   * Starts the configured fixed frontspin shot preset.
+   * Back RPM and multiplier are sourced from {@link ShooterConstants}.
+   */
+  public void startFixedFrontspinShot() {
+    startFrontspinShot(
+      ShooterConstants.kNeutralZoneDumpBackRPM,
+      ShooterConstants.Multipliers.kNeutralZoneDumpFrontFromBack
+    );
   }
 
   /**

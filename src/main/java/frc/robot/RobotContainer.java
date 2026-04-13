@@ -451,23 +451,24 @@ public class RobotContainer {
 
         //#region Operator Joystick
           /*
-           * lt - tracking
-           * +dpad left (left pocket)
-           * +dpad right (right pocket)
-           * rt - fire
-           * lb - shift modifier
-           * rb - intake
-           * a - fixed shot
-           * x - reverse indexer+knuckle
-           * y - deploy
-           * lb+y - stow intake
-           * b - trench shot
-           * start - climber up  
-           * back - shooter reverse
-           * left y - manual deploy duty
-           * rstick -
-           * dpad up -
-           * dpad down -
+           * lt (hub) - set tracking target to hub and track while held
+           * +dpad left (left pocket) - set tracking target to left pocket (left/up-left/down-left POV) and track while held
+           * +dpad right (right pocket) - set tracking target to right pocket (right/up-right/down-right POV) and track while held
+           * rt - fire - distance-based shooting sequence with spin-up delay, then run indexer while held
+           * lb - shift modifier - modifies RB (reverse intake) and Start (stow deploy) combos
+           * rb - intake - intake forward adaptive when LB not held
+           * a - fixed shot - fixed-shot sequence with spin-up delay, then run indexer while held
+           * b - trench shot - trench-shot sequence with spin-up delay, then run indexer while held
+           * x - reverse indexer+knuckle - runs indexer unjam (reverse indexer/knuckle/live bottom) while held
+           * y - frontspin shot - neutral-zone dump frontspin sequence with spin-up delay, then run indexer while held
+           * lb+y - // no current binding
+           * start - deploy - deploy intake out when LB not held
+           * lb+start - stow intake - stow intake deploy
+           * back - shooter reverse - reverse shooter + reverse knuckle while held
+           * left y - manual deploy duty-cycle - manual deploy axis input
+           * rstick - // no current binding
+           * dpad up - // no current binding (plain up)
+           * dpad down - // no current binding (plain down)
            */
 
         /** OJ Left Trigger - Tracking mode while held */
@@ -569,13 +570,13 @@ public class RobotContainer {
             intake.setIntakeStopC()
         );
 
-        /** OJ Y (without Left Bumper) - Set deploy to OUT position. */
-        oj.leftBumper().negate().and(oj.y()).onTrue(
+        /** OJ Start (without Left Bumper) - Set deploy to OUT position. */
+        oj.leftBumper().negate().and(oj.start()).onTrue(
             intake.setDeployOutC()
         );
 
-        /** OJ Left Bumper + Y - Set deploy to STOW position. */
-        oj.leftBumper().and(oj.y()).onTrue(
+        /** OJ Left Bumper + Start - Set deploy to STOW position. */
+        oj.leftBumper().and(oj.start()).onTrue(
             intake.setDeployStowC()
         );
 
@@ -592,6 +593,32 @@ public class RobotContainer {
                 Commands.run(
                     () -> {
                         shooter.startFixedShot();
+                        indexer.startIndexer();
+                    },
+                    shooter,
+                    indexer
+                )
+            )
+        ).onFalse(
+            Commands.parallel(
+                shooter.neutralCommand(),
+                indexer.neutralCommand()
+            )
+        );
+
+        /** OJ Y - Neutral-zone dump frontspin sequence, then feed after spinup. */
+        oj.y().whileTrue(
+            Commands.sequence(
+                Commands.deadline(
+                    wait(ShooterConstants.kSpinupDelaySeconds),
+                    Commands.run(
+                        shooter::startFixedFrontspinShot,
+                        shooter
+                    )
+                ),
+                Commands.run(
+                    () -> {
+                        shooter.startFixedFrontspinShot();
                         indexer.startIndexer();
                     },
                     shooter,
