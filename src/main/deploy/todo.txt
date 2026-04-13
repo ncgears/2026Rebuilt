@@ -1,6 +1,6 @@
 TODO:
-- Robot Centric drive on dj right trigger
-- X while held to reverse indexer and live bottom
 
-NOTES:
-- Added multi-tag pose estimator - This is vision.java getEstimatedGlobalPose, the old one is getEstimatedGlobalPoseOld
+TODO(post-season):
+- Move zeroing to stored file on controller, with dashboard to save new zeroes
+- Add tunables to stored file on controller, with dashboard to save new tunables
+- Saved Values controller (getter/setter - per subsystem)
