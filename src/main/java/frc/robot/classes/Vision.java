@@ -268,18 +268,21 @@ public class Vision extends Thread {
 				e.printStackTrace();
 			}
 			// Vision Calculations
-			if (DriverStation.getAlliance().isPresent()) {
-				if (DriverStation.getAlliance().get() == Alliance.Blue && lastAlliance != Alliance.Blue) {
-					lastAlliance = Alliance.Blue;
-					aprilTagFieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-				}
-				if (DriverStation.getAlliance().get() == Alliance.Red && lastAlliance != Alliance.Red) {
+			// This is not required, since we design everything to use blue origin. 
+			// The targeting class presents mirrored or rotated poses, depending on the needs of the season.
+			// if (DriverStation.getAlliance().isPresent()) {
+			// 	if (DriverStation.getAlliance().get() == Alliance.Blue && lastAlliance != Alliance.Blue) {
+			// 		lastAlliance = Alliance.Blue;
+			// 		aprilTagFieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+			// 	}
+			// 	if (DriverStation.getAlliance().get() == Alliance.Red && lastAlliance != Alliance.Red) {
 
-					lastAlliance = Alliance.Red;
-					// aprilTagFieldLayout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-					aprilTagFieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-				}
-			}
+			// 		lastAlliance = Alliance.Red;
+			// 		aprilTagFieldLayout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
+			// 	}
+			// }
+			// Always present blue origin
+			aprilTagFieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
 
 			frontPhotonPoseEstimator.setFieldTags(aprilTagFieldLayout);
 			backPhotonPoseEstimator.setFieldTags(aprilTagFieldLayout);
