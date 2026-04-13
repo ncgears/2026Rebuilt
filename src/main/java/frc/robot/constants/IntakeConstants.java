@@ -49,7 +49,7 @@ public class IntakeConstants {
         //Cancoder
         public static final boolean kUseCANcoder = true;
         public static final int kCANcoderID = ID.CANcoder.deploy_cc;
-        public static final double kMagnetOffset = 0.072656; //Add 0.1 to offset; Adjust magnet to sensor offset for CANcoder
+        public static final double kMagnetOffset = 0.0549; //Add 0.1 to offset; Adjust magnet to sensor offset for CANcoder
         //Motor
         public static final int kMotorID = ID.TalonFX.deploy;
         public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
@@ -92,7 +92,7 @@ public class IntakeConstants {
         /** Disable while characterizing manual deploy travel; re-enable for normal operation. */
         public static final boolean kSoftLimitEnable = true;
         public static final double kSoftLimitLow = 0.7;   // CANcoder 0.10 * 7.0
-        public static final double kSoftLimitHigh = 4.378; // CANcoder 0.625 * 7.0
+        public static final double kSoftLimitHigh = 4.395; // CANcoder 0.625 * 7.0
         //Motion Magic profile (mechanism rotations)
         public static final double kMotionMagicCruise = 3.5; //2.5
         public static final double kMotionMagicAccel = 13.0; //9.0
