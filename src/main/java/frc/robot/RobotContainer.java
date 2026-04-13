@@ -694,6 +694,7 @@ public class RobotContainer {
                 autoRoutines = new AutoRoutines(autoFactory);
                 autoChooser.addRoutine("101: sTL-Direct-1Pass", autoRoutines::sTLDirect1Pass);
                 autoChooser.addRoutine("102: sTL-Direct-2Pass", autoRoutines::sTLDirect2Pass);
+                autoChooser.addRoutine("103: sBL-Horseshoe-2Pass", autoRoutines::sBLHorseshoe2Pass);
                 autoChooser.addRoutine("201: sTR-Direct-1Pass", autoRoutines::sTRDirect1Pass);
                 autoChooser.addRoutine("202: sTR-Direct-2Pass", autoRoutines::sTRDirect2Pass);
                 autoChooser.addRoutine("999: Test Run", autoRoutines::testRun);

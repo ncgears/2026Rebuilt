@@ -95,6 +95,42 @@ public class AutoRoutines {
     }
 
     /**
+     * Creates the bump left to fuel intake and score 2 pass.
+     *
+     * @return Auto routine instance.
+     */
+    public AutoRoutine sBLHorseshoe2Pass() { //103
+      final AutoRoutine routine = m_factory.newRoutine("sBLHorseshoe2Pass");
+      final AutoTrajectory path1 = routine.trajectory("LeftHorseshoeFirstPass");
+      final AutoTrajectory path2 = routine.trajectory("RightSecondPass");
+    
+      path1.recentlyDone().onTrue(
+        noop()
+        .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+        .andThen(StopShooter())
+        .andThen(runPath(path2))
+      );
+
+      path2.done().onTrue(
+        noop()
+
+        .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+        .andThen(StopShooter())
+        .andThen(StopIntake())
+        .andThen(log("Routine Complete!"))
+      );
+
+      seedPose(path1);
+      routine.active().onTrue(
+          path1.resetOdometry()
+          .andThen(DeployIntake())
+          .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
+          .andThen(runPath(path1))
+      );
+      return routine;
+    }
+
+    /**
      * Creates the truss right direct to fuel intake and score 1 pass.
      *
      * @return Auto routine instance.
@@ -121,7 +157,7 @@ public class AutoRoutines {
       return routine;
     }
 
-        /**
+    /**
      * Creates the truss right direct to fuel intake and score 2 pass.
      *
      * @return Auto routine instance.
@@ -144,6 +180,42 @@ public class AutoRoutines {
           .andThen(StopShooter())
           .andThen(StopIntake())
           .andThen(log("Routine Complete!"))
+      );
+
+      seedPose(path1);
+      routine.active().onTrue(
+          path1.resetOdometry()
+          .andThen(DeployIntake())
+          .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
+          .andThen(runPath(path1))
+      );
+      return routine;
+    }
+
+    /**
+     * Creates the bump right to fuel intake and score 2 pass.
+     *
+     * @return Auto routine instance.
+     */
+    public AutoRoutine sBRHorseshoe2Pass() { //203
+      final AutoRoutine routine = m_factory.newRoutine("sBRHorseshoe2Pass");
+      final AutoTrajectory path1 = routine.trajectory("RightHorseshoeFirstPass");
+      final AutoTrajectory path2 = routine.trajectory("LeftSecondPass");
+    
+      path1.recentlyDone().onTrue(
+        noop()
+        .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+        .andThen(StopShooter())
+        .andThen(runPath(path2))
+      );
+
+      path2.done().onTrue(
+        noop()
+
+        .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+        .andThen(StopShooter())
+        .andThen(StopIntake())
+        .andThen(log("Routine Complete!"))
       );
 
       seedPose(path1);
