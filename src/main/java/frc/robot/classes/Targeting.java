@@ -21,38 +21,55 @@ import frc.robot.RobotContainer;
  * It is responsible for maintaining the robot poses and exposing methods to calculate items related to the poses
  */
 public class Targeting {
-	private static Targeting instance;
+    private static Targeting instance;
 
-	/**
-	 * Targets represents different locations on the field that we might be interested in tracking
-	 */
-	private static final double m_fieldLength = VisionConstants.kTagLayout.getFieldLength();
-	private static final double m_fieldWidth = VisionConstants.kTagLayout.getFieldWidth();
+    /**
+     * Selects how blue-origin targets are transformed to red-origin targets.
+     * Set to {@link RedPoseTransform#ROTATED} for seasons that require 180-degree
+     * rotational symmetry, or {@link RedPoseTransform#MIRRORED} for mirror-only
+     * symmetry.
+     */
+    private enum RedPoseTransform {
+        MIRRORED,
+        ROTATED
+    }
 
-	public enum Targets { //based on blue origin 0,0 (blue driver station, right corner)
-		HUB(4.62, 4.03, 2.25, 0), //y+.25
-		POCKET_LEFT(2.7, 6.2, 0.0, 0), //x+1.7
-		POCKET_RIGHT(2.7, 2.2, 0.0, 0), //x+1.7
-		TOWER_LEFT(1.05, 4.27, 0.0, 180),
-		TOWER_RIGHT(1.05, 3.22, 0.0, 0);
+    /**
+     * Active red-pose transform mode for this season.
+     * 2026 Rebuilt uses rotated targets.
+     */
+    private static final RedPoseTransform kRedPoseTransform = RedPoseTransform.ROTATED;
 
-		private final double x, y, z, angle;
+    /**
+     * Targets represents different locations on the field that we might be interested in tracking.
+     */
+    private static final double m_fieldLength = VisionConstants.kTagLayout.getFieldLength();
+    private static final double m_fieldWidth = VisionConstants.kTagLayout.getFieldWidth();
 
-		Targets(double x, double y, double z, double angle) {
-			this.x = x;
-			this.y = y;
-			this.z = z;
-			this.angle = angle;
-		}
+    public enum Targets { //based on blue origin 0,0 (blue driver station, right corner)
+        HUB(4.62, 4.03, 2.25, 0), //y+.25
+        POCKET_LEFT(2.7, 6.2, 0.0, 0), //x+1.7
+        POCKET_RIGHT(2.7, 2.2, 0.0, 0), //x+1.7
+        TOWER_LEFT(1.05, 4.27, 0.0, 180),
+        TOWER_RIGHT(1.05, 3.22, 0.0, 0);
+
+        private final double x, y, z, angle;
+
+        Targets(double x, double y, double z, double angle) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.angle = angle;
+        }
 
 		/**
 		 * Returns the target angle in field coordinates without alliance transforms.
 		 *
 		 * @return Raw target angle.
 		 */
-		public Rotation2d getRawAngle() {
-			return Rotation2d.fromDegrees(this.angle);
-		}
+        public Rotation2d getRawAngle() {
+            return Rotation2d.fromDegrees(this.angle);
+        }
 
 		/**
 		 * Returns the target angle adjusted for alliance perspective.
@@ -60,9 +77,9 @@ public class Targeting {
 		 * @param redOrigin True when the origin is red alliance.
 		 * @return Alliance-adjusted angle.
 		 */
-		public Rotation2d getAngle(boolean redOrigin) {
-			return (redOrigin) ? getRawAngle() : getRawAngle().rotateBy(Rotation2d.k180deg);
-		}
+        public Rotation2d getAngle(boolean redOrigin) {
+            return (redOrigin) ? getRawAngle() : getRawAngle().rotateBy(Rotation2d.k180deg);
+        }
 
 		/**
 		 * Returns the mirrored target angle across the field.
@@ -70,35 +87,35 @@ public class Targeting {
 		 * @param redOrigin True when the origin is red alliance.
 		 * @return Mirrored angle.
 		 */
-		public Rotation2d getMirrorAngle(boolean redOrigin) {
-			return (redOrigin) ? getRawAngle().unaryMinus() : getRawAngle().unaryMinus().rotateBy(Rotation2d.k180deg);
-		}
+        public Rotation2d getMirrorAngle(boolean redOrigin) {
+            return (redOrigin) ? getRawAngle().unaryMinus() : getRawAngle().unaryMinus().rotateBy(Rotation2d.k180deg);
+        }
 
 		/**
 		 * Returns the 3D pose of this target.
 		 *
 		 * @return Pose for this target.
 		 */
-		public Pose3d getPose() {
-			return new Pose3d(
-				new Translation3d(this.x, this.y, this.z),
-				new Rotation3d()
-				// new Rotation3d(0,0,Math.toRadians(this.angle))
-			);
-		}
+        public Pose3d getPose() {
+            return new Pose3d(
+                new Translation3d(this.x, this.y, this.z),
+                new Rotation3d()
+                // new Rotation3d(0,0,Math.toRadians(this.angle))
+            );
+        }
 
 		/**
 		 * Returns the mirrored 3D pose across the field length.
 		 *
 		 * @return Mirrored pose for this target.
 		 */
-		public Pose3d getMirrorPose() {
-			return new Pose3d(
-				new Translation3d(m_fieldLength - this.x, this.y, this.z),
-				new Rotation3d()
-				// new Rotation3d(0,0,Math.PI - Math.toRadians(this.angle))
-			);
-		}
+        public Pose3d getMirrorPose() {
+            return new Pose3d(
+                new Translation3d(m_fieldLength - this.x, this.y, this.z),
+                new Rotation3d()
+                // new Rotation3d(0,0,Math.PI - Math.toRadians(this.angle))
+            );
+        }
 
 		/**
 		 * Returns the rotated 3D pose for the opposite side of the field using
@@ -106,14 +123,26 @@ public class Targeting {
 		 *
 		 * @return Rotated pose for this target.
 		 */
-		public Pose3d getRotatedPose() {
-			return new Pose3d(
-				new Translation3d(m_fieldLength - this.x, m_fieldWidth - this.y, this.z),
-				new Rotation3d()
-				// new Rotation3d(0,0,Math.PI + Math.toRadians(this.angle))
-			);
-		}
-	}
+        public Pose3d getRotatedPose() {
+            return new Pose3d(
+                new Translation3d(m_fieldLength - this.x, m_fieldWidth - this.y, this.z),
+                new Rotation3d()
+                // new Rotation3d(0,0,Math.PI + Math.toRadians(this.angle))
+            );
+        }
+
+        /**
+         * Returns this target's red-alliance pose using the configured seasonal transform.
+         *
+         * @return Red-alliance target pose using either mirrored or rotated transform.
+         */
+        public Pose3d getRedPose() {
+            if (kRedPoseTransform == RedPoseTransform.MIRRORED) {
+                return getMirrorPose();
+            }
+            return getRotatedPose();
+        }
+    }
 
 	/** State represents different tracking system states */
 	public enum State {
@@ -208,9 +237,8 @@ public class Targeting {
 	 */
 	public double getBearingOfTarget(Targets target) {
 		boolean red = RobotContainer.isAllianceRed();
-		Rotation2d perspective = (red) ? Rotation2d.k180deg : Rotation2d.kZero;
 		Pose2d robotPose = getPose().get();
-		Pose2d targetPose = (red) ? target.getRotatedPose().toPose2d() : target.getPose().toPose2d();
+		Pose2d targetPose = (red) ? target.getRedPose().toPose2d() : target.getPose().toPose2d();
 		Translation2d targetVector = targetPose.getTranslation().minus(robotPose.getTranslation());
 		targetVector = (red) ? targetVector.unaryMinus() : targetVector;
 		if (targetVector.getNorm() < 1e-6) {
@@ -227,7 +255,7 @@ public class Targeting {
 	 */
 	public double getDistanceOfTarget(Targets target) {
 		Pose2d robotPose = getPose().get();
-		Pose2d targetPose = (RobotContainer.isAllianceRed()) ? target.getRotatedPose().toPose2d() : target.getPose().toPose2d();
+		Pose2d targetPose = (RobotContainer.isAllianceRed()) ? target.getRedPose().toPose2d() : target.getPose().toPose2d();
 		return robotPose.getTranslation().getDistance(targetPose.getTranslation());
 	}
 

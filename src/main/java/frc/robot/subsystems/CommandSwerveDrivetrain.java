@@ -512,7 +512,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Pose2d getTrackedTargetPose() {
         var trackingTarget = RobotContainer.targeting.getTrackingTarget();
         return RobotContainer.isAllianceRed()
-            ? trackingTarget.getRotatedPose().toPose2d()
+            ? trackingTarget.getRedPose().toPose2d()
             : trackingTarget.getPose().toPose2d();
     }
 
