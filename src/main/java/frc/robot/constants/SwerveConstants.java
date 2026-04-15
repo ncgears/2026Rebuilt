@@ -9,7 +9,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 public class SwerveConstants {
     public static final LinearVelocity kMaxSpeedMetersPerSecond = MetersPerSecond.of(4.77); //kSpeedAt12Volts desired top speed (was 10.64)
     public static final double kMaxAngularRate = 0.75; //3/4 of rotation per second max angular velocity
-    public static final double kWheelDiamInches = 4.0; //Wheel diameter in inches
+    public static final double kWheelDiamInches = 3.875; //Wheel diameter in inches
     public static final int kPigeonId = ID.Pigeon2.gyro; 
     public static final String kCANbus = "drivetrain"; //canbus name for drivetrain systems
     public static final boolean kInvertLeftSide = false;

@@ -73,10 +73,10 @@ public class VisionConstants {
 
     public static final class Front { //Right facing camera 2026 *****
         public static final String kCameraName = "frontcam";
-        public static final boolean kUseForPose = true;
+        public static final boolean kUseForPose = false;
         //+x left from center, +y forward from center, +z up from ground
         public static final Transform3d kRobotToCam = new Transform3d(
-          new Translation3d(-0.0864,0.295,0.51), //x,y,z location of camera on robot in meters
+          new Translation3d(-0.0864,0.175,0.51), //x,y,z location of camera on robot in meters
           //Rotation3d.kZero //yaw,pitch/roll of camera on robot in radians
           new Rotation3d(0,Math.toRadians(30),Math.toRadians(0)) //yaw,pitch/roll of camera on robot in radians
         );
