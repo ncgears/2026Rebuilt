@@ -254,6 +254,26 @@ public class AutoRoutines {
       return routine;
     }
 
+
+     /**
+     * Creates the truss right direct to fuel intake and score 2 pass.
+     *
+     * @return Auto routine instance.
+     */
+    public AutoRoutine sBLDepotOnly() { //202
+      final AutoRoutine routine = m_factory.newRoutine("sBLDepotOnly");
+      final AutoTrajectory path1 = routine.trajectory("LeftDepotOnly");
+      //final AutoTrajectory path2 = routine.trajectory("RightSecondPass");
+    
+      path1.recentlyDone().onTrue(
+          noop()
+          .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+          .andThen(StopShooter())
+      );
+
+         return routine;
+    }
+
     
     //#region Global Bindings
     /** This method binds event names to their commands */
