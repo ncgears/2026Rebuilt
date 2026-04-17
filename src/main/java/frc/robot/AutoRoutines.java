@@ -228,6 +228,42 @@ public class AutoRoutines {
       return routine;
     }
 
+        /**
+     * Creates the bump right to fuel intake and score 2 pass.
+     *
+     * @return Auto routine instance.
+     */
+    public AutoRoutine sBRAgg2Pass() { //801
+      final AutoRoutine routine = m_factory.newRoutine("sBRAgg2Pass");
+      final AutoTrajectory path1 = routine.trajectory("RightFirstPass3538");
+      final AutoTrajectory path2 = routine.trajectory("LeftSecondPass");
+    
+      path1.recentlyDone().onTrue(
+        noop()
+        .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+        .andThen(StopShooter())
+        .andThen(runPath(path2))
+      );
+
+      path2.done().onTrue(
+        noop()
+
+        .andThen(StartShooter().withTimeout(AutonConstants.kAutonShooterTime))
+        .andThen(StopShooter())
+        .andThen(StopIntake())
+        .andThen(log("Routine Complete!"))
+      );
+
+      seedPose(path1);
+      routine.active().onTrue(
+          path1.resetOdometry()
+          .andThen(DeployIntake())
+          .andThen(Commands.idle().until(RobotContainer.intake::getDeployed))
+          .andThen(runPath(path1))
+      );
+      return routine;
+    }
+
     /**
      * Creates a test routine for quick path validation.
      *
