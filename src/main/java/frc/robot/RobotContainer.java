@@ -697,6 +697,7 @@ public class RobotContainer {
                 autoChooser.addRoutine("103: sBL-Horseshoe-2Pass", autoRoutines::sBLHorseshoe2Pass);
                 autoChooser.addRoutine("201: sTR-Direct-1Pass", autoRoutines::sTRDirect1Pass);
                 autoChooser.addRoutine("202: sTR-Direct-2Pass", autoRoutines::sTRDirect2Pass);
+                autoChooser.addRoutine("302: sTL-Aggressive-2Pass", autoRoutines::sTLAgg2Pass);
                 autoChooser.addRoutine("801: sBR-Aggressive-2Pass", autoRoutines::sBRAgg2Pass);
                 autoChooser.addRoutine("999: Test Run", autoRoutines::testRun);
 
