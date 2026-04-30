@@ -315,6 +315,15 @@ public class IntakeSubsystem extends SubsystemBase {
     return m_deployEncoder.getAbsolutePosition().getValueAsDouble();
   }
 
+  /**
+   * Returns the deploy CANcoder position without magnet offset in rotations.
+   *
+   * @return Deploy CANcoder no-offset position in rotations.
+   */
+  public double getDeployAbsoluteNoOffsetPositionRotations() {
+    return m_deployEncoder.getAbsolutePosition(true).getValueAsDouble() - IntakeConstants.Deploy.kMagnetOffset;
+  }
+
   // #endregion Getters
 
   // #region Setters

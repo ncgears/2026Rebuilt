@@ -2,6 +2,7 @@
 package frc.robot.constants;
 
 import frc.robot.utils.PIDGains;
+import frc.robot.utils.NCPrefs;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -49,7 +50,7 @@ public class IntakeConstants {
         //Cancoder
         public static final boolean kUseCANcoder = true;
         public static final int kCANcoderID = ID.CANcoder.deploy_cc;
-        public static final double kMagnetOffset = 0.010820; //Add 0.1 to offset; Adjust magnet to sensor offset for CANcoder
+        public static final double kMagnetOffset = NCPrefs.getOrInitNumber("Intake.Deploy.MagOffset", PersistentDefaults.IntakeDeployMagOffset).doubleValue();
         //Motor
         public static final int kMotorID = ID.TalonFX.deploy;
         public static final InvertedValue kInverted = InvertedValue.CounterClockwise_Positive;
