@@ -333,6 +333,7 @@ public class RobotContainer {
             new InstantCommand(orchestra::stop).ignoringDisable(true)
             .andThen(lighting.setColorCommand(Colors.OFF)).ignoringDisable(true)
             .andThen(new InstantCommand(intake::setDeployOut))
+            .andThen(intake::startIntakeSlowC)
             // .andThen(coral.CoralPositionC(CoralSubsystem.Position.SCORE))
             // .andThen(new InstantCommand(() -> elevator.gotoTargetPosition()))
         );
